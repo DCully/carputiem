@@ -24,7 +24,7 @@ IOHandler::IOHandler(int bleft, int bright, int bsel,               //these are 
 
     lcdCursor(LCDHandle, 1);
     lcdCursorBlink(LCDHandle, 1);
-    cursorPosition = 13;
+    cursorPosition = 18;
     moveCursor(cursorPosition);
     controller = cont;
 }
@@ -103,7 +103,7 @@ void IOHandler::update() {
             if (data->nameArray[x].size() >= 9) {
                 data->nameArray[x] = data->nameArray[x].substr(0,9);
             }
-            nextline += " ";
+
             //then do the label - range up to 3
 			if (data->lblArray[x].size() > 3) {
 				data->lblArray[x] = data->lblArray[x].substr(0,3);
@@ -116,7 +116,7 @@ void IOHandler::update() {
                 data->nameArray[x] += " ";
             }
             output += data->nameArray[x];
-			output += data->dataArray[x];
+			output += dt;
 			output += data->lblArray[x];
 			s.str("");
 			s.clear();

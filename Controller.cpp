@@ -8,7 +8,10 @@ using namespace std;
 Controller::Controller() {
     setViewPage(1);
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
+    iohandler->update();
 }
+
+//TODO: smooth button interrupts
 void Controller::lButPressed() {
     cout << "left button pressed at " << controller->getCurPos() << endl;
 }
@@ -24,16 +27,16 @@ int Controller::getCurPos() {
 
 ScreenData* Controller::getInfoAddresses() {
     ScreenData * sd = new ScreenData;
-    sd->title = "hello!!!";
+    sd->title = "Title";
     sd->pageNum = viewPage;
     sd->dataArray[0] = 11;
     sd->dataArray[1] = 12.02;
     sd->dataArray[2] = 1234.1234;
     sd->nameArray[0] = "dave";
-    sd->nameArray[1] = "bob";
-    sd->nameArray[2] = "charlesthealmighty";
-    sd->lblArray[0] = "m/n";
-    sd->lblArray[1] = "s/mmmmmmmmm";
+    sd->nameArray[1] = "bobalsoincharge";
+    sd->nameArray[2] = "charlesincharge";
+    sd->lblArray[0] = "mp";
+    sd->lblArray[1] = "sphh";
     sd->lblArray[2] = "mph";
     return sd;
 }
