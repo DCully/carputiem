@@ -29,6 +29,7 @@ class Controller
         */
         ScreenData* getInfoAddresses();
         int getCurPos();
+        unsigned int lastPush;
     protected:
         /*this just sets the page for now, but later will also
         be used to change the view's observable registration.
