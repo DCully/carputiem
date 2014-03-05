@@ -124,6 +124,7 @@ static struct obdservicecmd obdcmds_mode1[] = {
 	{ 0x65, 2, NULL,            "Auxilary Inputs/Outputs" , 0, 0, "Bit Encoded", NULL, NULL },
 
 	// up to here, functions are available on wikipedia - only a few more interesting ones anyway
+    // basically, 100 possible PIDs, total (10s turnover at 1/10sec/query
 
 	{ 0x66, 5, "mafa",          "Mass Air Flow Sensor" , 0, 2047.96875, "g/s", NULL, NULL },
 	{ 0x67, 3, "ect1",          "Engine Coolant Temperature" , -40, 215, "Celcius", NULL, NULL },

@@ -13,10 +13,8 @@
 using namespace std;
 
 /// 1) Write parseOBDLine (will OBDDatum struct need more flags for special PIDs?)
-/// 2) Use your read/write OBD functions to finish the constructor
+/// 2) Write code to build cmds[] in constructor - space out queries in the array
 /// 3) Build this into its own thread (add multithreading with POSIX for portability)
-
-/// this can't refresh all the PIDs fast enough... need a way to prioritize volatile data points
 
 ObdSerial::ObdSerial(string portpath) {
     //open serial port connection
@@ -24,7 +22,6 @@ ObdSerial::ObdSerial(string portpath) {
     if (fd == -1) {
         cerr << "failed to open obd port..." << endl;
     }
-    // needs more serial port opening error handling
     else {
         // configure the opened serial port
 		fcntl(fd, F_SETFL, 0);
@@ -55,7 +52,7 @@ ObdSerial::ObdSerial(string portpath) {
         usleep(10000);
         read(fd, buf, sizeof(buf));
 
-        // get the car's capabilities (query port with PIDs 00, 20, 60, 80 and interpret)
+        // get the car's capabilities (query port with PIDs 00, 20, 40, and interpret)
         int getcmds[3] = {0x00, 0x20, 0x40};
         char outstring[20];
         string binary;
@@ -92,18 +89,24 @@ ObdSerial::ObdSerial(string portpath) {
             }
             */
             cout << retstr << endl;
-
-            /// convert "XXXXXXXX" to binary (32 bits, 8/pair)
-
-            /// loop over the binary, and add necessary PIDs to cmds[]
-
+            // convert "XXXXXXXX" to binary (32 bits, 8/pair)
+            string bits;
+            for (int j = 0; j < 8; j++) {
+                bits += hexToBin(retstr.at(j));
+            }
+            // loop over the binary, and add necessary PIDs to supCmdsInfo
+            for (int i = 0; i < bits.size(); i++) {
+                else if (bits.at(i)=="1") { //this PID is supported
+                    supCmdsInfo.push_back(i+32*x);
+                }
+            }
         }
-
+        /// prioritize supCmdsInfo PIDs by building cmds[], and store its length in cmdscount
 /*
-        // 3) build obdDataPoints, obdDataLbls, and obdDataNames
+        // build obdDataPoints, obdDataLbls, and obdDataNames
         for (int x = 0; x < cmdscount; x++) { //for every supported PID...
-            obdDataLbls.push_back(obdcmds_mode1[cmds[x]].units);
-            obdDataNames.push_back(obdcmds_mode1[cmds[x]].human_name);
+            obdDataLbls.push_back(obdcmds_mode1[supCmdsInfo.at(x)].units);
+            obdDataNames.push_back(obdcmds_mode1[supCmdsInfo.at(x)].human_name);
             obdDataPoints.push_back(0); //build data vector with 0 in every slot (update later)
         }
 */
@@ -117,20 +120,63 @@ ObdSerial::~ObdSerial() {
     read(fd, buf, sizeof(buf));
     close(fd);
 }
-
-
-
-void ObdSerial::test() {
-/*    cmds = new int[20];
-    cmds[0] = 12; //rpm
-    for (int y = 0; y < 9; y++) {
-        writeToOBD(0);
-        usleep(100000); //this speed works (1/10th second) and is the max allowed by ELM327
-        readFromOBD(0);
-    }*/
+void ObdSerial::hexToBin(char x) {
+    string ret;
+    switch (x) {
+        case ("0"):
+            ret = "0000";
+            break;
+        case ("1"):
+            ret = "0001";
+            break;
+        case ("2"):
+            ret = "0010";
+            break;
+        case ("3"):
+            ret = "0011";
+            break;
+        case ("4"):
+            ret = "0100";
+            break;
+        case ("5"):
+            ret = "0101";
+            break;
+        case ("6"):
+            ret = "0110";
+            break;
+        case ("7"):
+            ret = "0111";
+            break;
+        case ("8"):
+            ret = "1000";
+            break;
+        case ("9"):
+            ret = "1001";
+            break;
+        case ("A"):
+            ret = "1010";
+            break;
+        case ("B"):
+            ret = "1011";
+            break;
+        case ("C"):
+            ret = "1100";
+            break;
+        case ("D"):
+            ret = "1101";
+            break;
+        case ("E"):
+            ret = "1110";
+            break;
+        case ("F"):
+            ret = "1111";
+            break;
+        default:
+            ret = "0000";
+            cerr << "Error in hexToBin, returning 0000" << endl;
+    }
+    return ret;
 }
-
-
 string ObdSerial::getOBDDataLbl(size_t index) {
     return obdDataLbls.at(index);
 }
@@ -154,21 +200,12 @@ int ObdSerial::writeToOBD(size_t cmdindex) { // return 0 for success -1 for erro
 ObdSerial::OBDDatum* ObdSerial::readFromOBD(size_t cmdindex) {
     OBDDatum * parsed;
     char inbuf[4096];
-    int bytesread = 0;
-    bytesread = read(fd, inbuf, sizeof(inbuf)); // timeout built into read() : VTIME
+    read(fd, inbuf, sizeof(inbuf)); // timeout built into read() : VTIME
     cout << "Read: " << inbuf << endl;
-    if (bytesread != obdcmds_mode1[cmds[cmdindex]].bytes_returned) { /// something's wrong here
-        //cerr << "Error matching byte size from serial port read on cmdindex " << obdcmds_mode1[cmds[cmdindex]].cmdid << endl;
-        parsed = new OBDDatum();
-        parsed->error = true;
-        return parsed;
-    }
-    else {
-        // pass buffer onward if read was successful
-        // parsed = parseOBDLine(buffer, cmdindex);
-        parsed = new OBDDatum();
-        return parsed;
-    }
+    // pass buffer onward if read was successful
+    // parsed = parseOBDLine(buffer, cmdindex);
+    parsed = new OBDDatum();
+    return parsed;
 }
 ObdSerial::OBDDatum* ObdSerial::parseOBDLine(char* buffer, size_t cmdindex) {
     OBDDatum * parseddata = new OBDDatum();

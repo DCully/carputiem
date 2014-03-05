@@ -33,8 +33,8 @@ class ObdSerial: public Observable
         std::vector<std::string> obdDataNames; // human names of each datum
         std::vector<double> obdDataPoints;     // actual values for each datum
         std::vector<std::string> obdDataLbls;  // units for each datum
-        std::vector<obdservicecmd> supCmdsInfo; // all of the supported commands, as found by ctor
-        int * cmds;
+        std::vector<int> supCmdsInfo; // all of the supported command indexes, as found by ctor
+        int * cmds; // prioritized list of commands, built by constructor (has duplicates)
         size_t cmdscount;
 };
 #endif //OBDSERIAL_H

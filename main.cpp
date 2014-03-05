@@ -1,4 +1,4 @@
-
+#include "ObdSerial.h"
 #include "IOHandler.h"
 #include "Controller.h"
 using namespace std;
@@ -7,11 +7,12 @@ Controller * controller; //this is the global controller object created by threa
 
 int main()
 {
-    controller = new Controller();
+    //controller = new Controller();
     //test
     //controller->iohandler->update();
     //use this to test buttons (should print to cout)
-    while (true) {}
+    ObdSerial * obdtest = new ObdSerial("/dev/ttyUSB0");
+    obdtest->test();
     return 0;
 }
 

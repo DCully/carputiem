@@ -45,7 +45,7 @@ void IOHandler::printScreen(string text) {
 }
 
 void IOHandler::update() {
-	ScreenData* data = controller->getInfoAddresses();
+	ScreenData* data = controller->getCurPageInfo();
     string output = "";
     string pNum = "";
     string dt = "";
@@ -58,46 +58,37 @@ void IOHandler::update() {
     }
     else {
         output += data->title;
-        for (int x = 0; x < (15-data->title.size()); x++) {
+        for (unsigned int x = 0; x < (15-data->title.size()); x++) {
             output += " ";
         }
     }
-    output += " ";
-    output += "<";
-    s << data->pageNum;
-    pNum = s.str();
-    if (data->pageNum <= 9) {
-        output = output + "0" + pNum;
-    }
-    else {  //assumes less than 100 pages
-        output = output + pNum;
-    }
-    output += ">";
+    output += "  ";
+    output += "<"; // spot 17
+    output += "-"; // spot 18
+    output += ">"; // spot 19
     //end of first line
 	s.str("");
 	s.clear();
 
     //build other lines
     for (int x = 0; x < 3; x++) {
-        if (data->dataArray[x] == -1) {
+        if (data->dataPage == false) {
             /*this is the escape for non-data pages
-            if the controller doesn't submit a datum for this line,
-            then the view layer will just print the first 20 chars
-            from the "name" entry
+            if the screendata struct's dataPage flag is false,
+            IOHandler just prints the nameArray strings
             */
             if (data->nameArray[x].size() > 20) {
                 output += data->nameArray[x].substr(0,20);
             }
             else {
                 output += data->nameArray[x];
-                for (int x = 0; x < ( 20-(data->nameArray[x].size()) ); x++) {
+                for (unsigned int x = 0; x < ( 20-(data->nameArray[x].size()) ); x++) {
                     output += " ";
                 }
             }
         }
-        else {
-        //if the data field isn't NULL, print it like a data line
-        //use extra space not used by name, label, and data line, to pad middle
+        else { // so, if it IS a data page...
+            //uses extra space not used by name, label, and data line, to pad middle
 
             //reformat the name first - range up to 10
             if (data->nameArray[x].size() >= 9) {

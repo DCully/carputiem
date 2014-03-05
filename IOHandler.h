@@ -1,7 +1,7 @@
 #ifndef IOHANDLER_H
 #define IOHANDLER_H
 
-//#include <string>
+#include <string>
 #include "Observer.h"
 #include "Controller.h"
 
