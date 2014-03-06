@@ -12,7 +12,9 @@ int main()
     //controller->iohandler->update();
     //use this to test buttons (should print to cout)
     ObdSerial * obdtest = new ObdSerial("/dev/ttyUSB0");
-    obdtest->test();
+    //obdtest->start();
+    obdtest->start();
+    delete obdtest;
     return 0;
 }
 

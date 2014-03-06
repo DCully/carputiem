@@ -22,7 +22,7 @@ static struct obdservicecmd obdcmds_mode1[] = {
 	{ 0x01, 4, "dtc_cnt",       "Monitor status since DTCs cleared" , 0, 0, "Bit Encoded", NULL },
 	{ 0x02, 4, "dtcfrzf",       "DTC that caused required freeze frame data storage" , 0, 0, "Bit Encoded", NULL },
 	{ 0x03, 8, "fuelsys",       "Fuel system 1 and 2 status" , 0, 0, "Bit Encoded", NULL },
-	{ 0x04, 2, "load_pct",      "Calculated LOAD Value" , 0, 100, "%", obdConvert_04 },
+	{ 0x04, 1, "load_pct",      "Calculated LOAD Value" , 0, 100, "%", obdConvert_04 },
 	{ 0x05, 1, "temp",          "Engine Coolant Temperature" , -40, 215, "Celsius", obdConvert_05 }, // J1979 calls this "ect"
 	{ 0x06, 1, "shrtft13",      "Short Term Fuel Trim - Bank 1,3", -100, 99.22, "%", obdConvert_06_09 },
 	{ 0x07, 1, "longft13",      "Long Term Fuel Trim - Bank 1,3", -100, 99.22, "%", obdConvert_06_09 },
@@ -123,8 +123,9 @@ static struct obdservicecmd obdcmds_mode1[] = {
 	{ 0x64, 5, "tq_max1",       "Engine Percent Torque Data" , -125, 130, "%", NULL, NULL },
 	{ 0x65, 2, NULL,            "Auxilary Inputs/Outputs" , 0, 0, "Bit Encoded", NULL, NULL },
 
-	// up to here, functions are available on wikipedia - only a few more interesting ones anyway
-    // basically, 100 possible PIDs, total (10s turnover at 1/10sec/query
+	up to here, functions are available on wikipedia - only a few more interesting ones anyway
+    basically, 100 possible PIDs, total (10s turnover at 1/10sec/query)
+    so we should add the functions up to here, and have the program query the car for PIDs up to here
 
 	{ 0x66, 5, "mafa",          "Mass Air Flow Sensor" , 0, 2047.96875, "g/s", NULL, NULL },
 	{ 0x67, 3, "ect1",          "Engine Coolant Temperature" , -40, 215, "Celcius", NULL, NULL },
