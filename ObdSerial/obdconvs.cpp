@@ -139,7 +139,7 @@ float obdConvert_31    (unsigned int A, unsigned int B, unsigned int C, unsigned
 	return (float)A*256.0f+(float)B;
 }
 
-// need to convert A and B to signed 2s complement numbers
+// converts A and B to signed 2s complement numbers 
 float obdConvert_32    (unsigned int A, unsigned int B, unsigned int C, unsigned int D) {
     int a = A;
     int b = B;

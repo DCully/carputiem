@@ -16,7 +16,9 @@ class ObdSerial: public Observable
         ObdSerial(std::string pp);
         ~ObdSerial();
         void start(); // called to spawn the data polling thread
-        /// need accessor functions
+        static const std::string VIN;
+        static const std::vector<int> supdCmds; // use this instead to store the list of supported PIDs 
+        // this way, the controller can view all the supported PIDs when building new pages
     private:
         struct OBDDatum {
             unsigned int abcd[4];
@@ -28,7 +30,6 @@ class ObdSerial: public Observable
         const int NORMAL_OBD_SLEEPTIME; // sleep time for normal PIDs
         const int GETPIDS_OBD_SLEEPTIME; // sleep time for PIDs 00, 20, 40, 60
         std::map<size_t, double> suppdCmds; // maps index of an element in obdcmds_mode1 to its current value
-        std::string VIN;
         void getVIN();
         ObdSerial::OBDDatum hexStrToABCD(std::string& input); // puts a hex string into an OBDDatum
         int fillSuppdCmds(); // interprets PIDs 00, 20 40, 60

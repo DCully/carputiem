@@ -103,7 +103,7 @@ const static struct obdservicecmd obdcmds_mode1[] = {
 	{ 0x53, 2, "evap_vpa",      "Absolute Evap System Vapor Pressure", 0, 327.675, "kPa", obdConvert_53 },
 	{ 0x54, 2, "evap_vp",       "Evap System Vapor Pressure", -32768, 32767, "Pa", obdConvert_54 },
 
-	// these ones have strange conversion formulas - two data points from one PID
+	// these four have strange conversion formulas - two data points from one PID
 	{ 0x55, 2, "stso2ft1",      "Short Term Secondary O2 Sensor Fuel Trim – Bank 1/3", -100, 99.22, "%", NULL },
 	{ 0x56, 2, "lgso2ft1",      "Long Term Secondary O2 Sensor Fuel Trim – Bank 1/3", -100, 99.22, "%", NULL },
 	{ 0x57, 2, "stso2ft2",      "Short Term Secondary O2 Sensor Fuel Trim – Bank 2/4", -100, 99.22, "%", NULL },

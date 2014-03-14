@@ -1,25 +1,18 @@
-#include "ObdSerial.h"
 #include <fcntl.h>
 #include <termios.h>
 #include <iostream>
 #include <string>
 #include <unistd.h>
-#include "obdcomms.h" // pid table
-#include "obdconvs.h" // conversion functions
 #include <stdio.h>
 #include <cstring>
 #include <cstdlib>
 #include <sstream>
+#include "ObdSerial.h"
+#include "obdcomms.h" // pid table
+#include "obdconvs.h" // conversion functions
 #include "../Observable.h"
 
 using namespace std;
-
-/// 0) Change suppdCmds to a vector and add 3 high priority slots every so often
-/// 1) Build function to set the "high priority" PID queries (for the 3 on the screen)
-
-/// TODO:
-/// Improve protocol support (hardcoded for CAN=="A6" from ELM327)
-/// Throw official std exceptions
 
 ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20000), NORMAL_OBD_SLEEPTIME(200000), GETPIDS_OBD_SLEEPTIME(300000) {
     //open serial port connection
@@ -48,6 +41,8 @@ ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20000), NORMAL_OBD_SLEEPTIM
     write(fd, "AT S0\r", sizeof("AT S0\r")); //turn off spaces
     usleep(AT_SLEEPTIME);
     read(fd, buf, sizeof(buf));
+    
+    /// lower the timeout settings!
 
     /*
     What are the various names of the engine ECU in different protocols?
