@@ -40,7 +40,8 @@ class ObdSerial: public Observable
         std::string getVINFromCar();
         ObdSerial::OBDDatum hexStrToABCD(std::string& input); // puts a hex string into an OBDDatum
         int fillSuppdCmds(); // interprets PIDs until the next "PIDs 'X-X+20' supported" PID isn't supported
-        
+        char hexToChar(std::string input);
+
         // these are for mode 1 PID calls only (getVINFromCar==mode9)
         int writeToOBD(size_t cmdindex);
         int readFromOBD(std::string& stringtoreadto); // handles read call and gets the correct line

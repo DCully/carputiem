@@ -18,14 +18,13 @@ This is my car computer. There are many like it, but this one is mine...
 
 
 TO DO:
-1) finish up ObdSerial (VIN decoding)
 
-2) add derived PID capabilities (separate class from obdserial?)
+1) add derived PID capabilities (separate class from obdserial?)
 
-3) build out details of LCD/button I/O interface, adding default pages
+2) build out details of LCD/button I/O interface, adding default pages
 
-4) add in the ability to change the page layouts, names, etc. (how?)
+3) add in the ability to change the page layouts, names, etc. (how?)
 
-5) implement SQLite database to remember cars and accompanying user settings
+4) implement SQLite database to remember cars and accompanying user settings
 
-
+5) add DTCs functionality

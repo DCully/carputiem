@@ -13,8 +13,9 @@
 #include "../Observable.h"
 #include <algorithm>
 
-/// TODO: figure out how to read only from engine ECU across protocols
-///       add support for reading DTCs
+/// TODO:
+/// figure out how to read from only the engine ECU across protocols
+/// add support for reading DTCs
 
 using namespace std;
 
@@ -93,7 +94,7 @@ ObdSerial::~ObdSerial() {
 void ObdSerial::start() {
     // start the data harvesting thread ( start() )
     boolrun = true;
-    pthread_create(&thread, NULL, &ObdSerial::run, (void*)this); 
+    pthread_create(&thread, NULL, &ObdSerial::run, (void*)this);
     pthread_join(thread, NULL);
 }
 vector<int> ObdSerial::getSuppdCmds() {
@@ -149,16 +150,40 @@ int ObdSerial::fillSuppdCmds() {
 string ObdSerial::getVINFromCar() {
     //from wikipedia: 17-char VIN, ASCII-encoded and left-padded with null chars
     char vin[256];
-    string output;
+    string input, formatted, output;
     write(fd, "09 02\r", sizeof("09 02\r"));
     usleep(500000);
     read(fd, vin, sizeof(vin));
-    /// change vin from 34-40 hex chars to 17-20 ASCII chars
-   /// for (int halfbyte = 0; halfbyte < vin.size(); halfbyte++) {
-
- //   }
-    output = vin;
+    input = vin;
+    cout << input << endl;
+    istringstream iss(input);
+    getline(iss, input);     // skip first line
+    while (getline(iss, input) && input.size() > 2) { // concatenate subsequent lines until empty line or ">"
+        // this chops off "#:" at beginning of each line - input is now only 1 line long
+        // entire original input string is now stored only in iss
+        formatted += input.substr(2, input.size());
+    }
+    cout << formatted << endl;
+    // convert into ascii chars
+    size_t x = 0;
+    while (x < formatted.size()) {
+        output += hexToChar(formatted.substr(x, 2));
+        x += 2;
+    }
+    cout << output << endl;
     return output;
+}
+// converts single hex char pair to an ascii char
+char ObdSerial::hexToChar(string input) {
+    if (input.size() != 2) {
+        cerr << "Wrong sized string passed to hexToChar" << endl;
+        throw "Invalid hex string to convert to ASCII in hexToChar";
+    }
+    stringstream ss;
+    ss << std::hex << hex;
+    int x;
+    ss >> x;
+    return static_cast<char> (x);
 }
 // converts hex string into ABCD data interpretation format
 ObdSerial::OBDDatum ObdSerial::hexStrToABCD(string & input) {
