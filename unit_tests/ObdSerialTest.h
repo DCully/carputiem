@@ -40,8 +40,19 @@ class ObdSerialTest : public CxxTest::TestSuite {
         }
         void testFillSuppdCmds() {
             _obd->fillSuppdCmds();
-            TS_ASSERT( _obd->suppdCmds.find(12) != _obd->suppdCmds.end() ); // contains rpm
-            TS_ASSERT( _obd->suppdCmds.find(4) != _obd->suppdCmds.end() ); // contains load
+            TS_ASSERT( _obd->suppdCmds.find(12) != _obd->suppdCmds.end() ); // always contains rpm
+            TS_ASSERT( _obd->suppdCmds.find(4) != _obd->suppdCmds.end() ); // always contains load
+        }
+        void testSetFocusedPIDs() {
+            _obd->fillSuppdCmds();
+            std::vector<int> pids;
+            pids.push_back(1111);
+            pids.push_back(-2);
+            _obd->setFocusedPIDs(pids);
+            TS_ASSERT_EQUALS(_obd->focusPIDs.empty(), true);
+            pids.push_back(4);
+            pids.push_back(12);
+            TS_ASSERT_EQUALS(_obd->focusPIDs.empty(), false);
         }
 };
 

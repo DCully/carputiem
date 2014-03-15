@@ -1,15 +1,11 @@
 This will be a program that will run on my Raspberry Pi in my car. I'm a student, and this is a work in progress.
+I'm trying to make a device that will let me view all available real time OBD2 data on a character LCD screen.
 
 
-Project Goals: View real time OBD2 data through a character LCD screen based interface
+
+Goals:
 
 - keep the data points currently on the screen at <0.5s freshness
-
-- easily flip through pages, customize pages, read DTC codes, view VIN, etc
-
-- calculate a number of derived PIDs (e.g. real time gas mileage)
-
-- store settings for each car in an SQLite database upon shutdown
 
 - plug and play with any car (so I can use it on other people's cars)
 
@@ -22,20 +18,14 @@ This is my car computer. There are many like it, but this one is mine...
 
 
 TO DO:
+1) finish up ObdSerial (VIN decoding)
 
-- improve/add exception handling
+2) add derived PID capabilities (separate class from obdserial?)
 
-- change ObdSerial to access three PIDs at a time (specified via a setFocusedPIDs() function)
+3) build out details of LCD/button I/O interface, adding default pages
 
-- after each PID read, have ObdSerial notify its observers, passing the PID/datum pair
+4) add in the ability to change the page layouts, names, etc. (how?)
 
-- have the controller spawn ObdSerial and IOHandler, and use getVIN to determine if the car has a DB entry
-
-- write the changed settings to the DB upon exit, to remember cars
-
-- build out details of LCD/button I/O interface
-
-- put const timeout variables, etc into a config.h file
+5) implement SQLite database to remember cars and accompanying user settings
 
 
-Whew. That's enough for a while.

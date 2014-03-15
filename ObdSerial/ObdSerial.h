@@ -15,24 +15,33 @@ class ObdSerial: public Observable
     public:
         ObdSerial(std::string pp);
         ~ObdSerial();
-        void start(); // called to spawn the data polling thread
-        static const std::string VIN;
-        static const std::vector<int> supdCmds; // use this instead to store the list of supported PIDs 
-        // this way, the controller can view all the supported PIDs when building new pages
+
+        void start(); // spawns the data polling thread
+        std::vector<int> getSuppdCmds();
+        std::string getVIN();
+        void setFocusedPIDs(std::vector<int> focusPIDs); // sets which PIDs to query for
+        void setRunStatus(bool brun); // turn data polling thread on or off
+
     private:
+
         struct OBDDatum {
             unsigned int abcd[4];
             bool error;
         };
+        std::vector<int> focusPIDs; // PIDs to query for repeatedly
+        std::vector<int> suppdCmds; // use this instead to store the list of supported PIDs
+        std::string VIN; // vehicle identification number
         int fd; // serial port handle
         struct termios options; // config struct for the serial port
-        const int AT_SLEEPTIME;
+        const int AT_SLEEPTIME; // sleep time for talking to the ELM327
         const int NORMAL_OBD_SLEEPTIME; // sleep time for normal PIDs
         const int GETPIDS_OBD_SLEEPTIME; // sleep time for PIDs 00, 20, 40, 60
-        std::map<size_t, double> suppdCmds; // maps index of an element in obdcmds_mode1 to its current value
-        void getVIN();
+
+        std::string getVINFromCar();
         ObdSerial::OBDDatum hexStrToABCD(std::string& input); // puts a hex string into an OBDDatum
-        int fillSuppdCmds(); // interprets PIDs 00, 20 40, 60
+        int fillSuppdCmds(); // interprets PIDs until the next "PIDs 'X-X+20' supported" PID isn't supported
+        
+        // these are for mode 1 PID calls only (getVINFromCar==mode9)
         int writeToOBD(size_t cmdindex);
         int readFromOBD(std::string& stringtoreadto); // handles read call and gets the correct line
 

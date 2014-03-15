@@ -11,10 +11,14 @@
 #include "obdcomms.h" // pid table
 #include "obdconvs.h" // conversion functions
 #include "../Observable.h"
+#include <algorithm>
+
+/// TODO: figure out how to read only from engine ECU across protocols
+///       add support for reading DTCs
 
 using namespace std;
 
-ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20000), NORMAL_OBD_SLEEPTIME(200000), GETPIDS_OBD_SLEEPTIME(300000) {
+ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20000), NORMAL_OBD_SLEEPTIME(100000), GETPIDS_OBD_SLEEPTIME(300000) {
     //open serial port connection
     char buf[4096];
     // open to read and write, not as the controlling terminal, and in nonblocking mode
@@ -41,8 +45,9 @@ ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20000), NORMAL_OBD_SLEEPTIM
     write(fd, "AT S0\r", sizeof("AT S0\r")); //turn off spaces
     usleep(AT_SLEEPTIME);
     read(fd, buf, sizeof(buf));
-    
-    /// lower the timeout settings!
+    write(fd, "AT ST 19\r", sizeof("AT ST 19\r")); //lower timeout settings
+    usleep(AT_SLEEPTIME);
+    read(fd, buf, sizeof(buf));
 
     /*
     What are the various names of the engine ECU in different protocols?
@@ -65,7 +70,12 @@ ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20000), NORMAL_OBD_SLEEPTIM
         cerr << "Error getting supported PIDs" << endl;
         throw "Error getting supported PIDs";
     }
-    getVIN();
+
+    VIN = getVINFromCar();
+
+    focusPIDs.push_back(12);
+    focusPIDs.push_back(12);
+    focusPIDs.push_back(12);
 }
 ObdSerial::~ObdSerial() {
     //reset device, stop data query thread, close serial port
@@ -77,23 +87,42 @@ ObdSerial::~ObdSerial() {
     read(fd, buf, sizeof(buf));
     close(fd);
 }
+
+
+/// Public interface functions
 void ObdSerial::start() {
     // start the data harvesting thread ( start() )
     boolrun = true;
-    pthread_create(&thread, NULL, &ObdSerial::run, (void*)this); // eww
+    pthread_create(&thread, NULL, &ObdSerial::run, (void*)this); 
     pthread_join(thread, NULL);
 }
-void ObdSerial::getVIN() {
-    write(fd, "09\r", sizeof("09\r"));
-    sleep(NORMAL_OBD_SLEEPTIME);
-    readFromOBD(VIN);
+vector<int> ObdSerial::getSuppdCmds() {
+    return suppdCmds;
 }
+string ObdSerial::getVIN() {
+    return VIN;
+}
+void ObdSerial::setFocusedPIDs(std::vector<int> fPIDs) {
+    for (unsigned int x = 0; x < fPIDs.size(); x++) {
+        if ( binary_search(suppdCmds.begin(), suppdCmds.end(), fPIDs.at(x)) == false ) {
+            cerr << "setFocusedPIDs error: PID " << obdcmds_mode1[x].cmdid << " not supported, skipping" << endl;
+        }
+        else {
+            focusPIDs.push_back(fPIDs.at(x));
+        }
+    }
+}
+void ObdSerial::setRunStatus(bool brun) {
+    boolrun = brun;
+}
+
+
+/// Internal data query/interpretation methods
 // return 0 for success -1 for failure
 int ObdSerial::fillSuppdCmds() {
     string instr;
-    int cmds[4] = {0, 32, 64, 96}; // indexes of commands in obdcmds_mode1 to get supported PIDs
     for (int x = 0; x < 4; x++) {
-        if (writeToOBD(cmds[x]) != 0) {
+        if (writeToOBD(x*32) != 0) {
             return -1;
         }
         usleep(GETPIDS_OBD_SLEEPTIME);
@@ -101,15 +130,35 @@ int ObdSerial::fillSuppdCmds() {
         if (readFromOBD(instr) != 0) {
             return -1;
         }
-        /// TODO: add support for cmds 84-100
         unsigned long inStrAsLong = strtoul(instr.c_str(), NULL, 16);
-        for (int bit = 0; bit < 32; bit++) { // checks 1-32, then 33-64, etc
+        for (int bit = 32; bit > 0; bit--) { // this checks 0-31, then 32-63, etc
+            // this is checking if the bit is supported, if it's PID has a conversion function, and if it's within the range of obdcmds_mode1
             if ( ( (inStrAsLong & (1<<bit)) != 0 ) && ( obdcmds_mode1[32-bit + x*32].conv != NULL ) && ((32-bit + x*32) < 100) ) {
-                suppdCmds.insert(std::make_pair(32-bit + x*32, 0.0));
+                suppdCmds.push_back(32-bit + x*32);
             }
         }
+        if (inStrAsLong%2==0) {
+            // if it's even, then the next multiple-of-32-PID isn't supported
+            // so neither are all the PIDs it could indicate support for, so:
+            break;
+        }
     }
+    sort (suppdCmds.begin(), suppdCmds.end());
     return 0;
+}
+string ObdSerial::getVINFromCar() {
+    //from wikipedia: 17-char VIN, ASCII-encoded and left-padded with null chars
+    char vin[256];
+    string output;
+    write(fd, "09 02\r", sizeof("09 02\r"));
+    usleep(500000);
+    read(fd, vin, sizeof(vin));
+    /// change vin from 34-40 hex chars to 17-20 ASCII chars
+   /// for (int halfbyte = 0; halfbyte < vin.size(); halfbyte++) {
+
+ //   }
+    output = vin;
+    return output;
 }
 // converts hex string into ABCD data interpretation format
 ObdSerial::OBDDatum ObdSerial::hexStrToABCD(string & input) {
@@ -153,24 +202,24 @@ int ObdSerial::readFromOBD(string & strtoreadto) {
     istringstream iss(strtoreadto);
     getline(iss, strtoreadto);
     if ( (strtoreadto == "NO DATA") || (strtoreadto == "?") || (strtoreadto == "STOPPED") || (strtoreadto == "ERROR") ) {
-        cerr << "Bad data read from OBD port" << endl;
+        cerr << "Bad data read from OBD port: " << strtoreadto << endl;
         return -1;
     }
     strtoreadto = strtoreadto.substr(4, strtoreadto.size());
     return 0;
 }
 
+/// Static method to poll for data in its own thread (called by public member function "start()")
 void* ObdSerial::run(void* obdserial) {
     OBDDatum datum;
+    double dataValue;
     ObdSerial * obd = (ObdSerial*) obdserial; // eww
-    cout << obd->suppdCmds.size() << endl;
   //  while (obd->boolrun == true) {
-    /// add support for high priority PIDs
-        for (std::map<size_t,double>::iterator it=obd->suppdCmds.begin(); it!=obd->suppdCmds.end(); it++) {
+        for (unsigned int ind = 0; ind < obd->focusPIDs.size(); ind++) {
             if (obd->boolrun==false) {
                 continue;
             }
-            if (obd->writeToOBD(it->first) != 0) {
+            if (obd->writeToOBD(obd->focusPIDs.at(ind)) != 0) {
                 continue;
             }
             usleep(obd->NORMAL_OBD_SLEEPTIME);
@@ -180,13 +229,11 @@ void* ObdSerial::run(void* obdserial) {
             }
             datum = obd->hexStrToABCD(strtoreadto);
             if (datum.error == false) {
-                it->second = obdcmds_mode1[it->first].conv(datum.abcd[0], datum.abcd[1], datum.abcd[2], datum.abcd[3]); //beautiful
+                dataValue = obdcmds_mode1[obd->focusPIDs.at(ind)].conv(datum.abcd[0], datum.abcd[1], datum.abcd[2], datum.abcd[3]); //beautiful
             }
-            cout << obdcmds_mode1[it->first].human_name << " = " << it->second << endl;
+            cout << obdcmds_mode1[obd->focusPIDs.at(ind)].human_name << " = " << dataValue << endl;
+            obd->notifyObservers(ind, dataValue);
         } //end for
    // } //end while
    return obdserial;
 }
-
-
-

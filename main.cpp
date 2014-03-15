@@ -15,7 +15,9 @@ int main()
     //controller->iohandler->update();
     ObdSerial * obdtest = new ObdSerial("/dev/ttyUSB0");
     //obdtest->start();
+    //cout << "VIN read from main is: " << obdtest->getVIN() << endl;
     obdtest->start();
+
     delete obdtest;
     return 0;
 }

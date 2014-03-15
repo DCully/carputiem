@@ -11,7 +11,7 @@ class Observable
         void registerObserver(Observer * o);
         void removeObserver(Observer * o);
     protected:
-        void notifyObservers(void);
+        void notifyObservers(int focusPIDsIndex, double dataVal);
     private:
         std::vector<Observer*> observers;
 };
