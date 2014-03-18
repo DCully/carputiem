@@ -47,7 +47,7 @@ class ObdSerial: public Observable
         int readFromOBD(std::string& stringtoreadto); // handles read call and gets the correct line
 
         // multithreading
-        bool boolrun;
+        volatile bool boolrun;
         pthread_t thread;
         static void* run(void* waste);
 };

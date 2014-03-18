@@ -1,33 +1,29 @@
 #include "./ObdSerial/ObdSerial.h"
 #include "./LCDinterface/IOHandler.h"
 #include "./LCDinterface/Controller.h"
-
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
+
 using namespace std;
 
-Controller * controller; //this is the global controller object created by thread main in order handle interrupts
+Controller * controller;
 
 int main()
 {
     //controller = new Controller();
     //test
     //controller->iohandler->update();
-    //ObdSerial * obdtest = new ObdSerial("/dev/ttyUSB0");
-    //obdtest->start();
-    //cout << "VIN read from main is: " << obdtest->getVIN() << endl;
-    //obdtest->start();
-
-    string hex = "43";
-    stringstream ss;
-    ss << std::hex << hex;
-    int x;
-    ss >> x;
-    cout << (char) x << endl;
-
-
-
-    //delete obdtest;
+    ObdSerial * obdtest = new ObdSerial("/dev/ttyUSB0");
+    vector<int> pids;
+    for (size_t x = 0; x < 3; x++) {
+        pids.push_back(12);
+    }
+    obdtest->setFocusedPIDs(pids);
+    obdtest->start();
+    sleep(10);
+    obdtest->setRunStatus(false);
+    delete obdtest;
     return 0;
 }
 

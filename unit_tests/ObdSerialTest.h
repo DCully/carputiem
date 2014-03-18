@@ -54,6 +54,17 @@ class ObdSerialTest : public CxxTest::TestSuite {
             pids.push_back(12);
             TS_ASSERT_EQUALS(_obd->focusPIDs.empty(), false);
         }
+        void testHexToChar() {
+            std::string C = "43";
+            std::string G = "47";
+            TS_ASSERT_EQUALS(_obd->hexToChar(C), 'C');
+            TS_ASSERT_EQUALS(_obd->hexToChar(G), 'G');
+        }
+        void testVINCapabilities() {
+            std::string VIN = _obd->getVIN();
+            TS_ASSERT_LESS_THAN_EQUALS(VIN.size(), 20);
+            TS_ASSERT_LESS_THAN_EQUALS(17, VIN.size());
+        }
 };
 
 #endif

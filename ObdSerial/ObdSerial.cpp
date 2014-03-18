@@ -14,8 +14,9 @@
 #include <algorithm>
 
 /// TODO:
-/// figure out how to read from only the engine ECU across protocols
-/// add support for reading DTCs
+/// 1) switch over to C++ threading
+/// 2) broaden protocol support
+/// 3) add support for reading DTCs
 
 using namespace std;
 
@@ -49,20 +50,6 @@ ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20000), NORMAL_OBD_SLEEPTIM
     write(fd, "AT ST 19\r", sizeof("AT ST 19\r")); //lower timeout settings
     usleep(AT_SLEEPTIME);
     read(fd, buf, sizeof(buf));
-
-    /*
-    What are the various names of the engine ECU in different protocols?
-
-    write(fd, " AT H1\r", sizeof("AT H1\r")); // turns on headers - unnecessary with ECU specified
-    usleep(AT_SLEEPTIME);
-    read(fd, buf, sizeof(buf));
-
-    write(fd, " AT DPN\r", sizeof("AT DPN\r")); // gets the protocol
-    usleep(AT_SLEEPTIME);
-    read(fd, buf, sizeof(buf));
-    cout << buf << endl;
-    */
-
     write(fd, "AT SH 7E0\r", sizeof("AT SH 7E0\r")); // specify 7E8 device only (engine ECU)
     usleep(AT_SLEEPTIME);
     read(fd, buf, sizeof(buf));
@@ -74,14 +61,12 @@ ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20000), NORMAL_OBD_SLEEPTIM
 
     VIN = getVINFromCar();
 
-    focusPIDs.push_back(12);
-    focusPIDs.push_back(12);
-    focusPIDs.push_back(12);
+    boolrun = false;
 }
 ObdSerial::~ObdSerial() {
     //reset device, stop data query thread, close serial port
     boolrun = false;
-    usleep(350000); // make sure run has time to terminate
+    usleep(GETPIDS_OBD_SLEEPTIME); // make sure run has time to terminate
     char buf[4096];
     write(fd, "AT Z\r\0", sizeof("AT Z\r\0"));
     usleep(AT_SLEEPTIME);
@@ -92,10 +77,12 @@ ObdSerial::~ObdSerial() {
 
 /// Public interface functions
 void ObdSerial::start() {
-    // start the data harvesting thread ( start() )
-    boolrun = true;
-    pthread_create(&thread, NULL, &ObdSerial::run, (void*)this);
-    pthread_join(thread, NULL);
+    if (boolrun == false) {
+        // start the data harvesting thread ( start() ) and wait for it to finish
+        boolrun = true;
+        pthread_create(&thread, NULL, &ObdSerial::run, (void*)this);
+        pthread_join(thread, NULL);
+    }
 }
 vector<int> ObdSerial::getSuppdCmds() {
     return suppdCmds;
@@ -155,7 +142,6 @@ string ObdSerial::getVINFromCar() {
     usleep(500000);
     read(fd, vin, sizeof(vin));
     input = vin;
-    cout << input << endl;
     istringstream iss(input);
     getline(iss, input);     // skip first line
     while (getline(iss, input) && input.size() > 2) { // concatenate subsequent lines until empty line or ">"
@@ -163,14 +149,13 @@ string ObdSerial::getVINFromCar() {
         // entire original input string is now stored only in iss
         formatted += input.substr(2, input.size());
     }
-    cout << formatted << endl;
+    formatted = formatted.substr(4,formatted.size());
     // convert into ascii chars
     size_t x = 0;
     while (x < formatted.size()) {
         output += hexToChar(formatted.substr(x, 2));
         x += 2;
     }
-    cout << output << endl;
     return output;
 }
 // converts single hex char pair to an ascii char
@@ -180,10 +165,10 @@ char ObdSerial::hexToChar(string input) {
         throw "Invalid hex string to convert to ASCII in hexToChar";
     }
     stringstream ss;
-    ss << std::hex << hex;
+    ss << std::hex << input;
     int x;
     ss >> x;
-    return static_cast<char> (x);
+    return (char) (x);
 }
 // converts hex string into ABCD data interpretation format
 ObdSerial::OBDDatum ObdSerial::hexStrToABCD(string & input) {
@@ -235,11 +220,12 @@ int ObdSerial::readFromOBD(string & strtoreadto) {
 }
 
 /// Static method to poll for data in its own thread (called by public member function "start()")
+// turned off from outside the object by setting ObdSerial instance variable "boolrun" to false
 void* ObdSerial::run(void* obdserial) {
     OBDDatum datum;
     double dataValue;
-    ObdSerial * obd = (ObdSerial*) obdserial; // eww
-  //  while (obd->boolrun == true) {
+    ObdSerial * obd = (ObdSerial*) obdserial;
+    while (obd->boolrun == true) {
         for (unsigned int ind = 0; ind < obd->focusPIDs.size(); ind++) {
             if (obd->boolrun==false) {
                 continue;
@@ -259,6 +245,7 @@ void* ObdSerial::run(void* obdserial) {
             cout << obdcmds_mode1[obd->focusPIDs.at(ind)].human_name << " = " << dataValue << endl;
             obd->notifyObservers(ind, dataValue);
         } //end for
-   // } //end while
+    } //end while
+    pthread_exit(NULL);
    return obdserial;
 }

@@ -6,69 +6,77 @@ using namespace std;
 
 extern Controller * controller; //this is a reference to the controller object that is created by thread main
 
-/// build a factory to add ObdSerial object ScreenData page structs into "pages"
+/// TODO:
+/// 1) make a factory to produce ScreenData objects for ObdSerial et. al.
+
+/*
+    To add new displayable model objects:
+    1) make them observable and build them their ScreenData page(s)
+        - the ScreenData objects contain their cursor-able screen spots, select button behavior, etc
+    2) add the ScreenData pages to controller->pages
+    3) call notifyObservers with the line number you're updating and the info you're delivering
+*/
 
 Controller::Controller() {
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
-    iohandler->update();
     lastPush = 1;
 }
 Controller::~Controller() {
 }
 // millis() wraps every 49 days
-// remember: these are static functions, because we can't register NSMFs to button interrupts
+// these are static functions because you can't register NSMFs to button interrupts
+// they contain their logic here because left and right buttons always do the same thing on every page
 void Controller::lButPressed() {
     if (millis() - controller->lastPush > 100) { // smooth inputs
-        //cout << "left button pressed at " << controller->getCurPos() << endl;
         controller->lastPush = millis();
+
         // get next cursor position from curPage and tell iohandler to move to there
-        int x = controller->getCurPageInfo()->curSpots.front();
-        controller->getCurPageInfo()->curSpots.pop_front();
-        controller->getCurPageInfo()->curSpots.push_back(x);
-        controller->iohandler->moveCursor(x);
+        controller->getCurPage()->cursorSpots.push_back(controller->getCurPage()->currentSpot);
+        controller->getCurPage()->currentSpot = controller->getCurPage()->cursorSpots.front();
+        controller->getCurPage()->cursorSpots.pop_front();
+        controller->iohandler->moveCursor(controller->getCurPage()->currentSpot.first);
     }
 }
 void Controller::rButPressed() {
     if (millis() - controller->lastPush > 100) { // smooth inputs
-        //cout << "right button pressed at " << controller->getCurPos() << endl;
         controller->lastPush = millis();
+
         // get next cursor position from curPage and tell iohandler to move to there
-        int x = controller->getCurPageInfo()->curSpots.back();
-        controller->getCurPageInfo()->curSpots.pop_back();
-        controller->getCurPageInfo()->curSpots.push_front(x);
-        controller->iohandler->moveCursor(x);
+        controller->getCurPage()->cursorSpots.push_front(controller->getCurPage()->currentSpot);
+        controller->getCurPage()->currentSpot = controller->getCurPage()->cursorSpots.back();
+        controller->getCurPage()->cursorSpots.pop_back();
+        controller->iohandler->moveCursor(controller->getCurPage()->currentSpot.first);
     }
 }
+
 void Controller::selPressed() {
     if (millis() - controller->lastPush > 100) {
-        //cout << "select pressed at " << controller->getCurPos() << endl;
-        if (controller->iohandler->getCurPos() == 19) { // next page right
-            controller->changePage(false);
-        }
-        else if (controller->iohandler->getCurPos() == 17) { // next page left
-            controller->changePage(true);
-        }
         controller->lastPush = millis();
+        // call curPage for behavior at currentSpot
+        controller->getCurPage()->currentSpot.second();
     }
 }
-ScreenData* Controller::getCurPageInfo() {
+
+ScreenData* Controller::getCurPage() {
     return &curPage;
 }
-void Controller::changePage(bool left) {
+
+void Controller::changePageLeft(void) {
     // unregisters iohandler as observer, changes curPage, re-registers as observer, and updates
-    curPage.observed->removeObserver(iohandler);
-    if (left) {
-        // logic to go left in deque
-        pages.push_back(curPage);
-        curPage = pages.front();
-        pages.pop_front();
-    }
-    else {
-        // logic to go right in deque
-        pages.push_front(curPage);
-        curPage = pages.back();
-        pages.pop_back();
-    }
-    curPage.observed->registerObserver(iohandler);
-    iohandler->update();
+    controller->curPage.observed->removeObserver(controller->iohandler);
+    controller->pages.push_back(controller->curPage);
+    controller->curPage = controller->pages.front();
+    controller->pages.pop_front();
+    controller->curPage.observed->registerObserver(controller->iohandler);
+    //iohandler->update();
+}
+
+void Controller::changePageRight(void) {
+    // unregisters iohandler as observer, changes curPage, re-registers as observer, and updates
+    controller->curPage.observed->removeObserver(controller->iohandler);
+    controller->pages.push_front(controller->curPage);
+    controller->curPage = controller->pages.back();
+    controller->pages.pop_back();
+    controller->curPage.observed->registerObserver(controller->iohandler);
+    //iohandler->update();
 }
