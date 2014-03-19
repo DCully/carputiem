@@ -11,16 +11,17 @@
 #include "obdcomms.h" // pid table
 #include "obdconvs.h" // conversion functions
 #include "../Observable.h"
-#include <algorithm>
+#include <algorithm> // sorting
+#include <thread> // for multithreading
+#include <chrono> // for sleeping
 
 /// TODO:
-/// 1) switch over to C++ threading
-/// 2) broaden protocol support
-/// 3) add support for reading DTCs
+/// 1) broaden protocol support
+/// 2) add support for reading DTCs
 
 using namespace std;
 
-ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20000), NORMAL_OBD_SLEEPTIME(100000), GETPIDS_OBD_SLEEPTIME(300000) {
+ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20), NORMAL_OBD_SLEEPTIME(100), EXTRA_LONG_SLEEPTIME(300) {
     //open serial port connection
     char buf[4096];
     // open to read and write, not as the controlling terminal, and in nonblocking mode
@@ -42,16 +43,16 @@ ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20000), NORMAL_OBD_SLEEPTIM
     }
     // configure the ELM327 device
     write(fd, "AT E0\r", sizeof("AT E0\r")); // turn off echo
-    usleep(AT_SLEEPTIME);
+    std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
     read(fd, buf, sizeof(buf));
     write(fd, "AT S0\r", sizeof("AT S0\r")); //turn off spaces
-    usleep(AT_SLEEPTIME);
+    std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
     read(fd, buf, sizeof(buf));
     write(fd, "AT ST 19\r", sizeof("AT ST 19\r")); //lower timeout settings
-    usleep(AT_SLEEPTIME);
+    std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
     read(fd, buf, sizeof(buf));
     write(fd, "AT SH 7E0\r", sizeof("AT SH 7E0\r")); // specify 7E8 device only (engine ECU)
-    usleep(AT_SLEEPTIME);
+    std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
     read(fd, buf, sizeof(buf));
 
     if (fillSuppdCmds() != 0) {
@@ -66,10 +67,10 @@ ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20000), NORMAL_OBD_SLEEPTIM
 ObdSerial::~ObdSerial() {
     //reset device, stop data query thread, close serial port
     boolrun = false;
-    usleep(GETPIDS_OBD_SLEEPTIME); // make sure run has time to terminate
+    std::this_thread::sleep_for(std::chrono::milliseconds(EXTRA_LONG_SLEEPTIME)); // make sure run has time to terminate
     char buf[4096];
     write(fd, "AT Z\r\0", sizeof("AT Z\r\0"));
-    usleep(AT_SLEEPTIME);
+    std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
     read(fd, buf, sizeof(buf));
     close(fd);
 }
@@ -80,8 +81,8 @@ void ObdSerial::start() {
     if (boolrun == false) {
         // start the data harvesting thread ( start() ) and wait for it to finish
         boolrun = true;
-        pthread_create(&thread, NULL, &ObdSerial::run, (void*)this);
-        pthread_join(thread, NULL);
+        std::thread obdthread(&ObdSerial::run, this);
+        obdthread.join();
     }
 }
 vector<int> ObdSerial::getSuppdCmds() {
@@ -113,7 +114,8 @@ int ObdSerial::fillSuppdCmds() {
         if (writeToOBD(x*32) != 0) {
             return -1;
         }
-        usleep(GETPIDS_OBD_SLEEPTIME);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(NORMAL_OBD_SLEEPTIME));
 
         if (readFromOBD(instr) != 0) {
             return -1;
@@ -139,7 +141,7 @@ string ObdSerial::getVINFromCar() {
     char vin[256];
     string input, formatted, output;
     write(fd, "09 02\r", sizeof("09 02\r"));
-    usleep(500000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(EXTRA_LONG_SLEEPTIME));
     read(fd, vin, sizeof(vin));
     input = vin;
     istringstream iss(input);
@@ -221,31 +223,28 @@ int ObdSerial::readFromOBD(string & strtoreadto) {
 
 /// Static method to poll for data in its own thread (called by public member function "start()")
 // turned off from outside the object by setting ObdSerial instance variable "boolrun" to false
-void* ObdSerial::run(void* obdserial) {
+void ObdSerial::run() {
     OBDDatum datum;
     double dataValue;
-    ObdSerial * obd = (ObdSerial*) obdserial;
-    while (obd->boolrun == true) {
-        for (unsigned int ind = 0; ind < obd->focusPIDs.size(); ind++) {
-            if (obd->boolrun==false) {
+    while (boolrun == true) {
+        for (unsigned int ind = 0; ind < focusPIDs.size(); ind++) {
+            if (boolrun==false) {
                 continue;
             }
-            if (obd->writeToOBD(obd->focusPIDs.at(ind)) != 0) {
+            if (writeToOBD(focusPIDs.at(ind)) != 0) {
                 continue;
             }
-            usleep(obd->NORMAL_OBD_SLEEPTIME);
+            std::this_thread::sleep_for(std::chrono::milliseconds(NORMAL_OBD_SLEEPTIME));
             string strtoreadto;
-            if (obd->readFromOBD(strtoreadto) != 0) {
+            if (readFromOBD(strtoreadto) != 0) {
                 continue;
             }
-            datum = obd->hexStrToABCD(strtoreadto);
+            datum = hexStrToABCD(strtoreadto);
             if (datum.error == false) {
-                dataValue = obdcmds_mode1[obd->focusPIDs.at(ind)].conv(datum.abcd[0], datum.abcd[1], datum.abcd[2], datum.abcd[3]); //beautiful
+                dataValue = obdcmds_mode1[focusPIDs.at(ind)].conv(datum.abcd[0], datum.abcd[1], datum.abcd[2], datum.abcd[3]);
             }
-            cout << obdcmds_mode1[obd->focusPIDs.at(ind)].human_name << " = " << dataValue << endl;
-            obd->notifyObservers(ind, dataValue);
+            cout << obdcmds_mode1[focusPIDs.at(ind)].human_name << " = " << dataValue << endl;
+            notifyObservers(ind, dataValue);
         } //end for
     } //end while
-    pthread_exit(NULL);
-   return obdserial;
 }

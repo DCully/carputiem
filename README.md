@@ -5,26 +5,24 @@ I should mention here that some of my code to interface with the OBD2 port is ad
 an open source program by Gary Briggs available at https://icculus.org/obdgpslogger/.
 
 
-I realize that others have done different versions of this before me. 
-That's ok. 
-This is my car computer. There are many like it, but this one is mine...
-
-
 TO DO:
 
 Short Term:
 
-- IOHandler: implement update(), threaded scrolling, and new page printing
+- IOHandler: implement update()
 
 - Controller: make the factory to build ScreenData objects
 
-- ObdSerial: convert multithreading/timer functions/etc. to C++11
+- Write tests. Lots of tests.
 
 Longer Term:
 
 - add derived PID capabilities (separate class from obdserial?)
 
-- implement SQLite database to remember cars and accompanying user settings by VIN
+- implement SQLite database to remember cars and other user settings by VIN
 
 - add DTCs interpretation functionality
+
+- more screen pages, with different functionalities (like Mp3 playing)
+
 

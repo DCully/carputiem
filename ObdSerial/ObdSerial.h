@@ -35,7 +35,7 @@ class ObdSerial: public Observable
         struct termios options; // config struct for the serial port
         const int AT_SLEEPTIME; // sleep time for talking to the ELM327
         const int NORMAL_OBD_SLEEPTIME; // sleep time for normal PIDs
-        const int GETPIDS_OBD_SLEEPTIME; // sleep time for PIDs 00, 20, 40, 60
+        const int EXTRA_LONG_SLEEPTIME; // sleep time for PIDs 00, 20, 40, 60
 
         std::string getVINFromCar();
         ObdSerial::OBDDatum hexStrToABCD(std::string& input); // puts a hex string into an OBDDatum
@@ -49,6 +49,6 @@ class ObdSerial: public Observable
         // multithreading
         volatile bool boolrun;
         pthread_t thread;
-        static void* run(void* waste);
+        void run();
 };
 #endif //OBDSERIAL_H

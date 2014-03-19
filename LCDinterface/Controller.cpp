@@ -9,14 +9,6 @@ extern Controller * controller; //this is a reference to the controller object t
 /// TODO:
 /// 1) make a factory to produce ScreenData objects for ObdSerial et. al.
 
-/*
-    To add new displayable model objects:
-    1) make them observable and build them their ScreenData page(s)
-        - the ScreenData objects contain their cursor-able screen spots, select button behavior, etc
-    2) add the ScreenData pages to controller->pages
-    3) call notifyObservers with the line number you're updating and the info you're delivering
-*/
-
 Controller::Controller() {
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
     lastPush = 1;
@@ -68,7 +60,7 @@ void Controller::changePageLeft(void) {
     controller->curPage = controller->pages.front();
     controller->pages.pop_front();
     controller->curPage.observed->registerObserver(controller->iohandler);
-    //iohandler->update();
+    controller->iohandler->printPage(controller->curPage);
 }
 
 void Controller::changePageRight(void) {
@@ -78,5 +70,5 @@ void Controller::changePageRight(void) {
     controller->curPage = controller->pages.back();
     controller->pages.pop_back();
     controller->curPage.observed->registerObserver(controller->iohandler);
-    //iohandler->update();
+    controller->iohandler->printPage(controller->curPage);
 }

@@ -4,6 +4,8 @@
 #include <string>
 #include "../Observer.h"
 #include "Controller.h"
+#include <mutex>
+#include "ScreenData.h"
 
 class Controller;
 
@@ -16,21 +18,23 @@ class IOHandler: public Observer
         void update(int linenum, std::string infoToPrint); // only called by model layer objects
 
         // these are the mechanisms by which the controller executes its decisions
+        void printPage(ScreenData& screendata);
         int getCurPos();
-        void printToLCD(std::string text, int spot);
         void moveCursor(int spot);
         void startScrollText(int startSpot, int stopSpot, int lineNum, std::string& msg);
+        void stopScrollTextOnLine(int lineNum);
     private:
+        int lineUpdateSpots[3];
+        void printToLCD(std::string text, int spot);
         unsigned int cursorPosition;
-        void scrollText(int startSpot, int stopSpot, int lineNum, std::string& msg);
+        void scrollText(int startSpot, int stopSpot, int lineNum, std::string msg);
         int LCDHandle;
         Controller * controller;
+        size_t updateSpotForLine[3];
 
-        // three threads for three scrolling lines
-        pthread_t line1thread;
-        pthread_t line2thread;
-        pthread_t line3thread;
+        // three flags to terminate three scrolling line threads
         volatile bool lineThreadBools[3];
+        std::mutex print_lock;
 };
 
 #endif // IOHANDLER_H
