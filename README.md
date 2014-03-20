@@ -9,11 +9,9 @@ TO DO:
 
 Short Term:
 
-- IOHandler: implement update()
-
 - Controller: make the factory to build ScreenData objects
 
-- Write tests. Lots of tests.
+- Write tests and debug
 
 Longer Term:
 
@@ -23,6 +21,8 @@ Longer Term:
 
 - add DTCs interpretation functionality
 
-- more screen pages, with different functionalities (like Mp3 playing)
+- more screen pages, with different functionalities (e.g. Mp3 player)
+
+- improve aesthetics of the view layer's functionality (e.g. quick-scrolled page changes)
 
 

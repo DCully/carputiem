@@ -6,8 +6,7 @@ using namespace std;
 
 extern Controller * controller; //this is a reference to the controller object that is created by thread main
 
-/// TODO:
-/// 1) make a factory to produce ScreenData objects for ObdSerial et. al.
+/// make a factory to produce ScreenData objects for ObdSerial
 
 Controller::Controller() {
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);

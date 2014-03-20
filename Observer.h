@@ -6,6 +6,6 @@
 class Observer
 {
     public:
-        virtual void update(int num, std::string info) = 0;
+        virtual void update(size_t num, std::string info) = 0;
 };
 #endif // OBSERVER_H

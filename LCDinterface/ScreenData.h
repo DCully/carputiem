@@ -6,27 +6,33 @@
 
 typedef void (*SelectBehaviorFunc)(void);
 
-/// this class offers a page title and three lines of text, which scroll if longer than 20 characters
-/// the (potentially) scrolling text can be updated in its entirety by a model object calling "update"
-/// dataUpdateSpots are where IOHandler will print what it gets sent via update() (within each line)
 class ScreenData {
 
     friend class Controller;
+    friend class IOHandler;
 
     public:
+        // there are two types of ScreenData objects:
+
+        // 1) construct with simple string vector sized 3 - these will be your three lines
+        //      - this type of ScreenData object rewrites an entire line when updating
         ScreenData(Observable * obs, std::string t, std::vector<std::string> lTxt);
+
+        // 2) construct the object with a vector for text, and also a label for a data field
+        //      - these will scroll the scrLinText on the left side,
+        //        leaving space on the right for an updateable datum (1 per line)
+        ScreenData(Observable * obs, std::string t, std::vector<std::string> scrLinTxt, std::vector<std::string> lLbls);
+
         ScreenData();
         ~ScreenData();
 
-        // for wherever we end up building these things from
         void addCursorSpot(std::pair<int, SelectBehaviorFunc> newSpot);
 
         // for iohandler
         std::string getTitle();
         std::string getTextForLine(size_t num);
-        bool islabeled;
-        bool updatesAreLeftJustified;
-        /// etc.
+        bool haslabels;
+
 
     protected:
         // for controller
@@ -36,21 +42,8 @@ class ScreenData {
 
         // for IOHandler
         std::string title; // title of page
-        std::string scrolledLineText[3]; // these are the ones considered for scrollability in IOHandler
-};
-
-/// This class enhances the basic scrolling line functionality by adding labels and data slots.
-/// Here, the scrolledLineText vector from ScreenData scrolls from spot 0-X on each line
-/// for each line (number n), X = 20 - lineLbls[n].size() - maxLengthOfDataOnLine[n]
-/// calling IOHandler's update() on these pages updates the data, not the scrolling text
-
-class LabeledScreenData: public ScreenData {
-    public:
-        LabeledScreenData(Observable * obs, std::string t, std::vector<std::string> scrLinTxt, std::vector<std::string> lLbls, std::vector<int> lDataMaxLengths);
-    private:
-        // for IOHandler
-        std::string lineLbls[3];
-        int maxLengthOfDataFieldOnLine[3];
+        std::string scrolledLineText[3]; // these are the ones considered for scrolling in IOHandler
+        std::string lineLbls[3]; // labels of data parameters
 };
 
 #endif //SCREENDATA_H
