@@ -11,18 +11,26 @@ class Controller;
 
 class IOHandler: public Observer
 {
+
+    friend class LineSetupBehavior;
+    friend class ObdLineSetupBehavior;
+
     public:
         IOHandler(int bleft, int bright, int bsel,                  //these are the three button GPIO pin numbers
                   int rs, int strb, int d0, int d1,                 //and these are the GPIO pins for the LCD, in 8-bits
                   int d2, int d3, int d4, int d5, int d6, int d7, Controller * cont);
+
+        // for observable object
         void update(size_t linenum, std::string infoToPrint);
+
+        // for controller object
         void printPage(ScreenData& screendata);
-        int getCurPos();
         void moveCursor(int spot);
+
+    private:
         void startScrollText(int startSpot, int stopSpot, int lineNum, std::string msg);
         void stopScrollTextOnLine(int lineNum);
-    private:
-        size_t updateSpotForLine[3]; // used by update method to determine where to print (absolute nums)
+        size_t updateSpotForLine[3]; /// move update spots to screendata objects
         void printToLCD(std::string text, int spot);
         unsigned int cursorPosition;
         void scrollText(int startSpot, int stopSpot, int lineNum, std::string msg);

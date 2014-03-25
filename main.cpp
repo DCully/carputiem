@@ -11,19 +11,9 @@ Controller * controller;
 
 int main()
 {
-    //controller = new Controller();
-    //test
-    //controller->iohandler->update();
-    ObdSerial * obdtest = new ObdSerial("/dev/ttyUSB0");
-    vector<int> pids;
-    for (size_t x = 0; x < 3; x++) {
-        pids.push_back(12);
-    }
-    obdtest->setFocusedPIDs(pids);
-    obdtest->start();
-    sleep(10);
-    obdtest->setRunStatus(false);
-    delete obdtest;
+    controller = new Controller();
+    sleep(20);
+    //delete obdtest;
     return 0;
 }
 

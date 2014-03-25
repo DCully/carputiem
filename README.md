@@ -9,20 +9,18 @@ TO DO:
 
 Short Term:
 
-- Controller: make the factory to build ScreenData objects
+- write implementation LineSetupBehavior classes and rewrite iohandler's update() function
 
-- Write tests and debug
+- write tests and debug
 
-Longer Term:
+- edit code for better readability
 
-- add derived PID capabilities (separate class from obdserial?)
+Longer Term Additions (end of April):
 
-- implement SQLite database to remember cars and other user settings by VIN
+- derived PID capabilities (separate class from obdserial?)
 
-- add DTCs interpretation functionality
+- DTCs interpretation functionality (again, separate model object?)
 
 - more screen pages, with different functionalities (e.g. Mp3 player)
-
-- improve aesthetics of the view layer's functionality (e.g. quick-scrolled page changes)
 
 

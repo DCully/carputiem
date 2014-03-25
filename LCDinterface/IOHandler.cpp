@@ -8,9 +8,6 @@
 #include <iostream>
 #include <thread>
 
-/// write update
-/// test everything
-
 using namespace std;
 
 IOHandler::IOHandler(int bleft, int bright, int bsel,               //these are the three button GPIO pin numbers
@@ -33,10 +30,6 @@ IOHandler::IOHandler(int bleft, int bright, int bsel,               //these are 
 void IOHandler::moveCursor(int spot) {
    cursorPosition = spot;
    lcdPosition(LCDHandle, spot%20, spot/20);
-}
-
-int IOHandler::getCurPos() {
-    return cursorPosition;
 }
 
 void IOHandler::printToLCD(string text, int spot) {
@@ -89,32 +82,19 @@ void IOHandler::stopScrollTextOnLine(int lineNum) {
 }
 
 void IOHandler::update(size_t linenum, string info) {
-
-    if (linenum != 0 || linenum != 1 || linenum != 2) {
-        cerr << "Invalid line number passed to IOHandler::update" << endl;
-    }
-
-    if (controller->getCurPage()->haslabels==false) {
-        string emptyline = "                    ";
-        printToLCD(emptyline, 20 + linenum*20 + updateSpotForLine[linenum]);
-        printToLCD(info, 20 + linenum*20 + updateSpotForLine[linenum]);
-    }
-    else { // has labels
-        string fivespaces = "     ";
-        info = info.substr(0,5);
-        printToLCD(fivespaces, updateSpotForLine[linenum] - 5);
-        printToLCD(info.substr(0,5), updateSpotForLine[linenum] - info.size());
-    }
+    controller->getCurPage()->getLineSetupBehavior()->updateLine(linenum, info);
 }
 
 // recieves a screendata object from the controller and prints it to the screen
 void IOHandler::printPage(ScreenData& screendata) {
 
+/// use LineSetupBehavior's renderLine()
+/*
     string line0;
     string emptyline = "                    ";
 
     // format first line
-    line0 = screendata.getTitle();
+    line0 = screendata.title();
     if (line0.size() > 15) {
         line0 = line0.substr(0,15);
     }
@@ -129,8 +109,10 @@ void IOHandler::printPage(ScreenData& screendata) {
     // format subsequent lines and set update spots
     for (size_t line = 0; line < 3; line++) {
         if (screendata.haslabels) {
-            if (screendata.getTextForLine(line).size() > 11) {
-                /// scroll text and figure out rest of line
+
+            /// change made here - scroll text from 0 to [max amount of extra space on line]
+            if (screendata.getTextForLine(line).size() > (20 - screendata.lineLbls[line].size() - screendata.maxdatalengthforline[line]) ) {
+                // scroll text and figure out rest of line
                 startScrollText(0,10, line, screendata.getTextForLine(line));
                 string spaces = " ";
                 while (spaces.size() < 9-screendata.lineLbls[line].size()) {
@@ -168,4 +150,5 @@ void IOHandler::printPage(ScreenData& screendata) {
             }
         }
     }
+    */
 }
