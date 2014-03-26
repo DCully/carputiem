@@ -3,7 +3,6 @@
 
 #include <string>
 #include "../Observer.h"
-#include "Controller.h"
 #include <mutex>
 #include "ScreenData.h"
 
@@ -13,7 +12,7 @@ class IOHandler: public Observer
 {
 
     friend class LineSetupBehavior;
-    friend class ObdLineSetupBehavior;
+    friend class LabeledLineSetupBehavior;
 
     public:
         IOHandler(int bleft, int bright, int bsel,                  //these are the three button GPIO pin numbers
@@ -30,7 +29,6 @@ class IOHandler: public Observer
     private:
         void startScrollText(int startSpot, int stopSpot, int lineNum, std::string msg);
         void stopScrollTextOnLine(int lineNum);
-        size_t updateSpotForLine[3]; /// move update spots to screendata objects
         void printToLCD(std::string text, int spot);
         unsigned int cursorPosition;
         void scrollText(int startSpot, int stopSpot, int lineNum, std::string msg);

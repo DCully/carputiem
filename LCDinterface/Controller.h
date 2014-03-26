@@ -7,12 +7,11 @@
 #include <deque>
 #include "ScreenData.h"
 #include "../ObdSerial/ObdSerial.h"
+
 class IOHandler;
 
 class Controller
 {
-
-    friend class ScreenData;
 
     public:
         Controller();

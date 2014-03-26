@@ -9,6 +9,8 @@
 
 typedef void (*SelectBehaviorFunc)(void);
 
+class LineSetupBehavior;
+
 class ScreenData {
 
     friend class Controller;

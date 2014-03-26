@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <thread>
+#include "Controller.h"
 
 using namespace std;
 
@@ -76,79 +77,20 @@ void IOHandler::startScrollText(int startSpot, int stopSpot, int lineNum, string
 }
 
 void IOHandler::stopScrollTextOnLine(int lineNum) {
-    if ( (lineNum <= 3) && (lineNum >= 0) ) {
+    if ( (lineNum < 3) && (lineNum >= 0) ) {
         lineThreadBools[lineNum-1] = false;
     }
 }
 
 void IOHandler::update(size_t linenum, string info) {
-    controller->getCurPage()->getLineSetupBehavior()->updateLine(linenum, info);
+    controller->getCurPage()->getLineSetupBehavior()->updateLine(this, linenum, info);
 }
 
 // recieves a screendata object from the controller and prints it to the screen
-void IOHandler::printPage(ScreenData& screendata) {
+void IOHandler::printPage(ScreenData& curPage) {
 
-/// use LineSetupBehavior's renderLine()
-/*
-    string line0;
-    string emptyline = "                    ";
-
-    // format first line
-    line0 = screendata.title();
-    if (line0.size() > 15) {
-        line0 = line0.substr(0,15);
+    for (int line = 0; line < 3; line++) {
+        curPage.getLineSetupBehavior()->renderLine(this, line);
     }
-    while (line0.size() < 15) {
-        line0.append(" ");
-    }
-    line0.append("  <->");
 
-    //assert(line0.size() == 20);
-    printToLCD(line0, 0);
-
-    // format subsequent lines and set update spots
-    for (size_t line = 0; line < 3; line++) {
-        if (screendata.haslabels) {
-
-            /// change made here - scroll text from 0 to [max amount of extra space on line]
-            if (screendata.getTextForLine(line).size() > (20 - screendata.lineLbls[line].size() - screendata.maxdatalengthforline[line]) ) {
-                // scroll text and figure out rest of line
-                startScrollText(0,10, line, screendata.getTextForLine(line));
-                string spaces = " ";
-                while (spaces.size() < 9-screendata.lineLbls[line].size()) {
-                    spaces.append(" ");
-                }
-                spaces.append(screendata.lineLbls[line]);
-                updateSpotForLine[line] = 20 - screendata.lineLbls[line].size() - 1;
-                printToLCD(spaces, 20 + 11 + line*20);
-            }
-            else {
-                // print a static line
-                string lineToPrint = screendata.getTextForLine(line);
-                while (lineToPrint.size() < 20 - screendata.lineLbls[line].size()) {
-                    lineToPrint.append(" ");
-                }
-                updateSpotForLine[line] = lineToPrint.size() - 1;
-                lineToPrint.append(screendata.lineLbls[line]);
-
-                //assert(lineToPrint.size() == 20);
-                printToLCD(lineToPrint, 20 + 20*line);
-            }
-        }
-        else { // no labels
-            updateSpotForLine[line] = 0;
-            if (screendata.getTextForLine(line).size() > 20) {
-                printToLCD(emptyline, 20 + line*20);
-                startScrollText(0, 19, (int) line+1, screendata.getTextForLine(line));
-            }
-            else {
-                string output = screendata.getTextForLine(line);
-                while (output.size() < 20) {
-                    output.append(" ");
-                }
-                printToLCD(output, 20 + line*20);
-            }
-        }
-    }
-    */
 }
