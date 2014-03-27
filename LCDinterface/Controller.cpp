@@ -9,9 +9,10 @@ extern Controller * controller; //this is a reference to the controller object t
 Controller::Controller() {
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
     lastPush = 1;
-    ObdSerial obd = ObdSerial("/dev/ttyUSB0");
-    obd.start();
-    setUpObdScreens(obd);
+    //ObdSerial obd = ObdSerial("/dev/ttyUSB0");
+    //obd.start();
+    /// new parameter for setUpObdScreens is the list of suppdPIDs
+    //setUpObdScreens(obd);
 
     /// choose an initial page?
 
@@ -21,9 +22,8 @@ Controller::~Controller() {
 
 /// strategy pattern
 
-void Controller::setUpObdScreens(ObdSerial& obd) {
+void Controller::setUpObdScreens(vector<int> pids) {
 
-    vector<int> pids = obd.getSuppdCmds();
     vector<string> textForLines;
     vector<string> labelsForLines;
     string title = "OBD Data";

@@ -13,6 +13,9 @@ class IOHandler;
 class Controller
 {
 
+    friend class ScreenData;
+    friend class IOHandlerTest;
+
     public:
         Controller();
         ~Controller();
@@ -28,7 +31,7 @@ class Controller
         unsigned int lastPush;
     private:
         // called in constructor, to build ObdSerial's ScreenData objects
-        void setUpObdScreens(ObdSerial& obd);
+        void setUpObdScreens(std::vector<int> pids);
 
         static void changePageLeft(void);
         static void changePageRight(void);

@@ -13,6 +13,7 @@ class IOHandler: public Observer
 
     friend class LineSetupBehavior;
     friend class LabeledLineSetupBehavior;
+    friend class IOHandlerTest;
 
     public:
         IOHandler(int bleft, int bright, int bsel,                  //these are the three button GPIO pin numbers

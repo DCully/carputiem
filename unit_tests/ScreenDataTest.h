@@ -1,5 +1,5 @@
-#ifndef CONTROLLERTEST_H
-#define CONTROLLERTEST_H
+#ifndef SCREENDATATEST_H
+#define SCREENDATATEST_H
 
 #include "../LCDinterface/Controller.h"
 #include "../LCDinterface/ScreenData.h"
@@ -7,19 +7,19 @@
 #include "../LCDinterface/PageChangeBehaviors.h"
 #include <cxxtest/TestSuite.h>
 
-class ControllerTest : public CxxTest::TestSuite {
+class ScreenDataTest : public CxxTest::TestSuite {
 
     public:
     
-        void testChangePageLeft() {
-        
-        }
-
-        void testChangePageRight() {
+        void testAddCursorSpot() {
         
         }
         
-        void testSetUpObdScreens() {
+        void testDoLoadPageBehavior() {
+        
+        }
+        
+        void testDoLeavePageBehavior() {
         
         }
 };

@@ -14,6 +14,9 @@ class ObdSerialTest : public CxxTest::TestSuite {
         void setUp() {
             _obd = new ObdSerial("/dev/ttyUSB0");
         }
+        void tearDown() {
+            delete _obd;
+        }
         void testreadFromOBD() {
             std::string str;
             _obd->writeToOBD(12); // RPM row in obdcmds_mode1

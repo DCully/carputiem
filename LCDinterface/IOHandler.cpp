@@ -23,14 +23,18 @@ IOHandler::IOHandler(int bleft, int bright, int bsel,               //these are 
 
     lcdCursor(LCDHandle, 1);
     lcdCursorBlink(LCDHandle, 1);
-    cursorPosition = 18;
+    cursorPosition = 19;
     moveCursor(cursorPosition);
     controller = cont;
 }
 
 void IOHandler::moveCursor(int spot) {
-   cursorPosition = spot;
-   lcdPosition(LCDHandle, spot%20, spot/20);
+    if (spot > 79 || spot < 0) {
+        cerr << "Invalid cursor spot passed to moveCursor" << endl;
+        throws "Invalid cursor spot passed to moveCursor";
+    }
+    cursorPosition = spot;
+    lcdPosition(LCDHandle, spot%20, spot/20);
 }
 
 void IOHandler::printToLCD(string text, int spot) {
