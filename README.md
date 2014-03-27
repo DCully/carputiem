@@ -39,16 +39,18 @@ Short Term (end of March):
 
 - add exceptions everywhere
 
-- write LineSetupBehaviorsTest.h, ScreenDataTest.h, IOHandlerTest.h 
+- write tests 
 
 - finish hardware interface
 
 
 Longer Term Additions (end of April):
 
-- derived PID capabilities (separate class from obdserial?)
+- derived PID capabilities (adapter class for obdserial)
 
-- DTCs interpretation functionality (again, separate model object?)
+- DTCs interpretation functionality (adding new features to obdserial)
+
+- make ObdSerial work better across multiple protocols
 
 - more screen pages, with different functionalities (e.g. Mp3 player)
 
