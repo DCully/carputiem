@@ -2,7 +2,7 @@
 #define SCREENDATA_H
 
 #include "../Observable.h"
-#include <deque>
+#include <vector>
 #include <string>
 #include "PageChangeBehaviors.h"
 #include "LineSetupBehaviors.h"
@@ -14,6 +14,7 @@ class LineSetupBehavior;
 class ScreenData {
 
     friend class Controller;
+    friend class ControllerTest;
 
     public:
         ScreenData(Observable* obs, PageChangeBehavior pcb, LineSetupBehavior lsb, std::string titl);
@@ -31,8 +32,8 @@ class ScreenData {
         Observable* observed;
 
         // places on this screen the cursor can go to, with corresponding select behaviors
-        std::deque< std::pair<int, SelectBehaviorFunc> > cursorSpots;
-        std::pair<int, SelectBehaviorFunc> currentSpot;
+        std::vector< std::pair<int, SelectBehaviorFunc> > cursorSpots;
+        int currentSpotIndex;
 
         std::string title;
 };

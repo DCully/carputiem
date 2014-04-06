@@ -16,8 +16,8 @@ class IOHandler: public Observer
     friend class IOHandlerTest;
 
     public:
-        IOHandler(int bleft, int bright, int bsel,                  //these are the three button GPIO pin numbers
-                  int rs, int strb, int d0, int d1,                 //and these are the GPIO pins for the LCD, in 8-bits
+        IOHandler(int bleft, int bright, int bsel,                  //these are the three button GPIO pin numbers,
+                  int rs, int strb, int d0, int d1,                 //and these are the GPIO pins for the LCD (8-bit)
                   int d2, int d3, int d4, int d5, int d6, int d7, Controller * cont);
 
         // for observable object
@@ -26,17 +26,17 @@ class IOHandler: public Observer
         // for controller object
         void printPage(ScreenData& screendata);
         void moveCursor(int spot);
-
-    private:
+    
+        // for LineSetupBehavior objects
         void startScrollText(int startSpot, int stopSpot, int lineNum, std::string msg);
         void stopScrollTextOnLine(int lineNum);
         void printToLCD(std::string text, int spot);
+        
+    private:
         unsigned int cursorPosition;
         void scrollText(int startSpot, int stopSpot, int lineNum, std::string msg);
         int LCDHandle;
         Controller * controller;
-
-        // three flags to terminate three scrolling line threads
         volatile bool lineThreadBools[3];
         std::mutex print_lock;
 };

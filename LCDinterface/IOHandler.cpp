@@ -8,6 +8,7 @@
 #include <iostream>
 #include <thread>
 #include "Controller.h"
+// #include "../unit_tests/wPi_mock.h"
 
 using namespace std;
 
@@ -31,7 +32,7 @@ IOHandler::IOHandler(int bleft, int bright, int bsel,               //these are 
 void IOHandler::moveCursor(int spot) {
     if (spot > 79 || spot < 0) {
         cerr << "Invalid cursor spot passed to moveCursor" << endl;
-        throws "Invalid cursor spot passed to moveCursor";
+        //throws "Invalid cursor spot passed to moveCursor";
     }
     cursorPosition = spot;
     lcdPosition(LCDHandle, spot%20, spot/20);

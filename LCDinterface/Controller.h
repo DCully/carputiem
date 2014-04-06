@@ -4,7 +4,6 @@
 #include <vector>
 #include "IOHandler.h"
 #include "../Observable.h"
-#include <deque>
 #include "ScreenData.h"
 #include "../ObdSerial/ObdSerial.h"
 
@@ -32,12 +31,17 @@ class Controller
     private:
         // called in constructor, to build ObdSerial's ScreenData objects
         void setUpObdScreens(std::vector<int> pids);
+        ScreenData* obdPages;
+        LineSetupBehavior* obdlsbs;
+        PageChangeBehavior* obdpcbs;
+        
 
         static void changePageLeft(void);
         static void changePageRight(void);
         IOHandler * iohandler;
-        std::deque<ScreenData> pages;
-        ScreenData curPage;
+        std::vector<ScreenData> pages;
+        int curPage;
+        ObdSerial * obd;
 };
 
 

@@ -4,10 +4,13 @@
 #include "../ObdSerial/ObdSerial.h"
 #include <cxxtest/TestSuite.h>
 #include <unistd.h>
+#include <algorithm>
+
+/// TODO: mock out the serial port
 
 class ObdSerialTest : public CxxTest::TestSuite {
 
-    // this is really an integration test of these methods with my car
+    // this is an integration test of these methods with my car
     ObdSerial * _obd;
 
     public:
@@ -43,9 +46,11 @@ class ObdSerialTest : public CxxTest::TestSuite {
         }
         void testFillSuppdCmds() {
             _obd->fillSuppdCmds();
-            TS_ASSERT( _obd->suppdCmds.find(12) != _obd->suppdCmds.end() ); // always contains rpm
-            TS_ASSERT( _obd->suppdCmds.find(4) != _obd->suppdCmds.end() ); // always contains load
+            TS_ASSERT( std::find(_obd->suppdCmds.begin(), _obd->suppdCmds.end(), 12) != _obd->suppdCmds.end() ); // always contains rpm
+            TS_ASSERT( std::find(_obd->suppdCmds.begin(), _obd->suppdCmds.end(), 4) != _obd->suppdCmds.end() ); // always contains load
         }
+
+        
         void testSetFocusedPIDs() {
             _obd->fillSuppdCmds();
             std::vector<int> pids;

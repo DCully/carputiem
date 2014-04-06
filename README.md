@@ -25,29 +25,40 @@ Each ScreenData object has four important defining features:
   the user pushes the select button, the corresponding typedef'd "SelectBehaviorFunc" function will be called. Any
   spot on the screen can be made "selectable" via "addCursorSpot". 
   
+  
+- write SetupObdScreens in Controller
+    - these pages have to be built at runtime since we don't know how many there are
+    - who should own these pages? the Controller should own all pages...
+    - how will the Controller delete all the pages at the end of the program?
+
+- FIX: need operator= for ScreenData (or we can hold pages in a different data structure)
+    - change changePageLeft and changePageRight implementation so that they just change which page is pointed to...
+    - add all the pages to a vector 
+        - changePageRight becomes curPageIndex = (curPageIndex+1)%pages.size();
+        - changePageLeft becomes curPageIndex = (curPageIndex-1)%pages.size();
+    - changing cursor spots should also work this way, not with a deque...
 
 
 Short term goals (end of semester):
 
-- finish the new unit tests
+- documentation
 
-- clean up code (better comments, better exceptions)
+- exception handling
 
-- write SetupObdScreens in Controller
+- unit testing
 
 - finish hardware interface
 
-- do integration testing
+- get the whole thing running in my car
+
+
+
+Tasks for the future:
 
 - make ObdSerial work better across multiple protocols
 
+- derive secondary PIDs
 
-Potential additions for the future:
-
-- derived PID capabilities (adapter class for obdserial)
-
-- DTCs interpretation functionality (adding new features to obdserial)
-
-- add more screens! e.g. an Mp3 player
+- add DTC reading capabilities
 
 

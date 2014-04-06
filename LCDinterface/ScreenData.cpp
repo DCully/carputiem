@@ -10,8 +10,10 @@ ScreenData::ScreenData(Observable* obs, PageChangeBehavior pcb, LineSetupBehavio
     : pageChangeBehavior(pcb), lineSetupBehavior(lsb), observed(obs), title(titl.substr(0,15))
 {
     // all screens have next page and previous page buttons at 17 and 19
-    currentSpot = make_pair(17, &controller->changePageLeft);
-    cursorSpots.push_front(make_pair(19, &controller->changePageRight));
+    cursorSpots.push_back(make_pair(17, &controller->changePageLeft));
+    cursorSpots.push_back(make_pair(19, &controller->changePageRight));
+
+    currentSpotIndex = 0;
 }
 
 ScreenData::ScreenData() {
@@ -23,7 +25,12 @@ ScreenData::~ScreenData() {
 }
 
 void ScreenData::addCursorSpot(std::pair<int, SelectBehaviorFunc> newSpot) {
-    cursorSpots.push_back(newSpot);
+    if (newSpot.first >= 0 && newSpot.first < 80) {
+        cursorSpots.push_back(newSpot);
+    }
+    else {
+        cerr << "Attempted to add an invalid cursorable spot - spot out of range" << endl;
+    }
 }
 
 void ScreenData::doLoadPageBehavior() {

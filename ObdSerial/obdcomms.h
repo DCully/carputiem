@@ -2,7 +2,6 @@
 #define OBDCOMMS_H
 #include "obdconvs.h"
 // flagrantly thefted from obdgpslogger
-/// needs a bunch of conversion functions added
 
 struct obdservicecmd {
 	unsigned int cmdid; ///< Command ID [eg 0C == engine rpm]
@@ -113,7 +112,7 @@ const static struct obdservicecmd obdcmds_mode1[] = {
 	{ 0x5A, 1, "app_r",         "Relative Accellerator Pedal Position", 0, 100, "%", obdConvert_47_4B },
 	{ 0x5B, 1, "bat_pwr",       "Hybrid Battery Pack Remaining Life", 0, 100, "%", obdConvert_47_4B },
 	{ 0x5C, 1, "eot",           "Oil Temp", -40, 215, "*C", obdConvert_46 },
-	{ 0x5D, 2, "fuel_timing",   "Injection Timing", -310, 301.992, "deg", obdConvert_5D },
+	{ 0x5D, 2, "fuel_timing",   "Injection Timing", -310, 301.99, "deg", obdConvert_5D },
 	{ 0x5E, 2, "fuel_rate",     "Engine Fuel Rate", 0, 3276.75, "L/h", obdConvert_5E },
 	{ 0x5F, 1, "emis_sup",      "Emission requirements to which vehicle is designed", 0, 0, "Bit Encoded", NULL },
 	{ 0x60, 4, NULL,            "PIDs supported 61-80" , 0, 0, "Bit Encoded", NULL },
