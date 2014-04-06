@@ -49,22 +49,33 @@ void IOHandler::scrollText(int startSpot, int stopSpot, int lineNum, string msg)
     string message = msg;
     message.append(" ");
     message.append(message);
-    string toScreen = message.substr(0, stopSpot-startSpot+1);
+    string toScreen = message.substr(0, stopSpot-startSpot);
+    int lastPrint = 0;
+    size_t spotInMsg = 0;
+    string blank = "";
+    bool lastPrintWasText = false;
 
-    while (lineThreadBools[lineNum-1]==true) {
-        for (size_t spotInMessage = 0; spotInMessage < message.size()/2; spotInMessage++ ) {
-            if (lineThreadBools[lineNum-1]==false) {
-                break;
-            }
+    while (blank.size() < toScreen.size()) {
+        blank.append(" ");
+    }
+
+    while (lineThreadBools[lineNum]==true) {
+
+        if (millis() - lastPrint > 200) {
+
             printToLCD(toScreen, lineNum*20+startSpot);
-            toScreen = message.substr(spotInMessage, toScreen.size());
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            spotInMsg = (spotInMsg + 1) % (message.size()/2);
+            toScreen = message.substr(spotInMsg, toScreen.size());
+
+            lastPrintWasText = !lastPrintWasText;
+            lastPrint = millis();
         }
+
     }
 }
 
 void IOHandler::startScrollText(int startSpot, int stopSpot, int lineNum, string msg) {
-    if ( (stopSpot >= startSpot) || (lineNum >= 3) || (lineNum < 0) || (msg.size() < (stopSpot-startSpot)) ) {
+    if ( (stopSpot <= startSpot) || (lineNum >= 3) || (lineNum < 0) || (msg.size() < (stopSpot-startSpot)) ) {
         cerr << "Invalid parameters passed to startScrollText" << endl;
         return ;
     }
@@ -72,18 +83,20 @@ void IOHandler::startScrollText(int startSpot, int stopSpot, int lineNum, string
         cerr << "Error in startScrollText - can't scroll across multiple lines" << endl;
         return ;
     }
-    if (lineThreadBools[lineNum-1]==true) {
+    if (lineThreadBools[lineNum]==true) {
         cerr << "Error in startScrollText - previous text scrolling thread still running" << endl;
         return ;
     }
-    lineThreadBools[lineNum-1]==true;
+    lineThreadBools[lineNum]=true;
+
     std::thread scrollthread (&IOHandler::scrollText, this, startSpot, stopSpot, lineNum, msg);
-    scrollthread.join();
+    scrollthread.detach();
+
 }
 
 void IOHandler::stopScrollTextOnLine(int lineNum) {
-    if ( (lineNum < 3) && (lineNum >= 0) ) {
-        lineThreadBools[lineNum-1] = false;
+    if ( (lineNum <= 3) && (lineNum >= 0) ) {
+        lineThreadBools[lineNum] = false;
     }
 }
 
@@ -94,7 +107,7 @@ void IOHandler::update(size_t linenum, string info) {
 // recieves a screendata object from the controller and prints it to the screen
 void IOHandler::printPage(ScreenData& curPage) {
 
-    for (int line = 0; line < 3; line++) {
+    for (int line = 0; line < 4; line++) {
         curPage.getLineSetupBehavior()->renderLine(this, line);
     }
 

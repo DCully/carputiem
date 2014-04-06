@@ -10,10 +10,7 @@ class Controller;
 
 class IOHandler: public Observer
 {
-
-    friend class LineSetupBehavior;
-    friend class LabeledLineSetupBehavior;
-    friend class IOHandlerTest;
+    // make all variables more C++ey
 
     public:
         IOHandler(int bleft, int bright, int bsel,                  //these are the three button GPIO pin numbers,
@@ -26,18 +23,18 @@ class IOHandler: public Observer
         // for controller object
         void printPage(ScreenData& screendata);
         void moveCursor(int spot);
-    
+
         // for LineSetupBehavior objects
         void startScrollText(int startSpot, int stopSpot, int lineNum, std::string msg);
         void stopScrollTextOnLine(int lineNum);
         void printToLCD(std::string text, int spot);
-        
+
     private:
         unsigned int cursorPosition;
         void scrollText(int startSpot, int stopSpot, int lineNum, std::string msg);
         int LCDHandle;
         Controller * controller;
-        volatile bool lineThreadBools[3];
+        volatile bool lineThreadBools[4];
         std::mutex print_lock;
 };
 
