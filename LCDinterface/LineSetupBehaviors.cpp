@@ -6,8 +6,15 @@ using namespace std;
 
 /// for base class (one static or scrolled string per line)
 
-LineSetupBehavior::LineSetupBehavior(std::vector<std::string> txtForLines) : textForLines(txtForLines)
+LineSetupBehavior::LineSetupBehavior(vector<string> txtForLines, string t) : textForLines(txtForLines)
 {
+    title = t.substr(0,15);
+    while (title.size() < 16) {
+        title.append(" ");
+    }
+    title = title + "<->";
+
+    updateSpotsForLines.push_back(0);
     updateSpotsForLines.push_back(0);
     updateSpotsForLines.push_back(0);
     updateSpotsForLines.push_back(0);
@@ -18,10 +25,16 @@ LineSetupBehavior::LineSetupBehavior() {
 }
 
 void LineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {
-    if (lineNum != 0 && lineNum != 1 && lineNum != 2) {
+
+    if (lineNum != 0 && lineNum != 1 && lineNum != 2 && lineNum != 3) {
         cerr << "Invalid line number passed to LineSetupBehavior::renderLine" << endl;
         return ;
     }
+    if (lineNum == 0) {
+        iohandler->printToLCD(title, 0);
+        return ;
+    }
+
     if (textForLines.at(lineNum).size() > 20) {
         iohandler->startScrollText(0, 19, lineNum, textForLines.at(lineNum));
     }
@@ -31,12 +44,14 @@ void LineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {
 }
 
 void LineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string info) {
+/*
     if (lineNum != 0 || lineNum != 1 || lineNum != 2) {
         cerr << "Invalid line number passed to LineSetupBehavior::updateLine" << endl;
         return ;
     }
     textForLines.at(lineNum) = info;
     renderLine(iohandler, lineNum);
+*/
 }
 
 /// ----------------------------------------------------------------------------
@@ -44,10 +59,14 @@ void LineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string 
 /// for derived class LabeledLineSetupBehavior (labels on right side of screen)
 
 LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> textForLines,
-    std::vector<std::string> lblsForLines, std::vector<size_t> spaceBtwnLblsAndTxtOnLines)
-    : LineSetupBehavior(textForLines), labelsForLines(lblsForLines), spaceBtwnLblsAndTextOnLines(spaceBtwnLblsAndTxtOnLines)
+    std::vector<std::string> lblsForLines, std::vector<size_t> spaceBtwnLblsAndTxtOnLines, string t)
+    : LineSetupBehavior(textForLines, t),
+      labelsForLines(lblsForLines),
+      spaceBtwnLblsAndTextOnLines(spaceBtwnLblsAndTxtOnLines)
 {
-    for (size_t line = 0; line < 3; line++) {
+    updateSpotsForLines.push_back(0);
+
+    for (size_t line = 1; line < 4; line++) {
 
         // determine update spot (left justified)
         updateSpotsForLines.push_back(20 - labelsForLines.at(line).size() - 1);
@@ -59,6 +78,7 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> text
 }
 
 void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {
+/*
 
     if (lineNum != 0 && lineNum != 1 && lineNum != 2) {
         cerr << "Invalid line number passed to LabeledLineSetupBehavior::renderLine" << endl;
@@ -97,11 +117,18 @@ void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) 
         iohandler->printToLCD(output, endOfScrollForLines.at(lineNum) + 1);
 
     }
+
+*/
+
 }
 
 void LabeledLineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string info) {
+
+/*
     /// print info to updateSpotForLine(lineNum) - deal with update spots being right justified
     iohandler->printToLCD(info, 20 + 20*lineNum + updateSpotsForLines.at(lineNum) - info.size());
+
+*/
 
 }
 

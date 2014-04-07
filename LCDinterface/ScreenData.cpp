@@ -6,12 +6,12 @@ using namespace std;
 
 extern Controller * controller;
 
-ScreenData::ScreenData(Observable* obs, PageChangeBehavior pcb, LineSetupBehavior lsb, string titl)
-    : pageChangeBehavior(pcb), lineSetupBehavior(lsb), observed(obs), title(titl.substr(0,15))
+ScreenData::ScreenData(Observable* obs, PageChangeBehavior pcb, LineSetupBehavior lsb)
+    : observed(obs), pageChangeBehavior(pcb), lineSetupBehavior(lsb)
 {
     // all screens have next page and previous page buttons at 17 and 19
-    cursorSpots.push_back(make_pair(17, &controller->changePageLeft));
-    cursorSpots.push_back(make_pair(19, &controller->changePageRight));
+    cursorSpots.push_back(make_pair(17, &controller->staticChangePageLeft));
+    cursorSpots.push_back(make_pair(19, &controller->staticChangePageRight));
 
     currentSpotIndex = 0;
 }
@@ -44,6 +44,31 @@ void ScreenData::doLeavePageBehavior() {
 LineSetupBehavior* ScreenData::getLineSetupBehavior() {
     return &lineSetupBehavior;
 }
+
+void ScreenData::moveCursorLeft(IOHandler* ioh) {
+    currentSpotIndex = (currentSpotIndex+1)%cursorSpots.size();
+    ioh->moveCursor(cursorSpots.at(currentSpotIndex).first);
+}
+
+void ScreenData::moveCursorRight(IOHandler* ioh) {
+    currentSpotIndex = (currentSpotIndex-1)%cursorSpots.size();
+    ioh->moveCursor(cursorSpots.at(currentSpotIndex).first);
+}
+
+void ScreenData::doCurSpotSelectBehavior() {
+    cursorSpots.at(currentSpotIndex).second();
+}
+
+const int ScreenData::getCurrentSpot() const {
+    return cursorSpots.at(currentSpotIndex).first;
+}
+
+
+
+
+
+
+
 
 
 

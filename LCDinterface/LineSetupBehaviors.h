@@ -10,19 +10,21 @@ class LineSetupBehavior
 {
     public:
         LineSetupBehavior();
-        LineSetupBehavior(std::vector<std::string> textForLines);
+        LineSetupBehavior(std::vector<std::string> textForLines, std::string pageTitle);
         virtual void renderLine(IOHandler* iohandler, size_t lineNum);
         virtual void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
     protected:
         std::vector<std::string> textForLines;
         std::vector<size_t> updateSpotsForLines;
+        std::string title;
 };
 
 class LabeledLineSetupBehavior: public LineSetupBehavior
 {
     public:
         LabeledLineSetupBehavior(std::vector<std::string> textForLines,
-            std::vector<std::string> labelsForLines, std::vector<size_t> spaceBtwnLblsAndTextOnLines);
+            std::vector<std::string> labelsForLines, std::vector<size_t> spaceBtwnLblsAndTextOnLines,
+            std::string pageTitle);
         void renderLine(IOHandler* iohandler, size_t lineNum);
         void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
     protected:

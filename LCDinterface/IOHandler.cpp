@@ -12,9 +12,10 @@
 
 using namespace std;
 
-IOHandler::IOHandler(int bleft, int bright, int bsel,               //these are the three button GPIO pin numbers
-                  int rs, int strb, int d0, int d1,                 //and these are the GPIO pins for the LCD, in 8-bits
-                  int d2, int d3, int d4, int d5, int d6, int d7, Controller * cont)
+IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
+                     const int& rs, const int& strb, const int& d0, const int& d1,
+                     const int& d2, const int& d3, const int& d4, const int& d5,
+                     const int& d6, const int& d7, Controller * cont)
 {
     wiringPiSetup();
     LCDHandle = lcdInit(4,20,8, rs,strb, d0,d1,d2,d3,d4,d5,d6,d7);
@@ -29,16 +30,29 @@ IOHandler::IOHandler(int bleft, int bright, int bsel,               //these are 
     controller = cont;
 }
 
-void IOHandler::moveCursor(int spot) {
+void IOHandler::moveCursor(const int& spot) {
     if (spot > 79 || spot < 0) {
         cerr << "Invalid cursor spot passed to moveCursor" << endl;
         //throws "Invalid cursor spot passed to moveCursor";
     }
     cursorPosition = spot;
-    lcdPosition(LCDHandle, spot%20, spot/20);
+    lcdPosition(LCDHandle, cursorPosition%20, cursorPosition/20);
 }
 
-void IOHandler::printToLCD(string text, int spot) {
+void IOHandler::update(size_t linenum, string info) {
+    controller->getCurPage()->getLineSetupBehavior()->updateLine(this, linenum, info);
+}
+
+// recieves a screendata object from the controller and prints it to the screen
+void IOHandler::printPage(ScreenData& curPage) {
+
+    for (int line = 0; line < 4; line++) {
+        curPage.getLineSetupBehavior()->renderLine(this, line);
+    }
+
+}
+
+void IOHandler::printToLCD(const string& text, const int& spot) {
     std::lock_guard<std::mutex> locker(print_lock);
     lcdPosition(LCDHandle, spot%20,spot/20);
     lcdPuts(LCDHandle, text.c_str());
@@ -74,7 +88,7 @@ void IOHandler::scrollText(int startSpot, int stopSpot, int lineNum, string msg)
     }
 }
 
-void IOHandler::startScrollText(int startSpot, int stopSpot, int lineNum, string msg) {
+void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const int& lineNum, const string& msg) {
     if ( (stopSpot <= startSpot) || (lineNum >= 3) || (lineNum < 0) || (msg.size() < (stopSpot-startSpot)) ) {
         cerr << "Invalid parameters passed to startScrollText" << endl;
         return ;
@@ -94,21 +108,9 @@ void IOHandler::startScrollText(int startSpot, int stopSpot, int lineNum, string
 
 }
 
-void IOHandler::stopScrollTextOnLine(int lineNum) {
+void IOHandler::stopScrollTextOnLine(const int& lineNum) {
     if ( (lineNum <= 3) && (lineNum >= 0) ) {
         lineThreadBools[lineNum] = false;
     }
 }
 
-void IOHandler::update(size_t linenum, string info) {
-    controller->getCurPage()->getLineSetupBehavior()->updateLine(this, linenum, info);
-}
-
-// recieves a screendata object from the controller and prints it to the screen
-void IOHandler::printPage(ScreenData& curPage) {
-
-    for (int line = 0; line < 4; line++) {
-        curPage.getLineSetupBehavior()->renderLine(this, line);
-    }
-
-}

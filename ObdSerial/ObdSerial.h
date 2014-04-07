@@ -19,7 +19,7 @@ class ObdSerial: public Observable
         void start(); // spawns the data polling thread
         std::vector<int> getSuppdCmds();
         std::string getVIN();
-        void setFocusedPIDs(std::vector<int> focusPIDs); // sets which PIDs to query for
+        void setFocusedPIDs(const std::vector<int>& focusPIDs); // sets which PIDs to query for
         void setRunStatus(bool brun); // turn data polling thread on or off
 
     private:

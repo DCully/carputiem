@@ -91,7 +91,7 @@ vector<int> ObdSerial::getSuppdCmds() {
 string ObdSerial::getVIN() {
     return VIN;
 }
-void ObdSerial::setFocusedPIDs(std::vector<int> fPIDs) {
+void ObdSerial::setFocusedPIDs(const std::vector<int>& fPIDs) {
     for (unsigned int x = 0; x < fPIDs.size(); x++) {
         if ( binary_search(suppdCmds.begin(), suppdCmds.end(), fPIDs.at(x)) == false ) {
             cerr << "setFocusedPIDs error: PID " << obdcmds_mode1[x].cmdid << " not supported, skipping" << endl;
@@ -244,7 +244,9 @@ void ObdSerial::run() {
                 dataValue = obdcmds_mode1[focusPIDs.at(ind)].conv(datum.abcd[0], datum.abcd[1], datum.abcd[2], datum.abcd[3]);
             }
             cout << obdcmds_mode1[focusPIDs.at(ind)].human_name << " = " << dataValue << endl;
-            notifyObservers(ind, dataValue);
+
+            /// TODO: convert the data value to a string and send it off
+            // notifyObservers(ind, dataValue);
         } //end for
     } //end while
 }

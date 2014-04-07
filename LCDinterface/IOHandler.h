@@ -7,27 +7,28 @@
 #include "ScreenData.h"
 
 class Controller;
+class ScreenData;
 
 class IOHandler: public Observer
 {
-    // make all variables more C++ey
 
     public:
-        IOHandler(int bleft, int bright, int bsel,                  //these are the three button GPIO pin numbers,
-                  int rs, int strb, int d0, int d1,                 //and these are the GPIO pins for the LCD (8-bit)
-                  int d2, int d3, int d4, int d5, int d6, int d7, Controller * cont);
+        IOHandler(const int& bleft, const int& bright, const int& bsel,                       //these are the three button GPIO pin numbers,
+                  const int& rs, const int& strb, const int& d0, const int& d1,               //and these are the GPIO pins for the LCD (8-bit)
+                  const int& d2, const int& d3, const int& d4, const int& d5,
+                  const int& d6, const int& d7, Controller * cont);
 
-        // for observable object
+        // for observable object - prints to appropriate update location for linenum
         void update(size_t linenum, std::string infoToPrint);
 
         // for controller object
         void printPage(ScreenData& screendata);
-        void moveCursor(int spot);
+        void moveCursor(const int& spot);
 
         // for LineSetupBehavior objects
-        void startScrollText(int startSpot, int stopSpot, int lineNum, std::string msg);
-        void stopScrollTextOnLine(int lineNum);
-        void printToLCD(std::string text, int spot);
+        void startScrollText(const int& startSpot, const int& stopSpot, const int& lineNum, const std::string& msg);
+        void stopScrollTextOnLine(const int& lineNum);
+        void printToLCD(const std::string& text, const int& spot);
 
     private:
         unsigned int cursorPosition;
