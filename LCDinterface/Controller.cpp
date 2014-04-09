@@ -25,7 +25,7 @@ Controller::Controller() {
 
 //    setUpObdScreens(obd->getSuppdCmds()); // fills pages deque
 
-/// TESTING - all this needs to go outside of ctor
+/// TESTING
 
     obs = new Observable();
     p = PageChangeBehavior();
@@ -53,7 +53,7 @@ Controller::Controller() {
     spaces.push_back(4);
     spaces.push_back(6);
 
-    ls2 = LabeledLineSetupBehavior(lines, labels, spaces, t);
+    ls2 = LabeledLineSetupBehavior(lines, labels, spaces, t2);
     cout << "builds second linesetupbehavior ok" << endl;
     sd2 = ScreenData(obs, p, ls2);
     cout << "builds second test page ok" << endl;
@@ -130,6 +130,7 @@ void Controller::changePageLeft(void) {
     pages.at(curPageIndex).observed->registerObserver(iohandler);
 
     // print the new page
+    cout << "In changePageLeft, now curPageIndex = " << curPageIndex << endl;
     iohandler->printPage(pages.at(curPageIndex));
 }
 
@@ -150,6 +151,7 @@ void Controller::changePageRight(void) {
     pages.at(curPageIndex).observed->registerObserver(iohandler);
 
     // print the new page
+    cout << "In changePageRight, now curPageIndex = " << curPageIndex << endl;
     iohandler->printPage(pages.at(curPageIndex));
 }
 

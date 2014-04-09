@@ -8,11 +8,6 @@
 
 Controller * controller;
 
-/// moveCursor needs a thread lock
-
-/// multiple scrolling threads are printing to a line at once
-/// figure out how to kill the old scrolling threads better
-
 /// printPage for labeledlinesetupbehavior looks like its calling linesetupbehavior's renderline functions
 
 

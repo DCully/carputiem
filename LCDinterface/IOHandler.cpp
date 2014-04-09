@@ -38,6 +38,9 @@ void IOHandler::moveCursor(const int& spot) {
         //throws "Invalid cursor spot passed to moveCursor";
     }
     cout << "in movecursor, spot passed was " << spot << endl;
+
+    // this lock ensures that no one can call this while someone else is moving cursor to print
+    std::lock_guard<std::mutex> locker2(cursor_lock);
     lcdPosition(LCDHandle, spot%20, spot/20);
 }
 
@@ -57,7 +60,13 @@ void IOHandler::printPage(ScreenData& curPage) {
 }
 
 void IOHandler::printToLCD(const string& text, const int& spot) {
+
+    // ensures that no other thread prints in middle of this print
     std::lock_guard<std::mutex> locker(print_lock);
+
+    // ensures that nothing else can moveCursor in middle of this print
+    std::lock_guard<std::mutex> locker2(cursor_lock);
+
     lcdPosition(LCDHandle, spot%20,spot/20);
     lcdPuts(LCDHandle, text.c_str());
     lcdPosition(LCDHandle, controller->getCurPage()->getCurrentCursorSpot()%20, controller->getCurPage()->getCurrentCursorSpot()/20);
@@ -91,20 +100,20 @@ void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const
         cerr << "Error in startScrollText - can't scroll across multiple lines" << endl;
         return ;
     }
-    if (lineThreadBools[lineNum]==true) {
-        cerr << "Error in startScrollText - previous text scrolling thread still running" << endl;
-        return ;
-    }
-    lineThreadBools[lineNum]=true;
 
-    std::thread scrollthread (&IOHandler::scrollText, this, startSpot, stopSpot, lineNum, msg);
-    scrollthread.detach();
+    if (lineThreadBools[lineNum]==true) {
+        lineThreadBools[lineNum] = false;
+        lineThreads[lineNum].join();
+    }
+
+    lineThreadBools[lineNum]=true;
+    lineThreads[lineNum] = std::thread(&IOHandler::scrollText, this, startSpot, stopSpot, lineNum, msg);
 
 }
-
+/*
 void IOHandler::stopScrollTextOnLine(const int& lineNum) {
     if ( (lineNum <= 3) && (lineNum >= 0) ) {
         lineThreadBools[lineNum] = false;
     }
 }
-
+*/

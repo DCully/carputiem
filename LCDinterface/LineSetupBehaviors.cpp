@@ -6,7 +6,7 @@ using namespace std;
 
 /// for base class (one static or scrolled string per line)
 
-LineSetupBehavior::LineSetupBehavior(vector<string> txtForLines, string t) : textForLines(txtForLines)
+LineSetupBehavior::LineSetupBehavior(vector<string> txtForLines, const string& t) : textForLines(txtForLines)
 {
     title = t.substr(0,15);
     while (title.size() < 17) {
@@ -64,7 +64,7 @@ void LineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string 
 LabeledLineSetupBehavior::LabeledLineSetupBehavior() {}
 
 LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> textForLines,
-    std::vector<std::string> lblsForLines, std::vector<size_t> spaceBtwnLblsAndTxtOnLines, string t)
+    std::vector<std::string> lblsForLines, std::vector<size_t> spaceBtwnLblsAndTxtOnLines, const string& t)
     : LineSetupBehavior(textForLines, t),
       labelsForLines(lblsForLines),
       spaceBtwnLblsAndTextOnLines(spaceBtwnLblsAndTxtOnLines)

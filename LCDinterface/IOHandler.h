@@ -5,6 +5,7 @@
 #include "../Observer.h"
 #include <mutex>
 #include "ScreenData.h"
+#include <thread>
 
 class Controller;
 class ScreenData;
@@ -27,15 +28,18 @@ class IOHandler: public Observer
 
         // for LineSetupBehavior objects
         void startScrollText(const int& startSpot, const int& stopSpot, const int& lineNum, const std::string& msg);
-        void stopScrollTextOnLine(const int& lineNum);
+        //void stopScrollTextOnLine(const int& lineNum);
         void printToLCD(const std::string& text, const int& spot);
 
     private:
         void scrollText(int startSpot, int stopSpot, int lineNum, std::string msg);
         int LCDHandle;
         Controller * controller;
+
+        std::thread lineThreads[4];
         volatile bool lineThreadBools[4];
         std::mutex print_lock;
+        std::mutex cursor_lock;
 };
 
 #endif // IOHANDLER_H
