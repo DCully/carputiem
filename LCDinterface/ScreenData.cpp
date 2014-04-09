@@ -59,7 +59,7 @@ void ScreenData::doCurSpotSelectBehavior() {
     cursorSpots.at(currentSpotIndex).second();
 }
 
-const int ScreenData::getCurrentSpot() const {
+const int ScreenData::getCurrentCursorSpot() const {
     return cursorSpots.at(currentSpotIndex).first;
 }
 

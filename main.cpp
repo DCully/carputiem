@@ -41,7 +41,7 @@ int main()
     sleep(15);
 
     /// 2) do the same thing with a labeledLineSetupBehavior object (that implementation isn't done yet)
-/*
+
     string t2 = "long: a a a a a a a a a";
 
     vector<string> labels;
@@ -59,8 +59,16 @@ int main()
     ScreenData sd2 = ScreenData(obs, p, ls2);
 
     ioh->printPage(sd2);
-*/
-    /// 3) put sd and sd2 into controller->pages, and test buttoning through pages, calling update, etc
+
+
+
+
+
+    /// 3) put sd and sd2 into controller->pages, and test:
+            /// moving cursor with L and R buttons,
+            /// changing pages with S button,
+            /// calling update once
+            /// calling update repeatedly while text is scrolling
 
     /// 4) write setUpObdScreens, and integration test it with the whole front end of the program
 

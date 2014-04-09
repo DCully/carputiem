@@ -31,7 +31,6 @@ class IOHandler: public Observer
         void printToLCD(const std::string& text, const int& spot);
 
     private:
-        unsigned int cursorPosition;
         void scrollText(int startSpot, int stopSpot, int lineNum, std::string msg);
         int LCDHandle;
         Controller * controller;

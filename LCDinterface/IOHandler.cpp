@@ -25,8 +25,7 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
 
     lcdCursor(LCDHandle, 1);
     lcdCursorBlink(LCDHandle, 1);
-    cursorPosition = 19;
-    moveCursor(cursorPosition);
+    moveCursor(controller->getCurPage()->getCurrentCursorSpot());
     controller = cont;
 }
 
@@ -35,8 +34,7 @@ void IOHandler::moveCursor(const int& spot) {
         cerr << "Invalid cursor spot passed to moveCursor" << endl;
         //throws "Invalid cursor spot passed to moveCursor";
     }
-    cursorPosition = spot;
-    lcdPosition(LCDHandle, cursorPosition%20, cursorPosition/20);
+    lcdPosition(LCDHandle, controller->getCurPage()->getCurrentCursorSpot()%20, controller->getCurPage()->getCurrentCursorSpot()/20);
 }
 
 void IOHandler::update(size_t linenum, string info) {
@@ -56,7 +54,7 @@ void IOHandler::printToLCD(const string& text, const int& spot) {
     std::lock_guard<std::mutex> locker(print_lock);
     lcdPosition(LCDHandle, spot%20,spot/20);
     lcdPuts(LCDHandle, text.c_str());
-    lcdPosition(LCDHandle, cursorPosition%20, cursorPosition/20);
+    lcdPosition(LCDHandle, controller->getCurPage()->getCurrentCursorSpot()%20, controller->getCurPage()->getCurrentCursorSpot()/20);
 }
 
 void IOHandler::scrollText(int startSpot, int stopSpot, int lineNum, string msg) {

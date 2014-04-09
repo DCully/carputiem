@@ -8,6 +8,8 @@
 #include "PageChangeBehaviors.h"
 #include "LineSetupBehaviors.h"
 
+/// note: heavy use of PIMPL
+
 /// make this class own its lineSetupBehavior and pageChangeBehavior objects?
 
 typedef void (*SelectBehaviorFunc)(void);
@@ -27,7 +29,7 @@ class ScreenData {
         void addCursorSpot(std::pair<int, SelectBehaviorFunc> newSpot);
         void doLoadPageBehavior();
         void doLeavePageBehavior();
-        const int getCurrentSpot() const;
+        const int getCurrentCursorSpot() const;
         LineSetupBehavior* getLineSetupBehavior();
         Observable* observed;
     private:

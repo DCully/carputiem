@@ -43,18 +43,21 @@ void LineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {
     }
 }
 
+// reprints entire line
 void LineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string info) {
-/*
-    if (lineNum != 0 || lineNum != 1 || lineNum != 2) {
+
+    if (lineNum != 1 && lineNum != 2 && lineNum != 3) {
         cerr << "Invalid line number passed to LineSetupBehavior::updateLine" << endl;
-        return ;
     }
-    textForLines.at(lineNum) = info;
-    renderLine(iohandler, lineNum);
-*/
+    else {
+        textForLines.at(lineNum) = info;
+        renderLine(iohandler, lineNum);
+    }
+
 }
 
-/// ----------------------------------------------------------------------------
+
+
 
 /// for derived class LabeledLineSetupBehavior (labels on right side of screen)
 
@@ -65,7 +68,9 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> text
       spaceBtwnLblsAndTextOnLines(spaceBtwnLblsAndTxtOnLines)
 {
     updateSpotsForLines.push_back(0);
+    endOfScrollForLines.push_back(0);
 
+    // for lines 1-3
     for (size_t line = 1; line < 4; line++) {
 
         // determine update spot (left justified)
@@ -78,27 +83,32 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> text
 }
 
 void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {
-/*
 
-    if (lineNum != 0 && lineNum != 1 && lineNum != 2) {
+    if (lineNum != 0 && lineNum != 1 && lineNum != 2 && lineNum != 3) {
         cerr << "Invalid line number passed to LabeledLineSetupBehavior::renderLine" << endl;
         return ;
     }
 
-    // prints with blanks for data fields
+    // printing title line
+    if (lineNum == 0) {
+        iohandler->printToLCD(title, 0);
+        return ;
+    }
+
+    // prints with blanks for data fields, lines 1-3
 
     if (textForLines.at(lineNum).size() <= endOfScrollForLines.at(lineNum)) {
 
-        string output = textForLines.at(lineNum); // "blahblah"
+        string output = textForLines.at(lineNum); //here it's "blahblah"
 
         for (size_t x = 0; x < 20 - labelsForLines.at(lineNum).size(); x++) {
             output.append(" ");
-        } // "blahblah          "
+        } // now it's "blahblah          "
 
         output.append(labelsForLines.at(lineNum));
         /// assert: should always be 20 chars long
 
-        iohandler->printToLCD(output, 20 + 20*lineNum);
+        iohandler->printToLCD(output, 20*lineNum);
     }
     else {
 
@@ -106,34 +116,36 @@ void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) 
 
         string output = "";
 
+        // add requisite number of spaces
         while (output.size() < spaceBtwnLblsAndTextOnLines.at(lineNum)) {
             output.append(" ");
         }
 
+        // add the label
         output.append(labelsForLines.at(lineNum));
 
         /// assert: output.size() = 20-endOfScrollForLines.at(lineNum)
 
-        iohandler->printToLCD(output, endOfScrollForLines.at(lineNum) + 1);
+        iohandler->printToLCD(output, 20 * lineNum + endOfScrollForLines.at(lineNum) + 1);
 
     }
-
-*/
 
 }
 
 void LabeledLineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string info) {
 
-/*
-    /// print info to updateSpotForLine(lineNum) - deal with update spots being right justified
-    iohandler->printToLCD(info, 20 + 20*lineNum + updateSpotsForLines.at(lineNum) - info.size());
+    if (lineNum != 1 && lineNum != 2 && lineNum != 3) {
+        cerr << "Invalid line number passed to LabeledLineSetupBehavior::updateLine" << endl;
+        return ;
+    }
 
-*/
+    // prints info to updateSpotForLine(lineNum), and deals with update spots being right justified
+    iohandler->printToLCD(info, 20 + 20*lineNum + updateSpotsForLines.at(lineNum) - info.size());
 
 }
 
 
 
-/// -----------------------------------------------------------------------------
 
-/// other derived classes go down here
+
+

@@ -58,7 +58,7 @@ void Controller::selPressed() {
 }
 
 ScreenData* Controller::getCurPage() {
-    return &pages.at(curPage);
+    return &pages.at(curPageIndex);
 }
 
 void Controller::staticChangePageLeft(void) {
@@ -67,18 +67,18 @@ void Controller::staticChangePageLeft(void) {
 
 void Controller::changePageLeft(void) {
     // unhook page from observed
-    pages.at(curPage).doLeavePageBehavior();
-    pages.at(curPage).observed->removeObserver(iohandler);
+    pages.at(curPageIndex).doLeavePageBehavior();
+    pages.at(curPageIndex).observed->removeObserver(iohandler);
 
     // shift to the next page (from the left)
-    curPage = (curPage+1)%pages.size();
+    curPageIndex = (curPageIndex+1)%pages.size();
 
     // hook up new page to observed
-    pages.at(curPage).doLoadPageBehavior();
-    pages.at(curPage).observed->registerObserver(iohandler);
+    pages.at(curPageIndex).doLoadPageBehavior();
+    pages.at(curPageIndex).observed->registerObserver(iohandler);
 
     // print the new page
-    iohandler->printPage(pages.at(curPage));
+    iohandler->printPage(pages.at(curPageIndex));
 }
 
 void Controller::staticChangePageRight(void) {
@@ -87,18 +87,18 @@ void Controller::staticChangePageRight(void) {
 
 void Controller::changePageRight(void) {
     // unhook page from observed
-    pages.at(curPage).doLeavePageBehavior();
-    pages.at(curPage).observed->removeObserver(iohandler);
+    pages.at(curPageIndex).doLeavePageBehavior();
+    pages.at(curPageIndex).observed->removeObserver(iohandler);
 
     // shift to the next page (from the right)
-    curPage = (curPage-1)%pages.size();
+    curPageIndex = (curPageIndex-1)%pages.size();
 
     // hook up new page to observed
-    pages.at(curPage).doLoadPageBehavior();
-    pages.at(curPage).observed->registerObserver(iohandler);
+    pages.at(curPageIndex).doLoadPageBehavior();
+    pages.at(curPageIndex).observed->registerObserver(iohandler);
 
     // print the new page
-    iohandler->printPage(pages.at(curPage));
+    iohandler->printPage(pages.at(curPageIndex));
 }
 
 /// ------------------------------------------

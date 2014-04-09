@@ -40,7 +40,7 @@ class Controller
 
         IOHandler * iohandler;
         std::vector<ScreenData> pages;
-        int curPage;
+        int curPageIndex;
         ObdSerial * obd;
 };
 
