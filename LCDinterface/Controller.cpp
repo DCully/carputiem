@@ -23,10 +23,46 @@ Controller::Controller() {
 
 //    setUpObdScreens(obd->getSuppdCmds()); // fills pages deque
 
+/// TESTING
+
+    obs = new Observable();
+    PageChangeBehavior p = PageChangeBehavior();
+    string t = "Page Title";
+
+    vector<string> lines;
+    lines.push_back("scrolling text for line 1");
+    lines.push_back("long text for line 2 should scroll as well");
+    lines.push_back("static line 3");
+
+    LineSetupBehavior ls = LineSetupBehavior(lines, t);
+
+    ScreenData sd = ScreenData(obs, p, ls);
+
+    string t2 = "long: a a a a a a a a a";
+
+    vector<string> labels;
+    labels.push_back("kmh");
+    labels.push_back("m/s");
+    labels.push_back("*C");
+
+    vector<size_t> spaces;
+    spaces.push_back(5);
+    spaces.push_back(4);
+    spaces.push_back(6);
+
+    LabeledLineSetupBehavior ls2 = LabeledLineSetupBehavior(lines, labels, spaces, t);
+
+    ScreenData sd2 = ScreenData(obs, p, ls2);
+
+    curPageIndex = 0;
+    pages.push_back(sd);
+    pages.push_back(sd2);
 }
 
 Controller::~Controller() {
-   // delete iohandler;
+    delete iohandler;
+    delete obs;
+    
 }
 
 // millis() wraps every 49 days

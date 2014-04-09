@@ -42,6 +42,8 @@ class Controller
         std::vector<ScreenData> pages;
         int curPageIndex;
         ObdSerial * obd;
+        
+        Observable* obs; /// TESTING ONLY
 };
 
 
