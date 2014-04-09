@@ -46,10 +46,8 @@ class Controller
 /// TESTING
 PageChangeBehavior p;
 LineSetupBehavior* ls;
-LabeledLineSetupBehavior* ls2;
+LineSetupBehavior* ls2;
 Observable* obs;
-ScreenData sd;
-ScreenData sd2;
 };
 
 

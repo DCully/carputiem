@@ -25,7 +25,7 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
     wiringPiISR(bsel, INT_EDGE_FALLING, &Controller::selPressed);
 
     lcdCursor(LCDHandle, 1);
-    lcdCursorBlink(LCDHandle, 1);
+    lcdCursorBlink(LCDHandle, 0); // dont blink the cursor
     moveCursor(cont->getCurPage()->getCurrentCursorSpot());
     controller = cont;
 }

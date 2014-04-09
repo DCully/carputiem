@@ -13,7 +13,7 @@ class ObdSerial: public Observable
     friend class ObdSerialTest;
 
     public:
-        ObdSerial(std::string pp);
+        ObdSerial(const std::string& pp);
         ~ObdSerial();
 
         void start(); // spawns the data polling thread

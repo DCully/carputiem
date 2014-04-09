@@ -10,14 +10,9 @@ Controller * controller;
 
 /// Problems:
 
-/// 1) printPage for labeledlinesetupbehavior looks like its calling
-/// linesetupbehavior's renderline functions, despite them being virtual in
-/// that (base) class... how to fix? what's going wrong?
+/// 1) need to make ScreenData objects own their LSB pointers and PCB pointers
 
-/// 2) cursor printing movement after page changes looks terrible, but I think
-/// it is actually working as intended. How to make it look better? Place an X at
-/// the cursor'd spot, and turn the blink off? ...
-
+/// 2) the LLSB renderline code is terrible and doesnt work
 
 
 /// I also need to:
@@ -30,9 +25,18 @@ using namespace std;
 
 int main()
 {
+    // front end testing
     controller = new Controller();
-
     sleep(20);
+
+    // back end testing
+    /*
+    ObdSerial* obd = new ObdSerial("/dev/ttyUSB0");
+    obd->setFocusedPIDs(obd->getSuppdCmds);
+    obd->start();
+    sleep(20);
+    delete obd;
+    */
 
     return 0;
 }

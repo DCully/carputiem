@@ -21,7 +21,7 @@ ScreenData::ScreenData() {
 }
 
 ScreenData::~ScreenData() {
-    delete lineSetupBehavior;
+
 }
 
 void ScreenData::addCursorSpot(std::pair<int, SelectBehaviorFunc> newSpot) {

@@ -91,6 +91,11 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> txtF
         endOfScrollForLines.push_back(20 - labelsForLines.at(line).size() - spaceBtwnLblsAndTextOnLines.at(line));
 
     }
+    cout << "in labeledlinesetupbehavior constructor: " << endl;
+    cout << textForLines.at(0) << endl;
+    cout << labelsForLines.at(0) << endl;
+    cout << title << endl;
+
 }
 
 void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {

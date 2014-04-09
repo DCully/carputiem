@@ -21,7 +21,7 @@
 
 using namespace std;
 
-ObdSerial::ObdSerial(string portpath) : AT_SLEEPTIME(20), NORMAL_OBD_SLEEPTIME(100), EXTRA_LONG_SLEEPTIME(300) {
+ObdSerial::ObdSerial(const string& portpath) : AT_SLEEPTIME(20), NORMAL_OBD_SLEEPTIME(100), EXTRA_LONG_SLEEPTIME(300) {
     //open serial port connection
     char buf[4096];
     // open to read and write, not as the controlling terminal, and in nonblocking mode

@@ -45,7 +45,15 @@ Controller::Controller() {
     spaces.push_back(6);
 
     ls2 = new LabeledLineSetupBehavior(lines, labels, spaces, t2);
+
     curPageIndex = 0;
+
+    /// putting them in this way shallow copies ScreenData's data fields
+    /// so we need to make it a deep copy to avoid bad pointer errors
+    /// then we can rely on ScreenData's dtor to delete its lsb
+    /// or, we could switch back to not using pointers, somehow
+    /// would this mess up the polymorphism? YES
+    /// definitely need to use the owned pointers approach
     pages.push_back(ScreenData(obs, p, ls));
     pages.push_back(ScreenData(obs, p, ls2));
 
@@ -58,6 +66,8 @@ Controller::Controller() {
 Controller::~Controller() {
     delete iohandler;
     delete obs;
+    delete ls;
+    delete ls2;
 
 }
 
