@@ -26,6 +26,8 @@ LineSetupBehavior::LineSetupBehavior() {
 
 void LineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {
 
+    cout << "linesetupbehavior's renderline called for " << lineNum << endl;
+
     if (lineNum != 0 && lineNum != 1 && lineNum != 2 && lineNum != 3) {
         cerr << "Invalid line number passed to LineSetupBehavior::renderLine" << endl;
         return ;
@@ -85,6 +87,8 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> text
 }
 
 void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {
+
+    cout << "labeledlinesetupbehavior's renderline called for " << lineNum << endl;
 
     if (lineNum != 0 && lineNum != 1 && lineNum != 2 && lineNum != 3) {
         cerr << "Invalid line number passed to LabeledLineSetupBehavior::renderLine" << endl;

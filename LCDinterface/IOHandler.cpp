@@ -28,7 +28,6 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
     lcdCursorBlink(LCDHandle, 1);
     moveCursor(cont->getCurPage()->getCurrentCursorSpot());
     controller = cont;
-    cout << this << endl;
 }
 
 void IOHandler::moveCursor(const int& spot) {
@@ -84,7 +83,6 @@ void IOHandler::scrollText(int startSpot, int stopSpot, int lineNum, string msg)
             spotInMsg = (spotInMsg + 1) % (message.size()/2);
             toScreen = message.substr(spotInMsg, toScreen.size());
             lastPrint = millis();
-            //std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
     }
     cout << "exiting scrolltext for line " << lineNum << endl;
@@ -100,18 +98,13 @@ void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const
         return ;
     }
 
-    cout << "in startScrollText, called for line " << lineNum << endl;
-    cout << "lineThreadBool for that line is: " << lineThreadBools[lineNum] << endl;
-
-
     if (lineThreadBools[lineNum]==true) {
         lineThreadBools[lineNum] = false;
-        cout << "calling for line thread to join in startScrollText" << endl;
+        cout << "set flag to end a thread, waiting for it to join in startScrollText..." << endl;
         lineThreads[lineNum].join();
     }
 
     lineThreadBools[lineNum]=true;
-    cout << "set lineThreadBool for line " << lineNum << " to " << lineThreadBools[lineNum] << endl;
     lineThreads[lineNum] = std::thread(&IOHandler::scrollText, this, startSpot, stopSpot, lineNum, msg);
 
 }
