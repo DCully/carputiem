@@ -9,7 +9,7 @@ using namespace std;
 LineSetupBehavior::LineSetupBehavior(vector<string> txtForLines, string t) : textForLines(txtForLines)
 {
     title = t.substr(0,15);
-    while (title.size() < 16) {
+    while (title.size() < 17) {
         title.append(" ");
     }
     title = title + "<->";
