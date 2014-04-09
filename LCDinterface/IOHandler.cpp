@@ -26,10 +26,8 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
 
     lcdCursor(LCDHandle, 1);
     lcdCursorBlink(LCDHandle, 1);
-    cout << "calling move cursor in iohandler ctor" << endl;
     moveCursor(cont->getCurPage()->getCurrentCursorSpot());
     controller = cont;
-    cout << "finishing iohandler constructor, controller is at " << controller << endl;
 }
 
 void IOHandler::moveCursor(const int& spot) {
@@ -101,8 +99,13 @@ void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const
         return ;
     }
 
+    cout << "in startScrollText, called for line " << lineNum << endl;
+    cout << "lineThreadBool for that line is: " << lineThreadBools[lineNum] << "  : (0 is false)" << endl;
+
+
     if (lineThreadBools[lineNum]==true) {
         lineThreadBools[lineNum] = false;
+        cout << "calling for line thread to join in startScrollText" << endl;
         lineThreads[lineNum].join();
     }
 
@@ -110,10 +113,4 @@ void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const
     lineThreads[lineNum] = std::thread(&IOHandler::scrollText, this, startSpot, stopSpot, lineNum, msg);
 
 }
-/*
-void IOHandler::stopScrollTextOnLine(const int& lineNum) {
-    if ( (lineNum <= 3) && (lineNum >= 0) ) {
-        lineThreadBools[lineNum] = false;
-    }
-}
-*/
+

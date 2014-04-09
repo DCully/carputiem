@@ -2,16 +2,9 @@
 #include <iostream>
 #include "wiringPi.h"
 
-// change ScreenData cursorSpots to vector  - rewriting button interrupt functions
-
-/// TODO: fix everything...
-
 extern Controller * controller; //this is a reference to the controller object that is created in main.cpp
 
-
 using namespace std;
-
-
 
 Controller::Controller() {
 
@@ -39,7 +32,6 @@ Controller::Controller() {
     ls = LineSetupBehavior(lines, t);
 
     sd = ScreenData(obs, p, ls);
-    cout << "builds first test page ok" << endl;
 
     string t2 = "long: a a a a a a a a a";
 
@@ -54,22 +46,13 @@ Controller::Controller() {
     spaces.push_back(6);
 
     ls2 = LabeledLineSetupBehavior(lines, labels, spaces, t2);
-    cout << "builds second linesetupbehavior ok" << endl;
     sd2 = ScreenData(obs, p, ls2);
-    cout << "builds second test page ok" << endl;
     curPageIndex = 0;
     pages.push_back(sd);
     pages.push_back(sd2);
 
-    cout << "adds two test pages OK" << endl;
-
-    cout << pages.at(0).getCurrentCursorSpot() << endl;
-
-    cout << curPageIndex << endl;
-
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
     lastPush = 1;
-    cout << this << endl;
 
     iohandler->printPage(pages.at(curPageIndex));
 }
@@ -84,7 +67,7 @@ Controller::~Controller() {
 // these are static functions because you can't register NSMFs to button interrupts
 void Controller::lButPressed() {
 
-    if (millis() - controller->lastPush > 100) { // smooth inputs
+    if (millis() - controller->lastPush > 200) { // smooth inputs
         controller->lastPush = millis();
         controller->getCurPage()->moveCursorLeft(controller->iohandler);
 
@@ -93,7 +76,7 @@ void Controller::lButPressed() {
 }
 void Controller::rButPressed() {
 
-    if (millis() - controller->lastPush > 100) { // smooth inputs
+    if (millis() - controller->lastPush > 200) { // smooth inputs
         controller->lastPush = millis();
         controller->getCurPage()->moveCursorRight(controller->iohandler);
 
@@ -102,7 +85,7 @@ void Controller::rButPressed() {
 }
 
 void Controller::selPressed() {
-    if (millis() - controller->lastPush > 100) {
+    if (millis() - controller->lastPush > 200) {
         controller->lastPush = millis();
         controller->getCurPage()->doCurSpotSelectBehavior();
     }

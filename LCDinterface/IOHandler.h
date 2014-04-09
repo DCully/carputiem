@@ -28,7 +28,6 @@ class IOHandler: public Observer
 
         // for LineSetupBehavior objects
         void startScrollText(const int& startSpot, const int& stopSpot, const int& lineNum, const std::string& msg);
-        //void stopScrollTextOnLine(const int& lineNum);
         void printToLCD(const std::string& text, const int& spot);
 
     private:
