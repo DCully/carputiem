@@ -98,14 +98,17 @@ void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const
         return ;
     }
 
+    // this uses pointers to the scroll threads in order to be able to explicitly destroy the threads
+
     if (lineThreadBools[lineNum]==true) {
         lineThreadBools[lineNum] = false;
         cout << "set flag to end a thread, waiting for it to join in startScrollText..." << endl;
-        lineThreads[lineNum].join();
+        lineThreads[lineNum]->join();
+        delete lineThreads[lineNum];
     }
 
     lineThreadBools[lineNum]=true;
-    lineThreads[lineNum] = std::thread(&IOHandler::scrollText, this, startSpot, stopSpot, lineNum, msg);
+    lineThreads[lineNum] = new std::thread(&IOHandler::scrollText, this, startSpot, stopSpot, lineNum, msg);
 
 }
 

@@ -4,23 +4,20 @@
 
 extern Controller * controller; //this is a reference to the controller object that is created in main.cpp
 
-
-/// problem: switching pages works, but new pages print poorly
-///          the new pages look like the cursor is on the "<->" section a lot less
-
 using namespace std;
 
 Controller::Controller() {
+/*
+    obd = new ObdSerial("/dev/ttyUSB0");
 
-    //obd = new ObdSerial("/dev/ttyUSB0");
+    int  pidCount = obd->getSuppdCmds().size();
 
-    //int  pidCount = obd->getSuppdCmds().size();
+    obdPages = new ScreenData[pidCount/3 + 1];
+    obdlsbs = new LineSetupBehavior[pidCount/3 + 1];
+    obdpcbs = new PageChangeBehavior[pidCount/3 + 1];
 
-  //  obdPages = new ScreenData[pidCount/3 + 1];
- //   obdlsbs = new LineSetupBehavior[pidCount/3 + 1];
-  //  obdpcbs = new PageChangeBehavior[pidCount/3 + 1];
-
-//    setUpObdScreens(obd->getSuppdCmds()); // fills pages deque
+    setUpObdScreens(obd->getSuppdCmds()); // fills pages deque
+*/
 
 /// TESTING
 
@@ -35,8 +32,6 @@ Controller::Controller() {
 
     ls = LineSetupBehavior(lines, t);
 
-    //sd = ScreenData(obs, p, ls);
-
     string t2 = "long: a a a a a a a a a";
 
     vector<string> labels;
@@ -50,7 +45,6 @@ Controller::Controller() {
     spaces.push_back(6);
 
     ls2 = LabeledLineSetupBehavior(lines, labels, spaces, t2);
-    //sd2 = ScreenData(obs, p, ls2);
     curPageIndex = 0;
     pages.push_back(ScreenData(obs, p, ls));
     pages.push_back(ScreenData(obs, p, ls2));

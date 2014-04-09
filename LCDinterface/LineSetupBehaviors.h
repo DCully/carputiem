@@ -26,8 +26,8 @@ class LabeledLineSetupBehavior: public LineSetupBehavior
         LabeledLineSetupBehavior(std::vector<std::string> textForLines,
             std::vector<std::string> labelsForLines, std::vector<size_t> spaceBtwnLblsAndTextOnLines,
             const std::string& pageTitle);
-        void renderLine(IOHandler* iohandler, size_t lineNum);
-        void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
+        virtual void renderLine(IOHandler* iohandler, size_t lineNum);
+        virtual void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
     protected:
         std::vector<std::string> labelsForLines;
         std::vector<size_t> spaceBtwnLblsAndTextOnLines;

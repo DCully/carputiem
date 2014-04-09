@@ -35,7 +35,7 @@ class IOHandler: public Observer
         int LCDHandle;
         Controller * controller;
 
-        std::thread lineThreads[4];
+        std::thread* lineThreads[4];
         volatile bool lineThreadBools[4];
         std::mutex print_lock;
         std::mutex cursor_lock;
