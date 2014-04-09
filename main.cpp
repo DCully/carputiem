@@ -10,9 +10,10 @@ Controller * controller;
 
 /// Problems:
 
-/// 1) need to make ScreenData objects own their LSB pointers and PCB pointers
+/// 1) the LLSB renderline code is terrible and doesnt work
 
-/// 2) the LLSB renderline code is terrible and doesnt work
+/// 2) need to make ScreenData objects own their LSB pointers and PCB pointers
+
 
 
 /// I also need to:

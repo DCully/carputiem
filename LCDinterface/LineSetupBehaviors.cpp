@@ -116,9 +116,7 @@ void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) 
     // prints with blanks for data fields, lines 1-3
 
     if (textForLines.at(lineNum).size() <= endOfScrollForLines.at(lineNum)) {
-
         string output = textForLines.at(lineNum); //here it's "blahblah"
-
         for (size_t x = 0; x < 20 - labelsForLines.at(lineNum).size(); x++) {
             output.append(" ");
         } // now it's "blahblah          "
@@ -150,6 +148,7 @@ void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) 
 
 }
 
+/// not currently being tested (4/9)
 void LabeledLineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string info) {
 
     if (lineNum != 1 && lineNum != 2 && lineNum != 3) {

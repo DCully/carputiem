@@ -19,6 +19,7 @@ class LineSetupBehavior
         std::string title;
 };
 
+/// refactor this class
 class LabeledLineSetupBehavior: public virtual LineSetupBehavior
 {
     public:
