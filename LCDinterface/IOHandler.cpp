@@ -110,6 +110,7 @@ void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const
     }
 
     lineThreadBools[lineNum]=true;
+    cout << "set lineThreadBool for line " << lineNum << " to true" << endl;
     lineThreads[lineNum] = std::thread(&IOHandler::scrollText, this, startSpot, stopSpot, lineNum, msg);
 
 }
