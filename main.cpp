@@ -6,9 +6,9 @@
 #include <unistd.h>
 #include <vector>
 
-using namespace std;
-
 Controller * controller;
+
+using namespace std;
 
 int main()
 {
@@ -17,7 +17,7 @@ int main()
 
 
     /// 1) make this screendata object, set it as curPage, and print
- /*   
+ /*
     Observable* obs = new Observable();
     PageChangeBehavior p = PageChangeBehavior();
     string t = "Page Title";
@@ -60,7 +60,7 @@ int main()
     /// 4) write setUpObdScreens, and integration test it with the whole front end of the program
 
     while (true) { }
-    
+
     return 0;
 }
 

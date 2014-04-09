@@ -42,8 +42,14 @@ class Controller
         std::vector<ScreenData> pages;
         int curPageIndex;
         ObdSerial * obd;
-        
+
+/// TESTING
+PageChangeBehavior p;
+LineSetupBehavior ls;
+LabeledLineSetupBehavior ls2;
         Observable* obs; /// TESTING ONLY
+        ScreenData sd;
+        ScreenData sd2;
 };
 
 

@@ -22,6 +22,7 @@ class LineSetupBehavior
 class LabeledLineSetupBehavior: public LineSetupBehavior
 {
     public:
+        LabeledLineSetupBehavior();
         LabeledLineSetupBehavior(std::vector<std::string> textForLines,
             std::vector<std::string> labelsForLines, std::vector<size_t> spaceBtwnLblsAndTextOnLines,
             std::string pageTitle);

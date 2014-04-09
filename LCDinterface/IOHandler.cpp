@@ -25,8 +25,10 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
 
     lcdCursor(LCDHandle, 1);
     lcdCursorBlink(LCDHandle, 1);
-    moveCursor(controller->getCurPage()->getCurrentCursorSpot());
+    cout << "calling move cursor in iohandler ctor" << endl;
+    moveCursor(cont->getCurPage()->getCurrentCursorSpot());
     controller = cont;
+    cout << "finishing iohandler constructor, controller is at " << controller << endl;
 }
 
 void IOHandler::moveCursor(const int& spot) {
@@ -34,7 +36,8 @@ void IOHandler::moveCursor(const int& spot) {
         cerr << "Invalid cursor spot passed to moveCursor" << endl;
         //throws "Invalid cursor spot passed to moveCursor";
     }
-    lcdPosition(LCDHandle, controller->getCurPage()->getCurrentCursorSpot()%20, controller->getCurPage()->getCurrentCursorSpot()/20);
+    cout << "in movecursor, spot passed was " << spot << endl;
+    lcdPosition(LCDHandle, spot%20, spot/20);
 }
 
 void IOHandler::update(size_t linenum, string info) {

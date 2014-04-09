@@ -6,13 +6,15 @@
 
 /// TODO: fix everything...
 
-using namespace std;
-
 extern Controller * controller; //this is a reference to the controller object that is created in main.cpp
 
+
+using namespace std;
+
+
+
 Controller::Controller() {
-    iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
-    lastPush = 1;
+
     //obd = new ObdSerial("/dev/ttyUSB0");
 
     //int  pidCount = obd->getSuppdCmds().size();
@@ -23,10 +25,10 @@ Controller::Controller() {
 
 //    setUpObdScreens(obd->getSuppdCmds()); // fills pages deque
 
-/// TESTING
+/// TESTING - all this needs to go outside of ctor
 
     obs = new Observable();
-    PageChangeBehavior p = PageChangeBehavior();
+    p = PageChangeBehavior();
     string t = "Page Title";
 
     vector<string> lines;
@@ -34,9 +36,10 @@ Controller::Controller() {
     lines.push_back("long text for line 2 should scroll as well");
     lines.push_back("static line 3");
 
-    LineSetupBehavior ls = LineSetupBehavior(lines, t);
+    ls = LineSetupBehavior(lines, t);
 
-    ScreenData sd = ScreenData(obs, p, ls);
+    sd = ScreenData(obs, p, ls);
+    cout << "builds first test page ok" << endl;
 
     string t2 = "long: a a a a a a a a a";
 
@@ -50,19 +53,31 @@ Controller::Controller() {
     spaces.push_back(4);
     spaces.push_back(6);
 
-    LabeledLineSetupBehavior ls2 = LabeledLineSetupBehavior(lines, labels, spaces, t);
-
-    ScreenData sd2 = ScreenData(obs, p, ls2);
-
+    ls2 = LabeledLineSetupBehavior(lines, labels, spaces, t);
+    cout << "builds second linesetupbehavior ok" << endl;
+    sd2 = ScreenData(obs, p, ls2);
+    cout << "builds second test page ok" << endl;
     curPageIndex = 0;
     pages.push_back(sd);
     pages.push_back(sd2);
+
+    cout << "adds two test pages OK" << endl;
+
+    cout << pages.at(0).getCurrentCursorSpot() << endl;
+
+    cout << curPageIndex << endl;
+
+    iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
+    lastPush = 1;
+    cout << this << endl;
+
+    iohandler->printPage(pages.at(curPageIndex));
 }
 
 Controller::~Controller() {
     delete iohandler;
     delete obs;
-    
+
 }
 
 // millis() wraps every 49 days
@@ -94,6 +109,8 @@ void Controller::selPressed() {
 }
 
 ScreenData* Controller::getCurPage() {
+    cout << "in getcurpage" << endl;
+    cout << "curPageIndex is: " << curPageIndex << endl;
     return &pages.at(curPageIndex);
 }
 

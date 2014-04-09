@@ -61,6 +61,8 @@ void LineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string 
 
 /// for derived class LabeledLineSetupBehavior (labels on right side of screen)
 
+LabeledLineSetupBehavior::LabeledLineSetupBehavior() {}
+
 LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> textForLines,
     std::vector<std::string> lblsForLines, std::vector<size_t> spaceBtwnLblsAndTxtOnLines, string t)
     : LineSetupBehavior(textForLines, t),
@@ -71,7 +73,7 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> text
     endOfScrollForLines.push_back(0);
 
     // for lines 1-3
-    for (size_t line = 1; line < 4; line++) {
+    for (size_t line = 0; line < 3; line++) {
 
         // determine update spot (left justified)
         updateSpotsForLines.push_back(20 - labelsForLines.at(line).size() - 1);
