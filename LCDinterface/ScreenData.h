@@ -19,7 +19,7 @@ class LineSetupBehavior;
 class ScreenData {
 
     public:
-        ScreenData(Observable* obs, PageChangeBehavior pcb, LineSetupBehavior lsb);
+        ScreenData(Observable* obs, PageChangeBehavior pcb, LineSetupBehavior* lsb);
         ScreenData();
         ~ScreenData();
 
@@ -35,7 +35,7 @@ class ScreenData {
     private:
         // set in constructor
         PageChangeBehavior pageChangeBehavior;
-        LineSetupBehavior lineSetupBehavior;
+        LineSetupBehavior* lineSetupBehavior;
 
         // places on this screen the cursor can go to, with corresponding select behaviors
         std::vector< std::pair<int, SelectBehaviorFunc> > cursorSpots;

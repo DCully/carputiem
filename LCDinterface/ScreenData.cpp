@@ -6,7 +6,7 @@ using namespace std;
 
 extern Controller * controller;
 
-ScreenData::ScreenData(Observable* obs, PageChangeBehavior pcb, LineSetupBehavior lsb)
+ScreenData::ScreenData(Observable* obs, PageChangeBehavior pcb, LineSetupBehavior* lsb)
     : observed(obs), pageChangeBehavior(pcb), lineSetupBehavior(lsb)
 {
     // all screens have next page and previous page buttons at 17 and 19
@@ -21,7 +21,7 @@ ScreenData::ScreenData() {
 }
 
 ScreenData::~ScreenData() {
-
+    delete lineSetupBehavior;
 }
 
 void ScreenData::addCursorSpot(std::pair<int, SelectBehaviorFunc> newSpot) {
@@ -42,7 +42,7 @@ void ScreenData::doLeavePageBehavior() {
 }
 
 LineSetupBehavior* ScreenData::getLineSetupBehavior() {
-    return &lineSetupBehavior;
+    return lineSetupBehavior;
 }
 
 void ScreenData::moveCursorLeft(IOHandler* ioh) {

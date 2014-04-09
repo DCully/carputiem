@@ -35,8 +35,6 @@ void IOHandler::moveCursor(const int& spot) {
         cerr << "Invalid cursor spot passed to moveCursor" << endl;
         //throws "Invalid cursor spot passed to moveCursor";
     }
-    cout << "in movecursor, spot passed was " << spot << endl;
-
     // this lock ensures that no one can call this while someone else is moving cursor to print
     std::lock_guard<std::mutex> locker2(cursor_lock);
     lcdPosition(LCDHandle, spot%20, spot/20);
@@ -50,7 +48,6 @@ void IOHandler::update(size_t linenum, string info) {
 void IOHandler::printPage(ScreenData& curPage) {
 
     for (int line = 0; line < 4; line++) {
-        cout << "in printpage, telling linesetupbehavior to print line " << line << endl;
         curPage.getLineSetupBehavior()->renderLine(this, line);
     }
 
@@ -102,12 +99,12 @@ void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const
 
     if (lineThreadBools[lineNum]==true) {
         lineThreadBools[lineNum] = false;
-        cout << "set flag to end a thread, waiting for it to join in startScrollText..." << endl;
         lineThreads[lineNum]->join();
         delete lineThreads[lineNum];
     }
 
     lineThreadBools[lineNum]=true;
+    cout << "starting new thread for scrolling on line " << lineNum << endl;
     lineThreads[lineNum] = new std::thread(&IOHandler::scrollText, this, startSpot, stopSpot, lineNum, msg);
 
 }

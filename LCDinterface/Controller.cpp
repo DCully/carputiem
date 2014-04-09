@@ -30,7 +30,7 @@ Controller::Controller() {
     lines.push_back("static line on 2");
     lines.push_back("more scrolling text for line 3");
 
-    ls = LineSetupBehavior(lines, t);
+    ls = new LineSetupBehavior(lines, t);
 
     string t2 = "long: a a a a a a a a a";
 
@@ -44,7 +44,7 @@ Controller::Controller() {
     spaces.push_back(4);
     spaces.push_back(6);
 
-    ls2 = LabeledLineSetupBehavior(lines, labels, spaces, t2);
+    ls2 = new LabeledLineSetupBehavior(lines, labels, spaces, t2);
     curPageIndex = 0;
     pages.push_back(ScreenData(obs, p, ls));
     pages.push_back(ScreenData(obs, p, ls2));
@@ -111,7 +111,6 @@ void Controller::changePageLeft(void) {
     pages.at(curPageIndex).observed->registerObserver(iohandler);
 
     // print the new page
-    cout << "In changePageLeft, now curPageIndex = " << curPageIndex << endl;
     iohandler->printPage(pages.at(curPageIndex));
 }
 
@@ -132,7 +131,6 @@ void Controller::changePageRight(void) {
     pages.at(curPageIndex).observed->registerObserver(iohandler);
 
     // print the new page
-    cout << "In changePageRight, now curPageIndex = " << curPageIndex << endl;
     iohandler->printPage(pages.at(curPageIndex));
 }
 
