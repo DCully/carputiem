@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <thread>
+#include <chrono>
 #include "Controller.h"
 // #include "../unit_tests/wPi_mock.h"
 
@@ -48,6 +49,8 @@ void IOHandler::update(size_t linenum, string info) {
 void IOHandler::printPage(ScreenData& curPage) {
 
     for (int line = 0; line < 4; line++) {
+        lineThreadBools[line] = false; // this will cause any previous scrolling line threads to terminate
+        cout << "in printpage, telling linesetupbehavior to print line " << line << endl;
         curPage.getLineSetupBehavior()->renderLine(this, line);
     }
 
@@ -65,32 +68,22 @@ void IOHandler::scrollText(int startSpot, int stopSpot, int lineNum, string msg)
     message.append(" ");
     message.append(message);
     string toScreen = message.substr(0, stopSpot-startSpot);
-    int lastPrint = 0;
     size_t spotInMsg = 0;
-    string blank = "";
-    bool lastPrintWasText = false;
-
-    while (blank.size() < toScreen.size()) {
-        blank.append(" ");
-    }
+    unsigned int lastPrint = 0;
 
     while (lineThreadBools[lineNum]==true) {
-
         if (millis() - lastPrint > 200) {
-
             printToLCD(toScreen, lineNum*20+startSpot);
             spotInMsg = (spotInMsg + 1) % (message.size()/2);
             toScreen = message.substr(spotInMsg, toScreen.size());
-
-            lastPrintWasText = !lastPrintWasText;
             lastPrint = millis();
+            //std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
-
     }
 }
 
 void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const int& lineNum, const string& msg) {
-    if ( (stopSpot <= startSpot) || (lineNum >= 3) || (lineNum < 0) || (msg.size() < (stopSpot-startSpot)) ) {
+    if ( (stopSpot <= startSpot) || (lineNum > 3) || (lineNum < 0) || (msg.size() < (stopSpot-startSpot)) ) {
         cerr << "Invalid parameters passed to startScrollText" << endl;
         return ;
     }

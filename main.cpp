@@ -68,7 +68,7 @@ int main()
 
     /// 4) write setUpObdScreens, and integration test it with the whole front end of the program
 
-    while (true) { }
+    sleep(20);
 
     return 0;
 }
