@@ -56,12 +56,9 @@ int main()
     ioh->printPage(sd2);
 */
     /// 3) put sd and sd2 into controller->pages, and test:
-            /// moving cursor with L and R buttons,
             /// changing pages with S button,
             /// calling update once
             /// calling update repeatedly while text is scrolling
-
-    /// 4) write setUpObdScreens, and integration test it with the whole front end of the program
 
     sleep(20);
 
