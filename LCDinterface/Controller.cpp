@@ -49,7 +49,7 @@ Controller::Controller() {
     sd2 = ScreenData(obs, p, ls2);
     curPageIndex = 0;
     pages.push_back(sd);
-    pages.push_back(sd2);
+    pages.push_back(sd);
 
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
     lastPush = 1;
