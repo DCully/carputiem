@@ -65,12 +65,19 @@ void LineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string 
 
 LabeledLineSetupBehavior::LabeledLineSetupBehavior() {}
 
-LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> textForLines,
+LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> txtForLines,
     std::vector<std::string> lblsForLines, std::vector<size_t> spaceBtwnLblsAndTxtOnLines, const string& t)
-    : LineSetupBehavior(textForLines, t),
-      labelsForLines(lblsForLines),
+    : labelsForLines(lblsForLines),
       spaceBtwnLblsAndTextOnLines(spaceBtwnLblsAndTxtOnLines)
 {
+    textForLines = txtForLines;
+
+    title = t.substr(0,15);
+    while (title.size() < 17) {
+        title.append(" ");
+    }
+    title = title + "<->";
+
     updateSpotsForLines.push_back(0);
     endOfScrollForLines.push_back(0);
 

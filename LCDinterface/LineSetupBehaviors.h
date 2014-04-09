@@ -19,15 +19,15 @@ class LineSetupBehavior
         std::string title;
 };
 
-class LabeledLineSetupBehavior: public LineSetupBehavior
+class LabeledLineSetupBehavior: public virtual LineSetupBehavior
 {
     public:
         LabeledLineSetupBehavior();
         LabeledLineSetupBehavior(std::vector<std::string> textForLines,
             std::vector<std::string> labelsForLines, std::vector<size_t> spaceBtwnLblsAndTextOnLines,
             const std::string& pageTitle);
-        virtual void renderLine(IOHandler* iohandler, size_t lineNum);
-        virtual void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
+        void renderLine(IOHandler* iohandler, size_t lineNum);
+        void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
     protected:
         std::vector<std::string> labelsForLines;
         std::vector<size_t> spaceBtwnLblsAndTextOnLines;
