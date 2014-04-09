@@ -33,8 +33,8 @@ Controller::Controller() {
 
     vector<string> lines;
     lines.push_back("scrolling text for line 1");
-    lines.push_back("long text for line 2 should scroll as well");
-    lines.push_back("static line 3");
+    lines.push_back("static line on 2");
+    lines.push_back("more scrolling text for line 3");
 
     ls = LineSetupBehavior(lines, t);
 
@@ -109,8 +109,7 @@ void Controller::selPressed() {
 }
 
 ScreenData* Controller::getCurPage() {
-    cout << "in getcurpage" << endl;
-    cout << "curPageIndex is: " << curPageIndex << endl;
+
     return &pages.at(curPageIndex);
 }
 

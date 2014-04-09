@@ -9,7 +9,7 @@ using namespace std;
 LineSetupBehavior::LineSetupBehavior(vector<string> txtForLines, string t) : textForLines(txtForLines)
 {
     title = t.substr(0,15);
-    while (title.size() < 16) {
+    while (title.size() < 17) {
         title.append(" ");
     }
     title = title + "<->";
@@ -35,11 +35,11 @@ void LineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {
         return ;
     }
 
-    if (textForLines.at(lineNum).size() > 20) {
-        iohandler->startScrollText(0, 19, lineNum, textForLines.at(lineNum));
+    if (textForLines.at(lineNum-1).size() > 20) {
+        iohandler->startScrollText(0, 19, lineNum, textForLines.at(lineNum-1));
     }
     else {
-        iohandler->printToLCD(textForLines.at(lineNum), 20 + 20*lineNum);
+        iohandler->printToLCD(textForLines.at(lineNum-1), 20*lineNum);
     }
 }
 

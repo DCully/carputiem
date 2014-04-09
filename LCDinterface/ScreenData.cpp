@@ -60,8 +60,6 @@ void ScreenData::doCurSpotSelectBehavior() {
 }
 
 const int ScreenData::getCurrentCursorSpot() const {
-    cout << "in getcurrentcursorps==spot" << endl;
-    cout << "returning current cursor spot : " << cursorSpots.at(currentSpotIndex).first << endl;
     return cursorSpots.at(currentSpotIndex).first;
 }
 
