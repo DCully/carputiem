@@ -5,7 +5,7 @@ using namespace std;
 
 void PageChangeBehavior::loadPage(Observable& obs) {
     // default behavior is to do nothing
-    /// should make page observe model object
+    /// should make page observe model object?
 }
 
 void PageChangeBehavior::leavePage(Observable& obs) {

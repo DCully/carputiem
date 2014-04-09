@@ -50,7 +50,6 @@ void IOHandler::update(size_t linenum, string info) {
 void IOHandler::printPage(ScreenData& curPage) {
 
     for (int line = 0; line < 4; line++) {
-        lineThreadBools[line] = false; // this will cause any previous scrolling line threads to terminate
         cout << "in printpage, telling linesetupbehavior to print line " << line << endl;
         curPage.getLineSetupBehavior()->renderLine(this, line);
     }
