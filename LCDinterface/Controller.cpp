@@ -31,13 +31,13 @@ Controller::Controller() {
     lines.push_back("2006 Honda Civic");
 
     vector<string> lines2;
-    lines.push_back("Current Vehicle Speed");
-    lines.push_back("Other Datum");
-    lines.push_back("Temperature");
+    lines2.push_back("Current Vehicle Speed Over Ground");
+    lines2.push_back("Other Datum");
+    lines2.push_back("Temperature");
 
     ls = new LineSetupBehavior(lines, t);
 
-    string t2 = "long: a a a a a a a a a";
+    string t2 = "Diff. Title";
 
     vector<string> labels;
     labels.push_back("kmh");
@@ -49,7 +49,7 @@ Controller::Controller() {
     spaces.push_back(4);
     spaces.push_back(6);
 
-    ls2 = new LabeledLineSetupBehavior(lines2, labels, spaces, t2);
+    ls2 = new LineSetupBehavior(lines2, t2);
 
     curPageIndex = 0;
 
