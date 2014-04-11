@@ -41,6 +41,7 @@ void LineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {
         iohandler->startScrollText(0, 19, lineNum, textForLines.at(lineNum-1));
     }
     else {
+        iohandler->printToLCD("                    ", 20*lineNum);
         iohandler->printToLCD(textForLines.at(lineNum-1), 20*lineNum);
     }
 }

@@ -70,7 +70,7 @@ void IOHandler::scrollText(int startSpot, int stopSpot, int lineNum, string msg)
     string message = msg;
     message.append(" ");
     message.append(message);
-    string toScreen = message.substr(0, stopSpot-startSpot);
+    string toScreen = message.substr(0, stopSpot-startSpot+1);
     size_t spotInMsg = 0;
     unsigned int lastPrint = 0;
 
