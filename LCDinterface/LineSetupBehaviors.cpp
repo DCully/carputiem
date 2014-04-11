@@ -65,11 +65,16 @@ void LineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string 
 
 LabeledLineSetupBehavior::LabeledLineSetupBehavior() {}
 
-LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> txtForLines,
-    std::vector<std::string> lblsForLines, std::vector<size_t> spaceBtwnLblsAndTxtOnLines, const string& t)
-    : labelsForLines(lblsForLines),
-      spaceBtwnLblsAndTextOnLines(spaceBtwnLblsAndTxtOnLines)
+LabeledLineSetupBehavior::LabeledLineSetupBehavior(
+    std::vector<std::string> txtForLines,
+    std::vector<std::string> lblsForLines,
+    std::vector<size_t> sForDataOnLs,
+    const std::string& t) :
+    labelsForLines(lblsForLines),
+    spacesForDataOnLine(sForDataOnLs)
 {
+
+    // makes title contain entire top line's text
     textForLines = txtForLines;
 
     title = t.substr(0,15);
@@ -78,23 +83,12 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(std::vector<std::string> txtF
     }
     title = title + "<->";
 
-    updateSpotsForLines.push_back(0);
-    endOfScrollForLines.push_back(0);
-
-    // for lines 1-3
+    /// determine end of scroll for lines for lines 1-3
     for (size_t line = 0; line < 3; line++) {
-
-        // determine update spot (left justified)
-        updateSpotsForLines.push_back(20 - labelsForLines.at(line).size() - 1);
-
-        // determine end of scrolling section (for textForLines)
-        endOfScrollForLines.push_back(20 - labelsForLines.at(line).size() - spaceBtwnLblsAndTextOnLines.at(line));
-
+        size_t spot = 19 - lblsForLines.at(line).size() - sForDataOnLs.at(line);
+        endOfScrollsForLine.push_back(spot); // storing at indexes 0,1,2... shift-corrected to 1,2,3 in renderLine
+        updateSpotsForLines.push_back(spot + sForDataOnLs.at(line));
     }
-    cout << "in labeledlinesetupbehavior constructor: " << endl;
-    cout << textForLines.at(0) << endl;
-    cout << labelsForLines.at(0) << endl;
-    cout << title << endl;
 
 }
 
@@ -107,43 +101,53 @@ void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) 
         return ;
     }
 
-    // printing title line
+    // printing title line - working
     if (lineNum == 0) {
         iohandler->printToLCD(title, 0);
         return ;
     }
 
-    // prints with blanks for data fields, lines 1-3
+    /// shifting lineNum (no data stored for line 0 == title line
+    lineNum--;
 
-    if (textForLines.at(lineNum).size() <= endOfScrollForLines.at(lineNum)) {
-        string output = textForLines.at(lineNum); //here it's "blahblah"
-        for (size_t x = 0; x < 20 - labelsForLines.at(lineNum).size(); x++) {
-            output.append(" ");
-        } // now it's "blahblah          "
+    /// print with blanks for data fields, lines 1-3
+    size_t spaceForText = 20 - labelsForLines.at(lineNum).size() - spacesForDataOnLine.at(lineNum);
 
-        output.append(labelsForLines.at(lineNum));
-        /// assert: should always be 20 chars long
+    if (textForLines.at(lineNum).size() <=  spaceForText ) {
 
-        iohandler->printToLCD(output, 20*lineNum);
-    }
-    else {
+        /// static label on the line
 
-        iohandler->startScrollText(0, endOfScrollForLines.at(lineNum), lineNum, textForLines.at(lineNum));
+        string output = textForLines.at(lineNum);
 
-        string output = "";
-
-        // add requisite number of spaces
-        while (output.size() < spaceBtwnLblsAndTextOnLines.at(lineNum)) {
+        // adding spaces for text
+        while (output.size() < spaceForText) {
             output.append(" ");
         }
 
-        // add the label
+        // adding spaces for data from update call
+        for (size_t x = 0; x < spacesForDataOnLine.at(lineNum); x++) {
+            output.append(" ");
+        }
+
         output.append(labelsForLines.at(lineNum));
 
-        /// assert: output.size() = 20-endOfScrollForLines.at(lineNum)
+        if (output.size() != 20) {
+            cerr << "Error in LabeledLineSetupBehavior::renderLine - output.size() != 20 for line " << lineNum << endl;
+        }
 
-        iohandler->printToLCD(output, 20 * lineNum + endOfScrollForLines.at(lineNum) + 1);
+        iohandler->printToLCD(output, 20 + 20*lineNum);
 
+    }
+    else {
+        /// scrolling label on line
+        iohandler->startScrollText(0, spaceForText, lineNum, textForLines.at(lineNum));
+        string output = "";
+        while (output.size() < spacesForDataOnLine.at(lineNum)) {
+            output.append(" ");
+        }
+        output.append(labelsForLines.at(lineNum));
+
+        iohandler->printToLCD(output, 20 + 20*lineNum + spaceForText + 1);
     }
 
 }

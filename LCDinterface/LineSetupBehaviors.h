@@ -15,7 +15,7 @@ class LineSetupBehavior
         virtual void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
     protected:
         std::vector<std::string> textForLines;
-        std::vector<size_t> updateSpotsForLines;
+        std::vector<size_t> updateSpotsForLines; // these are left justified internally
         std::string title;
 };
 
@@ -24,15 +24,17 @@ class LabeledLineSetupBehavior: public virtual LineSetupBehavior
 {
     public:
         LabeledLineSetupBehavior();
-        LabeledLineSetupBehavior(std::vector<std::string> textForLines,
-            std::vector<std::string> labelsForLines, std::vector<size_t> spaceBtwnLblsAndTextOnLines,
+        LabeledLineSetupBehavior(
+            std::vector<std::string> textForLines,
+            std::vector<std::string> labelsForLines,
+            std::vector<size_t> spaceForDataOnLines,
             const std::string& pageTitle);
         void renderLine(IOHandler* iohandler, size_t lineNum);
         void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
     protected:
         std::vector<std::string> labelsForLines;
-        std::vector<size_t> spaceBtwnLblsAndTextOnLines;
-        std::vector<size_t> endOfScrollForLines;
+        std::vector<size_t> spacesForDataOnLine;
+        std::vector<size_t> endOfScrollsForLine; // these get right justified internally
 };
 
 #endif

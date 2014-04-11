@@ -10,16 +10,16 @@ Controller * controller;
 
 /// Problems:
 
-/// 1) the LLSB renderline code is terrible and doesnt work
+/// 1) test LLSB
 
-/// 2) need to make ScreenData objects own their LSB pointers and PCB pointers
+/// 2) make ScreenData objects own their LSB pointers and PCB pointers
 
 
 
 /// I also need to:
    /// - test calling update, and with scrolling text running
-   /// - write setUpObdScreens, and test with a dummy vector
-   /// - test pageChangeBehavior stuff
+   /// - write setUpObdScreens (factory), and test with a dummy vector
+   /// - test pageChangeBehavior stuff, etc
 
 
 using namespace std;
