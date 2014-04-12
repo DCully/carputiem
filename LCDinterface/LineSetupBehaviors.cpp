@@ -26,7 +26,7 @@ LineSetupBehavior::LineSetupBehavior() {
 
 void LineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {
 
-    cout << "linesetupbehavior's renderline called for " << lineNum << endl;
+
 
     if (lineNum != 0 && lineNum != 1 && lineNum != 2 && lineNum != 3) {
         cerr << "Invalid line number passed to LineSetupBehavior::renderLine" << endl;
@@ -48,7 +48,7 @@ void LineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {
 
 // reprints entire line
 void LineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string info) {
-
+cout << "linesetupbehavior::updateline called for line " << lineNum << endl;
     if (lineNum != 1 && lineNum != 2 && lineNum != 3) {
         cerr << "Invalid line number passed to LineSetupBehavior::updateLine" << endl;
     }
@@ -104,6 +104,7 @@ void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) 
 
     // printing title line - working
     if (lineNum == 0) {
+        cout << "printint title line of llsb" << endl;
         iohandler->printToLCD(title, 0);
         return ;
     }
@@ -113,6 +114,7 @@ void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) 
 
     /// print with blanks for data fields, lines 1-3
     size_t spaceForText = 20 - labelsForLines.at(lineNum).size() - spacesForDataOnLine.at(lineNum);
+    cout << "space for text for line " << lineNum << " is " << spaceForText << endl;
 
     if (textForLines.at(lineNum).size() <=  spaceForText ) {
 

@@ -82,7 +82,7 @@ void IOHandler::scrollText(int startSpot, int stopSpot, int lineNum, string msg)
             lastPrint = millis();
         }
     }
-    cout << "exiting scrolltext for line " << lineNum << endl;
+
 }
 
 void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const int& lineNum, const string& msg) {
@@ -104,7 +104,7 @@ void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const
     }
 
     lineThreadBools[lineNum]=true;
-    cout << "starting new thread for scrolling on line " << lineNum << endl;
+
     lineThreads[lineNum] = new std::thread(&IOHandler::scrollText, this, startSpot, stopSpot, lineNum, msg);
 
 }

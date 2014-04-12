@@ -14,7 +14,7 @@ class LineSetupBehavior
         LineSetupBehavior(std::vector<std::string> textForLines, const std::string& pageTitle);
         virtual void renderLine(IOHandler* iohandler, size_t lineNum);
         virtual void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
-        LineSetupBehavior* clone() const { return new LineSetupBehavior(*this); }
+        virtual LineSetupBehavior* clone() const { return new LineSetupBehavior(*this); }
     protected:
         std::vector<std::string> textForLines;
         std::vector<size_t> updateSpotsForLines; // these are left justified internally

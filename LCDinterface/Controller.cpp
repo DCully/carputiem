@@ -22,10 +22,11 @@ Controller::Controller() {
     /// TESTING
     PageChangeBehavior* p;
     LineSetupBehavior* ls;
-    LineSetupBehavior* ls2;
+    LabeledLineSetupBehavior* ls2;
 
     obs = new Observable();
     p = new PageChangeBehavior();
+    PageChangeBehavior* p2 = new PageChangeBehavior();
     string t = "Page Title";
 
     vector<string> lines;
@@ -37,6 +38,7 @@ Controller::Controller() {
     lines2.push_back("Current Vehicle Speed Over Ground");
     lines2.push_back("Other Datum");
     lines2.push_back("Temperature");
+
 
     ls = new LineSetupBehavior(lines, t);
 
@@ -52,16 +54,18 @@ Controller::Controller() {
     spaces.push_back(4);
     spaces.push_back(6);
 
-    ls2 = new LineSetupBehavior(lines2, t2);
+    ls2 = new LabeledLineSetupBehavior(lines2,  labels, spaces, t2);
 
     curPageIndex = 0;
 
     pages.push_back(ScreenData(obs, p, ls));
-    pages.push_back(ScreenData(obs, p, ls2));
+
+
+    pages.push_back(ScreenData(obs, p2, ls2));
+
 
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
     lastPush = 1;
-
     iohandler->printPage(pages.at(curPageIndex));
 }
 
