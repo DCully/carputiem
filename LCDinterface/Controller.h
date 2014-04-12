@@ -43,11 +43,9 @@ class Controller
         int curPageIndex;
         ObdSerial * obd;
 
-/// TESTING
-PageChangeBehavior p;
-LineSetupBehavior* ls;
-LineSetupBehavior* ls2;
-Observable* obs;
+        /// TESTING
+        Observable* obs;
+
 };
 
 

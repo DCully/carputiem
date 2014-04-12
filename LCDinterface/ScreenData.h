@@ -8,10 +8,6 @@
 #include "PageChangeBehaviors.h"
 #include "LineSetupBehaviors.h"
 
-/// note: heavy use of PIMPL
-
-/// make this class own its lineSetupBehavior and pageChangeBehavior objects?
-
 typedef void (*SelectBehaviorFunc)(void);
 
 class LineSetupBehavior;
@@ -19,9 +15,13 @@ class LineSetupBehavior;
 class ScreenData {
 
     public:
-        ScreenData(Observable* obs, PageChangeBehavior pcb, LineSetupBehavior* lsb);
+        ScreenData(Observable* obs, PageChangeBehavior* pcb, LineSetupBehavior* lsb);
         ScreenData();
         ~ScreenData();
+
+        ScreenData(const ScreenData& other);
+        ScreenData& operator=(ScreenData other);
+        void swap(ScreenData& other);
 
         void moveCursorLeft(IOHandler* ioh);
         void moveCursorRight(IOHandler* ioh);
@@ -31,10 +31,11 @@ class ScreenData {
         void doLeavePageBehavior();
         const int getCurrentCursorSpot() const;
         LineSetupBehavior* getLineSetupBehavior();
+
         Observable* observed;
     private:
         // set in constructor
-        PageChangeBehavior pageChangeBehavior;
+        PageChangeBehavior* pageChangeBehavior;
         LineSetupBehavior* lineSetupBehavior;
 
         // places on this screen the cursor can go to, with corresponding select behaviors

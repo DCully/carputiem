@@ -153,7 +153,6 @@ void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) 
 
 }
 
-/// not currently being tested (4/9)
 void LabeledLineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string info) {
 
     if (lineNum != 1 && lineNum != 2 && lineNum != 3) {

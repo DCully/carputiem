@@ -10,9 +10,11 @@ class LineSetupBehavior
 {
     public:
         LineSetupBehavior();
+        virtual ~LineSetupBehavior() {}
         LineSetupBehavior(std::vector<std::string> textForLines, const std::string& pageTitle);
         virtual void renderLine(IOHandler* iohandler, size_t lineNum);
         virtual void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
+        LineSetupBehavior* clone() const { return new LineSetupBehavior(*this); }
     protected:
         std::vector<std::string> textForLines;
         std::vector<size_t> updateSpotsForLines; // these are left justified internally
@@ -24,6 +26,7 @@ class LabeledLineSetupBehavior: public virtual LineSetupBehavior
 {
     public:
         LabeledLineSetupBehavior();
+        virtual ~LabeledLineSetupBehavior() {}
         LabeledLineSetupBehavior(
             std::vector<std::string> textForLines,
             std::vector<std::string> labelsForLines,
@@ -31,6 +34,7 @@ class LabeledLineSetupBehavior: public virtual LineSetupBehavior
             const std::string& pageTitle);
         void renderLine(IOHandler* iohandler, size_t lineNum);
         void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
+        LabeledLineSetupBehavior* clone() const { return new LabeledLineSetupBehavior(*this); }
     protected:
         std::vector<std::string> labelsForLines;
         std::vector<size_t> spacesForDataOnLine;

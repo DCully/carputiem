@@ -8,18 +8,11 @@
 
 Controller * controller;
 
-/// Problems:
-
-/// 1) test LLSB
-
-/// 2) make ScreenData objects own their LSB pointers and PCB pointers
-
-
-
-/// I also need to:
-   /// - test calling update, and with scrolling text running
+/// Test:
+   /// - LLSBs
+   /// - PCBs
+   /// - update(), with scrolling text running
    /// - write setUpObdScreens (factory), and test with a dummy vector
-   /// - test pageChangeBehavior stuff, etc
 
 
 using namespace std;

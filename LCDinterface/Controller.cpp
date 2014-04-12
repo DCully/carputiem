@@ -19,10 +19,13 @@ Controller::Controller() {
     setUpObdScreens(obd->getSuppdCmds()); // fills pages deque
 */
 
-/// TESTING
+    /// TESTING
+    PageChangeBehavior* p;
+    LineSetupBehavior* ls;
+    LineSetupBehavior* ls2;
 
     obs = new Observable();
-    p = PageChangeBehavior();
+    p = new PageChangeBehavior();
     string t = "Page Title";
 
     vector<string> lines;
@@ -53,10 +56,6 @@ Controller::Controller() {
 
     curPageIndex = 0;
 
-    /// putting them in this way shallow copies ScreenData's data fields
-    /// so we need to make it a deep copy to avoid bad pointer errors
-    /// would this mess up the polymorphism? YES
-    /// definitely need to use the owned pointers approach
     pages.push_back(ScreenData(obs, p, ls));
     pages.push_back(ScreenData(obs, p, ls2));
 
@@ -68,9 +67,7 @@ Controller::Controller() {
 
 Controller::~Controller() {
     delete iohandler;
-    delete obs;
-    delete ls;
-    delete ls2;
+    delete obs; // should be obd, eventually
 
 }
 

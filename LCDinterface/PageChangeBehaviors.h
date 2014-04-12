@@ -8,15 +8,19 @@
 // gets passed to ScreenData objects on their construction
 class PageChangeBehavior {
     public:
+        virtual ~PageChangeBehavior() {}
         virtual void loadPage(Observable& obs);
         virtual void leavePage(Observable& obs);
+        virtual PageChangeBehavior* clone() const { return new PageChangeBehavior(*this); }
 };
 
 class ObdPageChangeBehavior: public PageChangeBehavior {
     public:
+        virtual ~ObdPageChangeBehavior() {}
         ObdPageChangeBehavior(std::vector<int>& pidIndices, ObdSerial* obd);
         void loadPage(ObdSerial& obs);
         void leavePage(ObdSerial& obs);
+        ObdPageChangeBehavior* clone() const { return new ObdPageChangeBehavior(*this); } // shallow copy on obd is ok
     private:
         std::vector<int> PIDsIShowFromSuppdCmds;
         ObdSerial * obd;

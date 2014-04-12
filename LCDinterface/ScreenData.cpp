@@ -6,7 +6,7 @@ using namespace std;
 
 extern Controller * controller;
 
-ScreenData::ScreenData(Observable* obs, PageChangeBehavior pcb, LineSetupBehavior* lsb)
+ScreenData::ScreenData(Observable* obs, PageChangeBehavior* pcb, LineSetupBehavior* lsb)
     : observed(obs), pageChangeBehavior(pcb), lineSetupBehavior(lsb)
 {
     // all screens have next page and previous page buttons at 17 and 19
@@ -21,7 +21,31 @@ ScreenData::ScreenData() {
 }
 
 ScreenData::~ScreenData() {
+    delete pageChangeBehavior;
+    delete lineSetupBehavior;
+    // pages don't own their model objects
+}
 
+ScreenData::ScreenData(const ScreenData& other) :
+    observed(other.observed),
+    pageChangeBehavior(other.pageChangeBehavior->clone()),
+    lineSetupBehavior(other.lineSetupBehavior->clone()),
+    cursorSpots(other.cursorSpots),
+    currentSpotIndex(other.currentSpotIndex)
+{ }
+
+ScreenData& ScreenData::operator=(ScreenData other) {
+    ScreenData temp(other);
+    swap(temp);
+    return *this;
+}
+
+void ScreenData::swap(ScreenData& other) {
+    std::swap(observed, other.observed);
+    std::swap(lineSetupBehavior, other.lineSetupBehavior);
+    std::swap(pageChangeBehavior, other.pageChangeBehavior);
+    std::swap(currentSpotIndex, other.currentSpotIndex);
+    std::swap(cursorSpots, other.cursorSpots);
 }
 
 void ScreenData::addCursorSpot(std::pair<int, SelectBehaviorFunc> newSpot) {
@@ -34,11 +58,11 @@ void ScreenData::addCursorSpot(std::pair<int, SelectBehaviorFunc> newSpot) {
 }
 
 void ScreenData::doLoadPageBehavior() {
-    pageChangeBehavior.loadPage(*observed);
+    pageChangeBehavior->loadPage(*observed);
 }
 
 void ScreenData::doLeavePageBehavior() {
-    pageChangeBehavior.leavePage(*observed);
+    pageChangeBehavior->leavePage(*observed);
 }
 
 LineSetupBehavior* ScreenData::getLineSetupBehavior() {
