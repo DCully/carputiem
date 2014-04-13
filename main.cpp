@@ -8,9 +8,10 @@
 
 Controller * controller;
 
-/// there's some issue in LLSB::renderLine where it doesnt stop scrolling threads and puts scrolling threads down over title lines
-/// make sure there can only ever be 3 scrolling threads going at once... too many threads bogs the Pi down
-/// does each scrolling line need its own thread? or could all scrolling lines be handled by a single separate thread...
+/// implement a stopscrolltextonline method in iohandler... static prints from lsbs arent cancelling old scroll threads
+
+/// how to get a smoother looking interface with the scrolling prints, using the cursor for manual input and output?
+/// - place a certain symbol wherever the current cursor position is? and then make the actual cursor's movements invisible?
 
 /// Test:
    /// - LLSBs

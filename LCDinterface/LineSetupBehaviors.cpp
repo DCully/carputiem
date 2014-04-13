@@ -109,12 +109,12 @@ void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) 
         return ;
     }
 
-    /// shifting lineNum (no data stored for line 0 == title line
+    /// shifting lineNum for internal vector access (no data stored for line 0 == title line)
     lineNum--;
 
     /// print with blanks for data fields, lines 1-3
     size_t spaceForText = 20 - labelsForLines.at(lineNum).size() - spacesForDataOnLine.at(lineNum);
-    cout << "space for text for line " << lineNum << " is " << spaceForText << endl;
+    //cout << "space for text for line " << lineNum << " is " << spaceForText << endl;
 
     if (textForLines.at(lineNum).size() <=  spaceForText ) {
 
@@ -143,14 +143,14 @@ void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) 
     }
     else {
         /// scrolling label on line
-        iohandler->startScrollText(0, spaceForText, lineNum, textForLines.at(lineNum));
+        iohandler->startScrollText(0, spaceForText, lineNum + 1, textForLines.at(lineNum));
         string output = "";
         while (output.size() < spacesForDataOnLine.at(lineNum)) {
             output.append(" ");
         }
         output.append(labelsForLines.at(lineNum));
 
-        iohandler->printToLCD(output, 20 + 20*lineNum + spaceForText + 1);
+        iohandler->printToLCD(output, 20 + 20*lineNum + spaceForText);
     }
 
 }

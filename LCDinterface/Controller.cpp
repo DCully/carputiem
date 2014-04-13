@@ -36,8 +36,8 @@ Controller::Controller() {
 
     vector<string> lines2;
     lines2.push_back("Current Vehicle Speed Over Ground");
-    lines2.push_back("Other Datum");
-    lines2.push_back("Temperature");
+    lines2.push_back("Other Datum is too long");
+    lines2.push_back("Temperature sir scrollsalot");
 
 
     ls = new LineSetupBehavior(lines, t);
