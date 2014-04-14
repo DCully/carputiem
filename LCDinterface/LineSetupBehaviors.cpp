@@ -38,9 +38,11 @@ void LineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) {
     }
 
     if (textForLines.at(lineNum-1).size() > 20) {
+        // startScrollText automatically should end any previous scrolling text on that line
         iohandler->startScrollText(0, 19, lineNum, textForLines.at(lineNum-1));
     }
     else {
+        iohandler->stopAnyScrollingTextOnLine(lineNum);
         iohandler->printToLCD("                    ", 20*lineNum);
         iohandler->printToLCD(textForLines.at(lineNum-1), 20*lineNum);
     }
@@ -138,6 +140,7 @@ void LabeledLineSetupBehavior::renderLine(IOHandler* iohandler, size_t lineNum) 
             cerr << "Error in LabeledLineSetupBehavior::renderLine - output.size() != 20 for line " << lineNum << endl;
         }
 
+        iohandler->stopAnyScrollingTextOnLine(lineNum+1);
         iohandler->printToLCD(output, 20 + 20*lineNum);
 
     }
@@ -162,8 +165,16 @@ void LabeledLineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, 
         return ;
     }
 
+    string output = "";
+
+    while (output.size() < spacesForDataOnLine.at(lineNum - 1) - info.size() ) {
+        // add necessary spaces to print over the entire updateable zone
+        output.append(" ");
+    }
+
+    output.append(info);
     // prints info to updateSpotForLine(lineNum), and deals with update spots being right justified
-    iohandler->printToLCD(info, 20 + 20*lineNum + updateSpotsForLines.at(lineNum) - info.size());
+    iohandler->printToLCD(info, 20 + 20*lineNum + endOfScrollsForLine.at(lineNum-1) + 1);
 
 }
 

@@ -27,6 +27,7 @@ class IOHandler: public Observer
         void moveCursor(const int& spot);
 
         // for LineSetupBehavior objects
+        void stopAnyScrollingTextOnLine(const size_t& num);
         void startScrollText(const int& startSpot, const int& stopSpot, const int& lineNum, const std::string& msg);
         void printToLCD(const std::string& text, const int& spot);
 

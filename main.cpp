@@ -8,17 +8,16 @@
 
 Controller * controller;
 
-/// implement a stopscrolltextonline method in iohandler... static prints from lsbs arent cancelling old scroll threads
-
-/// how to get a smoother looking interface with the scrolling prints, using the cursor for manual input and output?
-/// - place a certain symbol wherever the current cursor position is? and then make the actual cursor's movements invisible?
-
-/// Test:
+/// 1) Test:
    /// - LLSBs
-   /// - PCBs
    /// - update(), with scrolling text running
    /// - write setUpObdScreens (factory), and test with a dummy vector
 
+/// 2) build hardware layer and get it working in the car
+
+/// 3) make cursor invisible and place a special character at the "cursored spot" on the screen
+
+/// 4) do other stuff like that to make the project better
 
 using namespace std;
 

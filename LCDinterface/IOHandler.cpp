@@ -24,20 +24,27 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
     wiringPiISR(bright, INT_EDGE_FALLING, &Controller::rButPressed);
     wiringPiISR(bsel, INT_EDGE_FALLING, &Controller::selPressed);
 
-    lcdCursor(LCDHandle, 1);
+    lcdCursor(LCDHandle, 1); // experiment with cursor turned off
     lcdCursorBlink(LCDHandle, 0); // dont blink the cursor
     moveCursor(cont->getCurPage()->getCurrentCursorSpot());
     controller = cont;
 }
 
+
+/// rewrite this method so that it prints a new character in the new cursor spot
+/// needs to be able to clean up after itself
+/// rely on a memento string of what went out to the LCD (kept up to date by printToLCD)?
 void IOHandler::moveCursor(const int& spot) {
     if (spot > 79 || spot < 0) {
         cerr << "Invalid cursor spot passed to moveCursor" << endl;
         //throws "Invalid cursor spot passed to moveCursor";
     }
-    // this lock ensures that no one can call this while someone else is moving cursor to print
+
+
     std::lock_guard<std::mutex> locker2(cursor_lock);
     lcdPosition(LCDHandle, spot%20, spot/20);
+
+    //printToLCD("X", spot); /// "X" is the cursor's new spot...
 }
 
 void IOHandler::update(size_t linenum, string info) {
@@ -94,15 +101,9 @@ void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const
         cerr << "Error in startScrollText - can't scroll across multiple lines" << endl;
         return ;
     }
-cout << "linethreadbool for lineNum " << lineNum << " is " << lineThreadBools[lineNum] << endl;
-    // this uses pointers to the scroll threads in order to be able to explicitly destroy the threads
 
-    if (lineThreadBools[lineNum]==true) {
-        lineThreadBools[lineNum] = false;
-        cout << "set linethreadbool to false for lineNum " << lineNum << endl;
-        lineThreads[lineNum]->join();
-        delete lineThreads[lineNum];
-    }
+    // this uses pointers to the scroll threads in order to be able to explicitly destroy the threads
+    stopAnyScrollingTextOnLine(lineNum);
 
     lineThreadBools[lineNum]=true;
     cout << "set linethreadbool to true for lineNum " << lineNum << endl;
@@ -110,4 +111,12 @@ cout << "linethreadbool for lineNum " << lineNum << " is " << lineThreadBools[li
     lineThreads[lineNum] = new std::thread(&IOHandler::scrollText, this, startSpot, stopSpot, lineNum, msg);
 
 }
-/// need stopscrolltextonline method... static line prints from printpage dont cancel old scrolling threads
+
+void IOHandler::stopAnyScrollingTextOnLine(const size_t& lineNum) {
+    if (lineThreadBools[lineNum]==true) {
+        lineThreadBools[lineNum] = false;
+        cout << "set linethreadbool to false for lineNum " << lineNum << endl;
+        lineThreads[lineNum]->join();
+        delete lineThreads[lineNum];
+    }
+}

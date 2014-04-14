@@ -3,9 +3,10 @@
 
 using namespace std;
 
+/// these objects run the interaction between the controller objects (screendata) and model objects
+
 void PageChangeBehavior::loadPage(Observable& obs) {
     // default behavior is to do nothing
-    /// should make page observe model object?
 }
 
 void PageChangeBehavior::leavePage(Observable& obs) {
