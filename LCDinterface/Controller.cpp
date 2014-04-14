@@ -50,17 +50,19 @@ Controller::Controller() {
     labels.push_back("*C");
 
     vector<size_t> spaces;
-    spaces.push_back(5);
-    spaces.push_back(4);
-    spaces.push_back(6);
+    spaces.push_back(7);
+    spaces.push_back(7);
+    spaces.push_back(7);
 
     ls2 = new LabeledLineSetupBehavior(lines2,  labels, spaces, t2);
 
     curPageIndex = 0;
 
+    ScreenData sd = ScreenData(obs, p, ls);
+
     pages.push_back(ScreenData(obs, p, ls));
 
-
+    pages.push_back(sd);
     pages.push_back(ScreenData(obs, p2, ls2));
 
 
