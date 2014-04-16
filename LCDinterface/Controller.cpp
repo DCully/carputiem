@@ -36,7 +36,7 @@ Controller::Controller() {
 
     vector<string> lines2;
     lines2.push_back("Current Vehicle Speed Over Ground");
-    lines2.push_back("Other Datum is too long");
+    lines2.push_back("OtherX");
     lines2.push_back("Temperature sir scrollsalot");
 
     ls = new LineSetupBehavior(lines, t);
@@ -49,9 +49,9 @@ Controller::Controller() {
     labels.push_back("*C");
 
     vector<size_t> spaces;
+    spaces.push_back(4);
     spaces.push_back(7);
-    spaces.push_back(7);
-    spaces.push_back(7);
+    spaces.push_back(5);
     ls2 = new LabeledLineSetupBehavior(lines2,  labels, spaces, t2);
 
     curPageIndex = 0;

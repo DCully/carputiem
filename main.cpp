@@ -10,13 +10,11 @@ Controller * controller;
 /*
 TODO:
 
-1) TEST: LSB, LLSB, and update() calls
+0) get update calls working for LSB
 
---- get it working up to here, then continue ---
+1) write setUpObdScreens and test it
 
-1) write setUpObdScreens and test
-
-2) make cursor invisible and place a special character on the cursored spot
+2) make cursor invisible and place a special character on the cursored spot (memento pattern?)
 
 3) build hardware layer and get it working in the car (after presentation)
 
@@ -30,7 +28,7 @@ int main()
     controller = new Controller();
     sleep(20);
 
-    string data = "data";
+    string data = "123";
     for (int x = 0; x < 9; x++) {
         controller->iohandler->update((x%3)+1, data);
         usleep(250000);

@@ -104,7 +104,7 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
 {
 
     for (size_t s = 0; s < spaceForDataOnLs.size(); s++) {
-        spaceForDataOnLines.push_back(spaceForDataOnLs.at(s)+1);
+        spaceForDataOnLines.push_back(spaceForDataOnLs.at(s)+1); // it's a cheesy fix, but it works
     }
     // set up title line
     titleLine = t.substr(0,15);
@@ -116,8 +116,9 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
     // determine body lines setup
     for (size_t line = 0; line < 3; line++) {
 
-        size_t spaceForText = 20 - labelsForLs.at(line).size() - spaceForDataOnLs.at(line);
-
+        size_t spaceForText = 20 - labelsForLs.at(line).size() - spaceForDataOnLines.at(line);
+        updateSpotsForLines.push_back(spaceForText);
+        cout << "update spot for line " << line << " is " << updateSpotsForLines.at(line) << endl;
         if (textForLs.at(line).size() > spaceForText) { // it's a scrolling line
 
             // set up the scrolling part
@@ -127,7 +128,7 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
 
             // set up the static text for after the scrolling part
             string staticText = "";
-            for (size_t x = 0; x < spaceForDataOnLs.at(line); x++) {
+            for (size_t x = 0; x < spaceForDataOnLines.at(line); x++) {
                 staticText.append(" ");
             }
             staticText.append(labelsForLs.at(line));
@@ -141,11 +142,10 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
         }
         else { // it's a static line
 
-            // add spaces to the (determined to be static) text (this is the space for data)
-            for (size_t j = 0; j < spaceForDataOnLs.at(line); j++) {
+            // add spaces to the (determined to be static) text (this is the space for data AND to fill the rest of the text slot)
+            while (textForLs.at(line).size() < 20 - labelsForLs.at(line).size()) {
                 textForLs.at(line).append(" ");
             }
-
             textForLs.at(line).append(labelsForLs.at(line));
             textForStaticLines.push_back(textForLs.at(line));
             staticLineNums.push_back(line+1);
@@ -203,8 +203,10 @@ void LabeledLineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, 
     }
 
     output.append(info);
+
     // prints info to updateSpotForLine(lineNum), and deals with update spots being right justified
-    iohandler->printToLCD(info, 20*lineNum + 20 - textForStaticLines.at(lineNum-1).size());
+    cout << "printing the update string at " << updateSpotsForLines.at(lineNum-1) << endl;
+    iohandler->printToLCD(output, 20*lineNum + updateSpotsForLines.at(lineNum-1));
 
 }
 

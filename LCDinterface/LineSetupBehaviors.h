@@ -49,6 +49,7 @@ class LabeledLineSetupBehavior: public virtual LineSetupBehavior
     protected:
         std::vector<size_t> endSpotsForScrollingLines;
         std::vector<size_t> spaceForDataOnLines;
+        std::vector<size_t> updateSpotsForLines;
 
 };
 
