@@ -7,17 +7,32 @@
 #include <vector>
 
 Controller * controller;
+/*
+TODO:
 
-/// 1) Test:
-   /// - LLSBs
-   /// - update(), with scrolling text running
-   /// - write setUpObdScreens (factory), and test with a dummy vector
+1) TEST: allocated number of spaces for data field in LLSB is off by one
+    - entire LSB/LLSB source is rewritten - see if problem persists
 
-/// 2) build hardware layer and get it working in the car
+2) TEST: LSB, LLSB, and update() calls
 
-/// 3) make cursor invisible and place a special character at the "cursored spot" on the screen
+3) TEST: every few page switches, it ends up printing the same page again, or starting to print a new page and then registering two interrupts
+    - what causes this? threw print statements everywhere to help figure it out
 
-/// 4) do other stuff like that to make the project better
+--- get it working up to here, then continue ---
+
+4) test update() calls with scrolling text running, etc
+
+5) write setUpObdScreens
+
+6) test setUpObdScreens with a dummy vector, and get the whole front end to demonstration level
+
+BY NEXT THURSDAY:
+
+1) make cursor invisible and place a special character on the cursored spot
+
+2) build hardware layer and get it working in the car (after presentation)
+
+*/
 
 using namespace std;
 

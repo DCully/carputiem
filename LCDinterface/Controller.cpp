@@ -58,17 +58,14 @@ Controller::Controller() {
 
     curPageIndex = 0;
 
-    ScreenData sd = ScreenData(obs, p, ls);
-
     pages.push_back(ScreenData(obs, p, ls));
 
-    pages.push_back(sd);
     pages.push_back(ScreenData(obs, p2, ls2));
 
 
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
     lastPush = 1;
-    iohandler->printPage(pages.at(curPageIndex));
+    pages.at(curPageIndex).printPage(iohandler);
 }
 
 Controller::~Controller() {
@@ -100,6 +97,7 @@ void Controller::rButPressed() {
 
 void Controller::selPressed() {
     if (millis() - controller->lastPush > 200) {
+        cout << "select press processed" << endl;
         controller->lastPush = millis();
         controller->getCurPage()->doCurSpotSelectBehavior();
     }
@@ -125,9 +123,10 @@ void Controller::changePageLeft(void) {
     // hook up new page to observed
     pages.at(curPageIndex).doLoadPageBehavior();
     pages.at(curPageIndex).observed->registerObserver(iohandler);
+    cout << "changePageLeft called, changed curPageIndex to: " << endl;
 
     // print the new page
-    iohandler->printPage(pages.at(curPageIndex));
+    pages.at(curPageIndex).printPage(iohandler);
 }
 
 void Controller::staticChangePageRight(void) {
@@ -135,19 +134,21 @@ void Controller::staticChangePageRight(void) {
 }
 
 void Controller::changePageRight(void) {
+
     // unhook page from observed
     pages.at(curPageIndex).doLeavePageBehavior();
     pages.at(curPageIndex).observed->removeObserver(iohandler);
 
     // shift to the next page (from the right)
     curPageIndex = (curPageIndex-1)%pages.size();
+    cout << "changePageRight called, changed curPageIndex to: " << endl;
 
     // hook up new page to observed
     pages.at(curPageIndex).doLoadPageBehavior();
     pages.at(curPageIndex).observed->registerObserver(iohandler);
 
     // print the new page
-    iohandler->printPage(pages.at(curPageIndex));
+    pages.at(curPageIndex).printPage(iohandler);
 }
 
 /// ------------------------------------------

@@ -30,34 +30,19 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
     controller = cont;
 }
 
-
-/// rewrite this method so that it prints a new character in the new cursor spot
-/// needs to be able to clean up after itself
-/// rely on a memento string of what went out to the LCD (kept up to date by printToLCD)?
 void IOHandler::moveCursor(const int& spot) {
     if (spot > 79 || spot < 0) {
         cerr << "Invalid cursor spot passed to moveCursor" << endl;
         //throws "Invalid cursor spot passed to moveCursor";
     }
 
-
     std::lock_guard<std::mutex> locker2(cursor_lock);
     lcdPosition(LCDHandle, spot%20, spot/20);
 
-    //printToLCD("X", spot); /// "X" is the cursor's new spot...
 }
 
 void IOHandler::update(size_t linenum, string info) {
     controller->getCurPage()->getLineSetupBehavior()->updateLine(this, linenum, info);
-}
-
-// recieves a screendata object from the controller and prints it to the screen
-void IOHandler::printPage(ScreenData& curPage) {
-
-    for (int line = 0; line < 4; line++) {
-        curPage.getLineSetupBehavior()->renderLine(this, line);
-    }
-
 }
 
 void IOHandler::printToLCD(const string& text, const int& spot) {
@@ -70,53 +55,83 @@ void IOHandler::printToLCD(const string& text, const int& spot) {
 
     lcdPosition(LCDHandle, spot%20,spot/20);
     lcdPuts(LCDHandle, text.c_str());
+
+    /// do we need getCurrentCursorSpot() ?
     lcdPosition(LCDHandle, controller->getCurPage()->getCurrentCursorSpot()%20, controller->getCurPage()->getCurrentCursorSpot()/20);
 }
 
-void IOHandler::scrollText(int startSpot, int stopSpot, int lineNum, string message) {
-    message.append(" ");
-    message.append(message);
-    string toScreen = message.substr(0, stopSpot-startSpot+1);
-    size_t spotInMsg = 0;
+void IOHandler::startScrollText(const std::vector<size_t>& startSpots,
+    const std::vector<size_t>& stopSpots,
+    const std::vector<size_t>& lineNums,
+    const std::vector<std::string>& msgs)
+{
+    // check input validity for all scrolled lines
+    for (size_t i = 0; i < lineNums.size(); i++) {
+        if (lineNums.size() != stopSpots.size() || lineNums.size() != startSpots.size() || lineNums.size() != msgs.size()) {
+            cerr << "Error in startScrollText - vector sizes are uneven" << endl;
+            return ;
+        }
+        if ( stopSpots.at(i) <= startSpots.at(i) ) {
+            cerr << "Error in startScrollText - starting spot was before stopping spot for line " << lineNums.at(i) << endl;
+            return ;
+        }
+        if (  (lineNums.at(i) > 3) || (lineNums.at(i) < 0)  ) {
+            cerr << "Error in startScrollText - invalid line number: " << lineNums.at(i) << endl;
+            return ;
+        }
+        if (stopSpots.at(i)/20 != startSpots.at(i)/20) {
+            cerr << "Error in startScrollText - can't scroll across multiple lines" << endl;
+            return ;
+        }
+        if ( msgs.at(i).size() < ( stopSpots.at(i) - startSpots.at(i) ) ) {
+            cerr << "Error in startScrollText - message size less than scrolling area" << endl;
+            return ;
+        }
+    }
+
+    // double check to make sure nothing's scrolling
+    if (TextIsScrolling) {
+        stopAllScrollingText();
+    }
+
+    // launch a new scroll manager thread
+    TextIsScrolling = true;
+    ScrollingThread = new std::thread(&IOHandler::textScroller, this, startSpots, stopSpots, lineNums, msgs);
+
+}
+
+void IOHandler::stopAllScrollingText() {
+    TextIsScrolling = false;
+    ScrollingThread->join();
+}
+
+void IOHandler::textScroller(std::vector<size_t> startSpots,
+    std::vector<size_t> stopSpots,
+    std::vector<size_t> lineNums,
+    std::vector<std::string> msgs)
+{
+    // these only become as large as however many lines are actually scrolled (not always three)
+    vector<string> toScreen;
+    vector<size_t> spotInMsgs;
     unsigned int lastPrint = 0;
 
-    while (lineThreadBools[lineNum]==true) {
+    for (size_t x = 0; x < msgs.size(); ) {
+        msgs.at(x).append(" ");
+        msgs.at(x).append(msgs.at(x));
+        toScreen.push_back(msgs.at(x).substr(0, stopSpots.at(x) - startSpots.at(x) + 1));
+        spotInMsgs.push_back(0);
+    }
+
+    while (TextIsScrolling) {
         if (millis() - lastPrint > 200) {
-            printToLCD(toScreen, lineNum*20+startSpot);
-            spotInMsg = (spotInMsg + 1) % (message.size()/2);
-            toScreen = message.substr(spotInMsg, toScreen.size());
+            for (size_t i = 0; i < msgs.size(); i++) {
+                printToLCD(toScreen.at(i), lineNums.at(i)*20 + startSpots.at(i));
+                spotInMsgs.at(i) = (spotInMsgs.at(i) + 1) % (msgs.at(i).size()/2);
+                toScreen.at(i) = msgs.at(i).substr(spotInMsgs.at(i), toScreen.at(i).size());
+            }
             lastPrint = millis();
         }
     }
-    cout << "exiting scrolltext for message " << message << endl;
-
 }
 
-void IOHandler::startScrollText(const int& startSpot, const int& stopSpot, const int& lineNum, const string& msg) {
-    if ( (stopSpot <= startSpot) || (lineNum > 3) || (lineNum < 0) || (msg.size() < (stopSpot-startSpot)) ) {
-        cerr << "Invalid parameters passed to startScrollText" << endl;
-        return ;
-    }
-    if (stopSpot/20 != startSpot/20) {
-        cerr << "Error in startScrollText - can't scroll across multiple lines" << endl;
-        return ;
-    }
 
-    // this uses pointers to the scroll threads in order to be able to explicitly destroy the threads
-    stopAnyScrollingTextOnLine(lineNum);
-
-    lineThreadBools[lineNum]=true;
-    cout << "set linethreadbool to true for lineNum " << lineNum << endl;
-
-    lineThreads[lineNum] = new std::thread(&IOHandler::scrollText, this, startSpot, stopSpot, lineNum, msg);
-
-}
-
-void IOHandler::stopAnyScrollingTextOnLine(const size_t& lineNum) {
-    if (lineThreadBools[lineNum]==true) {
-        lineThreadBools[lineNum] = false;
-        cout << "set linethreadbool to false for lineNum " << lineNum << endl;
-        lineThreads[lineNum]->join();
-        delete lineThreads[lineNum];
-    }
-}

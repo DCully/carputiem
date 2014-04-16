@@ -65,6 +65,11 @@ void ScreenData::doLeavePageBehavior() {
     pageChangeBehavior->leavePage(*observed);
 }
 
+void ScreenData::printPage(IOHandler* ioh) {
+    lineSetupBehavior->renderPage(ioh);
+}
+
+/// shouldn't be needed once cursor stuff gets changed
 LineSetupBehavior* ScreenData::getLineSetupBehavior() {
     return lineSetupBehavior;
 }

@@ -9,19 +9,28 @@ class IOHandler;
 class LineSetupBehavior
 {
     public:
+
         LineSetupBehavior();
         virtual ~LineSetupBehavior() {}
         LineSetupBehavior(std::vector<std::string> textForLines, const std::string& pageTitle);
-        virtual void renderLine(IOHandler* iohandler, size_t lineNum);
-        virtual void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
+
         virtual LineSetupBehavior* clone() const { return new LineSetupBehavior(*this); }
+
+        // called by controller
+        virtual void renderPage(IOHandler* iohandler);
+
+        // this just reprints the first 20 chars of info onto line lineNum
+        virtual void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
     protected:
-        std::vector<std::string> textForLines;
-        std::vector<size_t> updateSpotsForLines; // these are left justified internally
-        std::string title;
+        std::string titleLine;
+
+        std::vector<size_t> staticLineNums;
+        std::vector<std::string> textForStaticLines;
+
+        std::vector<size_t> scrollingLineNums;
+        std::vector<std::string> textForScrollingLines;
 };
 
-/// refactor this class
 class LabeledLineSetupBehavior: public virtual LineSetupBehavior
 {
     public:
@@ -32,13 +41,15 @@ class LabeledLineSetupBehavior: public virtual LineSetupBehavior
             std::vector<std::string> labelsForLines,
             std::vector<size_t> spaceForDataOnLines,
             const std::string& pageTitle);
-        void renderLine(IOHandler* iohandler, size_t lineNum);
-        void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
+
         LabeledLineSetupBehavior* clone() const { return new LabeledLineSetupBehavior(*this); }
+
+        void renderPage(IOHandler* iohandler);
+        void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
     protected:
-        std::vector<std::string> labelsForLines;
-        std::vector<size_t> spacesForDataOnLine;
-        std::vector<size_t> endOfScrollsForLine; // these get right justified internally
+        std::vector<size_t> endSpotsForScrollingLines;
+        std::vector<size_t> spaceForDataOnLines;
+
 };
 
 #endif
