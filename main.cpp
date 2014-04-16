@@ -42,6 +42,11 @@ int main()
     controller = new Controller();
     sleep(20);
 
+    string data = "data";
+    for (int x = 0; x < 9; x++) {
+        controller->iohandler->update((x%3)+1, data);
+        usleep(250000);
+    }
     // back end testing
     /*
     ObdSerial* obd = new ObdSerial("/dev/ttyUSB0");

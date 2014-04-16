@@ -6,6 +6,7 @@
 class Observer
 {
     public:
+        virtual ~Observer() {}
         virtual void update(size_t num, std::string info) = 0;
 };
 #endif // OBSERVER_H

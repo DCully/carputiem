@@ -103,8 +103,9 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
     const std::string& t)
 {
 
-    spaceForDataOnLines = spaceForDataOnLs;
-
+    for (size_t s = 0; s < spaceForDataOnLs.size(); s++) {
+        spaceForDataOnLines.push_back(spaceForDataOnLs.at(s)+1);
+    }
     // set up title line
     titleLine = t.substr(0,15);
     while (titleLine.size() < 17) {
@@ -174,7 +175,7 @@ void LabeledLineSetupBehavior::renderPage(IOHandler* iohandler) {
     /// these two loops should only ever execute a total of three times - distribution changes per instance
     // prints the remaining text on the scrolling lines
     for (size_t x = 0; x < scrollingLineNums.size(); x++) {
-        iohandler->printToLCD(textForStaticLines.at(scrollingLineNums.at(x)-1), 20*scrollingLineNums.at(x) + endSpotsForScrollingLines.at(x) + 1);
+        iohandler->printToLCD(textForStaticLines.at(scrollingLineNums.at(x)-1), 20*scrollingLineNums.at(x) + endSpotsForScrollingLines.at(x));
     }
 
     // prints the entire line for the non-scrolling lines

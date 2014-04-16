@@ -29,6 +29,10 @@ class Controller
 
         ScreenData* getCurPage();
         unsigned int lastPush;
+
+        /// public for testing only!
+        IOHandler * iohandler;
+
     private:
         void changePageLeft(void);
         void changePageRight(void);
@@ -38,7 +42,6 @@ class Controller
         LineSetupBehavior* obdlsbs;
         PageChangeBehavior* obdpcbs;
 
-        IOHandler * iohandler;
         std::vector<ScreenData> pages;
         int curPageIndex;
         ObdSerial * obd;

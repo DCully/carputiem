@@ -14,6 +14,8 @@ class IOHandler: public Observer
 {
 
     public:
+        virtual ~IOHandler() {}
+
         IOHandler(const int& bleft, const int& bright, const int& bsel,                       //these are the three button GPIO pin numbers,
                   const int& rs, const int& strb, const int& d0, const int& d1,               //and these are the GPIO pins for the LCD (8-bit)
                   const int& d2, const int& d3, const int& d4, const int& d5,
