@@ -28,6 +28,7 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
     lcdCursorBlink(LCDHandle, 0); // dont blink the cursor
     moveCursor(cont->getCurPage()->getCurrentCursorSpot());
     controller = cont;
+    TextIsScrolling = false;
 }
 
 void IOHandler::moveCursor(const int& spot) {
@@ -93,7 +94,7 @@ void IOHandler::startScrollText(const std::vector<size_t>& startSpots,
     if (TextIsScrolling) {
         stopAllScrollingText();
     }
-
+cout << " in startscrolltext, launching new scrolling thread " << endl;
     // launch a new scroll manager thread
     TextIsScrolling = true;
     ScrollingThread = new std::thread(&IOHandler::textScroller, this, startSpots, stopSpots, lineNums, msgs);
@@ -101,8 +102,10 @@ void IOHandler::startScrollText(const std::vector<size_t>& startSpots,
 }
 
 void IOHandler::stopAllScrollingText() {
-    TextIsScrolling = false;
-    ScrollingThread->join();
+    if (TextIsScrolling) {
+        TextIsScrolling = false;
+        ScrollingThread->join();
+    }
 }
 
 void IOHandler::textScroller(std::vector<size_t> startSpots,
@@ -113,17 +116,19 @@ void IOHandler::textScroller(std::vector<size_t> startSpots,
     // these only become as large as however many lines are actually scrolled (not always three)
     vector<string> toScreen;
     vector<size_t> spotInMsgs;
-    unsigned int lastPrint = 0;
 
-    for (size_t x = 0; x < msgs.size(); ) {
+    unsigned int lastPrint = 0;
+cout << "in textScroller, about to process msgs" << endl;
+    for (size_t x = 0; x < msgs.size(); x++) {
         msgs.at(x).append(" ");
         msgs.at(x).append(msgs.at(x));
+        cout << "prepped msg at " << x << " to be: " << msgs.at(x) << endl;
         toScreen.push_back(msgs.at(x).substr(0, stopSpots.at(x) - startSpots.at(x) + 1));
         spotInMsgs.push_back(0);
     }
-
+cout << "in textScroller, starting the printing loop" << endl;
     while (TextIsScrolling) {
-        if (millis() - lastPrint > 200) {
+        if (millis() - lastPrint > 250) {
             for (size_t i = 0; i < msgs.size(); i++) {
                 printToLCD(toScreen.at(i), lineNums.at(i)*20 + startSpots.at(i));
                 spotInMsgs.at(i) = (spotInMsgs.at(i) + 1) % (msgs.at(i).size()/2);

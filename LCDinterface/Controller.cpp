@@ -39,7 +39,7 @@ Controller::Controller() {
     lines2.push_back("Other Datum is too long");
     lines2.push_back("Temperature sir scrollsalot");
 
-
+cout << "entering LSB ctor" << endl;
     ls = new LineSetupBehavior(lines, t);
 
     string t2 = "Diff. Title";
@@ -53,7 +53,7 @@ Controller::Controller() {
     spaces.push_back(7);
     spaces.push_back(7);
     spaces.push_back(7);
-
+cout << "entering LLSB ctor" << endl;
     ls2 = new LabeledLineSetupBehavior(lines2,  labels, spaces, t2);
 
     curPageIndex = 0;
@@ -65,6 +65,7 @@ Controller::Controller() {
 
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
     lastPush = 1;
+    cout << "entering printpage" << endl;
     pages.at(curPageIndex).printPage(iohandler);
 }
 

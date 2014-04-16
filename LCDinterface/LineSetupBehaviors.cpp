@@ -34,8 +34,9 @@ LineSetupBehavior::LineSetupBehavior() {
 }
 
 void LineSetupBehavior::renderPage(IOHandler* iohandler) {
-
+cout << "in renderpage, calling stopAllScrollingText" << endl;
     iohandler->stopAllScrollingText();
+    cout << "calling printToLCD for title" << endl;
     iohandler->printToLCD(titleLine, 0);
 
     // print the static lines
@@ -45,7 +46,7 @@ void LineSetupBehavior::renderPage(IOHandler* iohandler) {
 
     // start the scrolling thread for dynamic lines (they all take up the whole line, no need to clear)
     if (textForScrollingLines.size() > 0) {
-
+cout << "rendering the scrolling lines " << endl;
         vector<size_t> ss;
         vector<size_t> es;
 

@@ -66,6 +66,7 @@ void ScreenData::doLeavePageBehavior() {
 }
 
 void ScreenData::printPage(IOHandler* ioh) {
+    cout << "in screendata.printpage, calling lsb renderpage" << endl;
     lineSetupBehavior->renderPage(ioh);
 }
 
