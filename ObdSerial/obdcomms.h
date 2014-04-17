@@ -1,7 +1,7 @@
 #ifndef OBDCOMMS_H
 #define OBDCOMMS_H
 #include "obdconvs.h"
-// flagrantly thefted from obdgpslogger
+// flagrantly stolen from obdgpslogger (I added some more data and removed a column)
 
 struct obdservicecmd {
 	unsigned int cmdid; ///< Command ID [eg 0C == engine rpm]

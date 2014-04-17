@@ -12,6 +12,7 @@ class PageChangeBehavior {
         virtual void loadPage(Observable& obs);
         virtual void leavePage(Observable& obs);
         virtual PageChangeBehavior* clone() const { return new PageChangeBehavior(*this); }
+
 };
 
 class ObdPageChangeBehavior: public PageChangeBehavior {
@@ -22,8 +23,8 @@ class ObdPageChangeBehavior: public PageChangeBehavior {
         void leavePage(ObdSerial& obs);
         ObdPageChangeBehavior* clone() const { return new ObdPageChangeBehavior(*this); } // shallow copy on obd is ok
     private:
+        ObdSerial* observable;
         std::vector<int> PIDsIShowFromSuppdCmds;
-        ObdSerial * obd;
 };
 
 #endif

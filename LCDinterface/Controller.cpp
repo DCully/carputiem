@@ -10,13 +10,16 @@ Controller::Controller() {
 /*
     obd = new ObdSerial("/dev/ttyUSB0");
 
-    int  pidCount = obd->getSuppdCmds().size();
+    // this should eventually replace all the testing code below
 
-    obdPages = new ScreenData[pidCount/3 + 1];
-    obdlsbs = new LineSetupBehavior[pidCount/3 + 1];
-    obdpcbs = new PageChangeBehavior[pidCount/3 + 1];
+    ObdFactory obdfact = ObdFactory(obd);
+    obdfact.buildObdScreens(obd->getSuppdCmds(), pages);
 
-    setUpObdScreens(obd->getSuppdCmds()); // fills pages deque
+    curPageIndex = 0;
+    lastPush = 1;
+
+    pages.at(curPageIndex).printPage(iohandler);
+
 */
 
     /// TESTING
@@ -148,11 +151,6 @@ void Controller::changePageRight(void) {
     pages.at(curPageIndex).printPage(iohandler);
 }
 
-/// ------------------------------------------
-
-void Controller::setUpObdScreens(vector<int> pids) {
-
-}
 
 
 

@@ -19,7 +19,7 @@ class LineSetupBehavior
         // called by controller
         virtual void renderPage(IOHandler* iohandler);
 
-        // this just reprints the first 20 chars of info onto line lineNum
+        // this does nothing (not supposed to be able to call update on the base class...
         virtual void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
     protected:
         std::string titleLine;

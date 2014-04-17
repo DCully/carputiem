@@ -7,18 +7,6 @@
 #include <vector>
 
 Controller * controller;
-/*
-TODO:
-
-0) get update calls working for LSB
-
-1) write setUpObdScreens and test it
-
-2) make cursor invisible and place a special character on the cursored spot (memento pattern?)
-
-3) build hardware layer and get it working in the car (after presentation)
-
-*/
 
 using namespace std;
 

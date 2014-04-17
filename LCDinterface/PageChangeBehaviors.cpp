@@ -19,11 +19,11 @@ ObdPageChangeBehavior::ObdPageChangeBehavior(vector<int>& pidIndices, ObdSerial 
         PIDsIShowFromSuppdCmds.push_back(pidIndices.at(x));
     }
 
-    obd = obds;
+    observable = obds;
 }
 
 void ObdPageChangeBehavior::loadPage(ObdSerial& obs) {
-    obd->setFocusedPIDs(PIDsIShowFromSuppdCmds);
+    observable->setFocusedPIDs(PIDsIShowFromSuppdCmds);
 }
 
 void ObdPageChangeBehavior::leavePage(ObdSerial& obs) {
