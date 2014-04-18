@@ -4,9 +4,12 @@
 #include "../LCDinterface/LineSetupBehaviors.h"
 #include "../LCDinterface/PageChangeBehaviors.h"
 #include <vector>
+#include <iostream>
 
 using std::vector;
 using std::string;
+using std::cout;
+using std::endl;
 
 ObdFactory::ObdFactory(ObdSerial* obs) {
     obds = obs;
@@ -19,7 +22,7 @@ ObdFactory::~ObdFactory() {
 // builds ScreenData objects for each grouping of three PIDs passed in, using obdcmds_mode1
 void ObdFactory::buildObdScreens(const std::vector<int>& obdIndices, std::vector<ScreenData>& pages) {
 
-    for (size_t page = 0; page < obdIndices.size()/3 + 1; page++) {
+    for (size_t page = 0; page < (obdIndices.size()+2)/3; page++) {
 
         /// build an OPCB with next (up to) 3 PIDs from obdIndices
         vector<int> pids;
@@ -42,11 +45,13 @@ void ObdFactory::buildObdScreens(const std::vector<int>& obdIndices, std::vector
 
             spacesForData.push_back(maxlen);
         }
+        cout << "building OPCB for page " << page << endl;
         ObdPageChangeBehavior* opcb = new ObdPageChangeBehavior(pids, obds);
 
         /// build an LLSB
         string title = "OBD Data ";
         title.append(std::to_string(page));
+        cout << "buildinng LLSB for page " << page << endl;
         LabeledLineSetupBehavior* llsb = new LabeledLineSetupBehavior(textForLines, labelsForLines, spacesForData, title);
 
         /// push a new ScreenData back into pages

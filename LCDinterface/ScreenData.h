@@ -16,6 +16,8 @@ class LineSetupBehavior;
 
 class ScreenData {
 
+    friend class ObdFactoryTest;
+
     public:
         ScreenData(Observable* obs, PageChangeBehavior* pcb, LineSetupBehavior* lsb);
         ScreenData();
@@ -39,7 +41,6 @@ class ScreenData {
 
         LineSetupBehavior* getLineSetupBehavior();
 
-        /// NEW - need to implement
         void printPage(IOHandler* ioh);
 
         Observable* observed;

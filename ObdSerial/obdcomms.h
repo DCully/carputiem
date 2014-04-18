@@ -47,7 +47,7 @@ const static struct obdservicecmd obdcmds_mode1[] = {
 	{ 0x1C, 1, "obdsup",        "OBD requirements to which vehicle is designed" , 0, 0, "Bit Encoded", NULL },
 	{ 0x1D, 1, "o2sloc2",       "O2 Sensor spots" , 0, 0, "Bit Encoded", NULL },
 	{ 0x1E, 1, "pto_stat",      "Auxiliary Input Status" , 0, 0, "Bit Encoded", NULL },
-	{ 0x1F, 2, "runtm",         "Time Since Start", 0, 65535, "seconds", obdConvert_1F },
+	{ 0x1F, 2, "runtm",         "Time Since Start", 0, 65535, "secs", obdConvert_1F },
 	{ 0x20, 4, NULL,            "PIDs supported 21-40" , 0, 0, "Bit Encoded", NULL },
 	{ 0x21, 4, "mil_dist",      "Distance travelled w/ MIL on", 0, 65535, "km", obdConvert_21 },
 	{ 0x22, 2, "frpm",          "Rail Pres: Mvac", 0, 5177.265, "kPa", obdConvert_22 },

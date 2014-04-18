@@ -8,6 +8,8 @@ class IOHandler;
 
 class LineSetupBehavior
 {
+    friend class ObdFactoryTest;
+
     public:
 
         LineSetupBehavior();
@@ -33,6 +35,8 @@ class LineSetupBehavior
 
 class LabeledLineSetupBehavior: public virtual LineSetupBehavior
 {
+    friend class ObdFactoryTest;
+        
     public:
         LabeledLineSetupBehavior();
         virtual ~LabeledLineSetupBehavior() {}

@@ -14,7 +14,7 @@ LineSetupBehavior::LineSetupBehavior(vector<string> textForLines, const string& 
     }
     titleLine = titleLine + "<->";
 
-    for (int x = 1; x < 4; x++) { // loop through textForLines and pull out scrolling ones
+    for (int x = 1; x < 4 && x < textForLines.size() + 1; x++) { // loop through textForLines and pull out scrolling ones
         if (textForLines.at(x-1).size() > 20) {
             scrollingLineNums.push_back(x);
             textForScrollingLines.push_back(textForLines.at(x-1));
@@ -114,11 +114,10 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
     titleLine.append("<->");
 
     // determine body lines setup
-    for (size_t line = 0; line < 3; line++) {
+    for (size_t line = 0; line < 3 && line < textForLs.size(); line++) {
 
         size_t spaceForText = 20 - labelsForLs.at(line).size() - spaceForDataOnLines.at(line);
         updateSpotsForLines.push_back(spaceForText);
-        cout << "update spot for line " << line << " is " << updateSpotsForLines.at(line) << endl;
         if (textForLs.at(line).size() > spaceForText) { // it's a scrolling line
 
             // set up the scrolling part
