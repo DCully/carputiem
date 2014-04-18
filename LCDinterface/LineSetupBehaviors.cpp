@@ -140,7 +140,6 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
             /// </TESTING>
         }
         else { // it's a static line
-
             // add spaces to the (determined to be static) text (this is the space for data AND to fill the rest of the text slot)
             while (textForLs.at(line).size() < 20 - labelsForLs.at(line).size()) {
                 textForLs.at(line).append(" ");

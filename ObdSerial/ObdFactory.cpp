@@ -39,19 +39,20 @@ void ObdFactory::buildObdScreens(const std::vector<int>& obdIndices, std::vector
             textForLines.push_back(obdcmds_mode1[obdIndices.at(index)].human_name);
             labelsForLines.push_back(obdcmds_mode1[obdIndices.at(index)].units);
 
-            string maxval = std::to_string(obdcmds_mode1[obdIndices.at(index)].max_value);
-            string minval = std::to_string(obdcmds_mode1[obdIndices.at(index)].min_value);
+            // better way to handle nonzero trailing digits?
+            string maxval = std::to_string( (int) obdcmds_mode1[obdIndices.at(index)].max_value);
+            string minval = std::to_string( (int) obdcmds_mode1[obdIndices.at(index)].min_value);
+
+
             size_t maxlen = (maxval.size() > minval.size() ? maxval.size() : minval.size());
 
             spacesForData.push_back(maxlen);
         }
-        cout << "building OPCB for page " << page << endl;
         ObdPageChangeBehavior* opcb = new ObdPageChangeBehavior(pids, obds);
 
         /// build an LLSB
         string title = "OBD Data ";
         title.append(std::to_string(page));
-        cout << "buildinng LLSB for page " << page << endl;
         LabeledLineSetupBehavior* llsb = new LabeledLineSetupBehavior(textForLines, labelsForLines, spacesForData, title);
 
         /// push a new ScreenData back into pages

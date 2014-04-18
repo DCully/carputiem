@@ -14,11 +14,9 @@ This project depends on the wiringPi library (www.wiringpi.com) and C++11.
 
 TODO:
 
-1) test setUpObdScreens
+- test setUpObdScreens and use it to demo entire the front end
 
-2) write unit tests
-
-3) build hardware layer
+- build hardware layer, make program start automatically
 
 
 Longer term stuff:
@@ -31,4 +29,5 @@ Longer term stuff:
 
 4) add a music player
 
+5) customize linux to make it boot faster
 

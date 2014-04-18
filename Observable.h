@@ -15,4 +15,4 @@ class Observable
     private:
         std::vector<Observer*> observers;
 };
-#endif // OBSERVABLE_H
+#endif // OBSERVABLE_H 

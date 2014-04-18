@@ -1,6 +1,8 @@
 #include "Controller.h"
 #include <iostream>
 #include "wiringPi.h"
+#include "../ObdSerial/ObdFactory.h"
+
 
 Controller * controller; //this is a reference to the controller object that is created in main.cpp
 
@@ -10,19 +12,29 @@ Controller::Controller() {
 /*
     obd = new ObdSerial("/dev/ttyUSB0");
 
-    // this should eventually replace all the testing code below
+*/
+    iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
+
+    std::vector<int> pids;
+    pids.push_back(4); // load
+    pids.push_back(5); // coolant temp
+    pids.push_back(12); // rpm
+    pids.push_back(17); // throttle position
+    pids.push_back(31); // time since start
+    pids.push_back(51); // barometric pressure
+    pids.push_back(14);
 
     ObdFactory obdfact = ObdFactory(obd);
-    obdfact.buildObdScreens(obd->getSuppdCmds(), pages);
+    obdfact.buildObdScreens(pids, pages);
 
     curPageIndex = 0;
     lastPush = 1;
 
     pages.at(curPageIndex).printPage(iohandler);
 
-*/
 
     /// TESTING
+    /*
     PageChangeBehavior* p;
     LineSetupBehavior* ls;
     LabeledLineSetupBehavior* ls2;
@@ -64,9 +76,9 @@ Controller::Controller() {
     pages.push_back(ScreenData(obs, p2, ls2));
 
 
-    iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
     lastPush = 1;
     pages.at(curPageIndex).printPage(iohandler);
+    */
 }
 
 Controller::~Controller() {
