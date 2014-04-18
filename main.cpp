@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <vector>
 
-Controller * controller;
+extern Controller * controller;
 
 using namespace std;
 

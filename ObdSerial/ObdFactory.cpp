@@ -33,6 +33,14 @@ void ObdFactory::buildObdScreens(const std::vector<int>& obdIndices, std::vector
 
             /// build the three other vectors for the LLSB
 
+            textForLines.push_back(obdcmds_mode1[obdIndices.at(index)].human_name);
+            labelsForLines.push_back(obdcmds_mode1[obdIndices.at(index)].units);
+
+            string maxval = std::to_string(obdcmds_mode1[obdIndices.at(index)].max_value);
+            string minval = std::to_string(obdcmds_mode1[obdIndices.at(index)].min_value);
+            size_t maxlen = (maxval.size() > minval.size() ? maxval.size() : minval.size());
+
+            spacesForData.push_back(maxlen);
         }
         ObdPageChangeBehavior* opcb = new ObdPageChangeBehavior(pids, obds);
 

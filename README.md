@@ -14,16 +14,16 @@ This project depends on the wiringPi library (www.wiringpi.com) and C++11.
 
 TODO:
 
-1) write setUpObdScreens and test it
+1) test setUpObdScreens
 
-2) build hardware layer
+2) write unit tests
 
-3) get it all working in a car
+3) build hardware layer
 
 
 Longer term stuff:
 
-1) make cursor invisible and place a special character on the cursored spot (memento pattern?)
+1) make cursor invisible and place a special character on the cursored spot 
 
 2) improve support for different communication protocols in ObdSerial
 

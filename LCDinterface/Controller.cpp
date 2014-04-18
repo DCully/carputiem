@@ -2,7 +2,7 @@
 #include <iostream>
 #include "wiringPi.h"
 
-extern Controller * controller; //this is a reference to the controller object that is created in main.cpp
+Controller * controller; //this is a reference to the controller object that is created in main.cpp
 
 using namespace std;
 
