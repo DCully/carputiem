@@ -5,7 +5,6 @@
 
 
 Controller * controller; //this is a reference to the controller object that is created in main.cpp
-
 using namespace std;
 
 Controller::Controller() {
@@ -13,8 +12,6 @@ Controller::Controller() {
     obd = new ObdSerial("/dev/ttyUSB0");
 
 */
-    iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
-
     std::vector<int> pids;
     pids.push_back(4); // load
     pids.push_back(5); // coolant temp
@@ -23,67 +20,24 @@ Controller::Controller() {
     pids.push_back(31); // time since start
     pids.push_back(51); // barometric pressure
     pids.push_back(14);
+    pids.push_back(5);
 
     ObdFactory obdfact = ObdFactory(obd);
     obdfact.buildObdScreens(pids, pages);
 
     curPageIndex = 0;
     lastPush = 1;
+    iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7, this);
 
     pages.at(curPageIndex).printPage(iohandler);
+/// NOTE: OPCB ISR routines commented out to cut off ObdSerial object
+///       some bits of changePageLeft/Right are also commented out to avoid ObdSerial references
 
-
-    /// TESTING
-    /*
-    PageChangeBehavior* p;
-    LineSetupBehavior* ls;
-    LabeledLineSetupBehavior* ls2;
-
-    obs = new Observable();
-    p = new PageChangeBehavior();
-    PageChangeBehavior* p2 = new PageChangeBehavior();
-    string t = "Page Title";
-
-    vector<string> lines;
-    lines.push_back("Vehicle Identification Number");
-    lines.push_back("AH1S57F3246E12JD");
-    lines.push_back("2006 Honda Civic");
-
-    vector<string> lines2;
-    lines2.push_back("Current Vehicle Speed Over Ground");
-    lines2.push_back("OtherX");
-    lines2.push_back("Temperature sir scrollsalot");
-
-    ls = new LineSetupBehavior(lines, t);
-
-    string t2 = "Diff. Title";
-
-    vector<string> labels;
-    labels.push_back("kmh");
-    labels.push_back("m/s");
-    labels.push_back("*C");
-
-    vector<size_t> spaces;
-    spaces.push_back(4);
-    spaces.push_back(7);
-    spaces.push_back(5);
-    ls2 = new LabeledLineSetupBehavior(lines2,  labels, spaces, t2);
-
-    curPageIndex = 0;
-
-    pages.push_back(ScreenData(obs, p, ls));
-
-    pages.push_back(ScreenData(obs, p2, ls2));
-
-
-    lastPush = 1;
-    pages.at(curPageIndex).printPage(iohandler);
-    */
 }
 
 Controller::~Controller() {
     delete iohandler;
-    delete obs; // should be obd, eventually
+    ///delete obd;
 
 }
 
@@ -127,15 +81,14 @@ void Controller::staticChangePageLeft(void) {
 void Controller::changePageLeft(void) {
     // unhook page from observed
     pages.at(curPageIndex).doLeavePageBehavior();
-    pages.at(curPageIndex).observed->removeObserver(iohandler);
+    ///pages.at(curPageIndex).observed->removeObserver(iohandler);
 
     // shift to the next page (from the left)
-    curPageIndex = (curPageIndex+1)%pages.size();
+    curPageIndex = ( curPageIndex == 0 ? pages.size() - 1 : (curPageIndex-1)%pages.size() );
 
     // hook up new page to observed
     pages.at(curPageIndex).doLoadPageBehavior();
-    pages.at(curPageIndex).observed->registerObserver(iohandler);
-    cout << "changePageLeft called, changed curPageIndex to: " << endl;
+    ///pages.at(curPageIndex).observed->registerObserver(iohandler);
 
     // print the new page
     pages.at(curPageIndex).printPage(iohandler);
@@ -149,15 +102,15 @@ void Controller::changePageRight(void) {
 
     // unhook page from observed
     pages.at(curPageIndex).doLeavePageBehavior();
-    pages.at(curPageIndex).observed->removeObserver(iohandler);
+    ///pages.at(curPageIndex).observed->removeObserver(iohandler);
 
     // shift to the next page (from the right)
-    curPageIndex = (curPageIndex-1)%pages.size();
-    cout << "changePageRight called, changed curPageIndex to: " << endl;
+    curPageIndex = (curPageIndex+1)%pages.size();
+
 
     // hook up new page to observed
     pages.at(curPageIndex).doLoadPageBehavior();
-    pages.at(curPageIndex).observed->registerObserver(iohandler);
+    ///pages.at(curPageIndex).observed->registerObserver(iohandler);
 
     // print the new page
     pages.at(curPageIndex).printPage(iohandler);

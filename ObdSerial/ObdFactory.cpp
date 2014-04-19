@@ -48,11 +48,11 @@ void ObdFactory::buildObdScreens(const std::vector<int>& obdIndices, std::vector
 
             spacesForData.push_back(maxlen);
         }
-        ObdPageChangeBehavior* opcb = new ObdPageChangeBehavior(pids, obds);
 
+        ObdPageChangeBehavior* opcb = new ObdPageChangeBehavior(pids, obds);
         /// build an LLSB
         string title = "OBD Data ";
-        title.append(std::to_string(page));
+        title.append(std::to_string(page + 1));
         LabeledLineSetupBehavior* llsb = new LabeledLineSetupBehavior(textForLines, labelsForLines, spacesForData, title);
 
         /// push a new ScreenData back into pages

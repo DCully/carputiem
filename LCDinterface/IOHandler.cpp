@@ -118,7 +118,7 @@ void IOHandler::textScroller(std::vector<size_t> startSpots,
 
     unsigned int lastPrint = 0;
     for (size_t x = 0; x < msgs.size(); x++) {
-        msgs.at(x).append(" ");
+        msgs.at(x).append("        "); // for space between end of message and start of repeated message
         msgs.at(x).append(msgs.at(x));
         toScreen.push_back(msgs.at(x).substr(0, stopSpots.at(x) - startSpots.at(x) + 1));
         spotInMsgs.push_back(0);

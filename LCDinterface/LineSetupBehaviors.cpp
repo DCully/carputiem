@@ -114,7 +114,13 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
     titleLine.append("<->");
 
     // determine body lines setup
-    for (size_t line = 0; line < 3 && line < textForLs.size(); line++) {
+    for (size_t line = 0; line < 3; line++) {
+
+        if (line >= textForLs.size()) { // clears unused lines if this is a partially filled page
+            textForStaticLines.push_back("                    ");
+            staticLineNums.push_back(line+1);
+            continue;
+        }
 
         size_t spaceForText = 20 - labelsForLs.at(line).size() - spaceForDataOnLines.at(line);
         updateSpotsForLines.push_back(spaceForText);
@@ -154,6 +160,8 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
             }
             /// </TESTING>
         }
+
+
     }
 }
 
