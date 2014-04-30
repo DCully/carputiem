@@ -48,11 +48,11 @@ void ObdFactory::buildObdScreens(const std::vector<int>& obdIndices, std::vector
 
             spacesForData.push_back(maxlen);
         }
-
         ObdPageChangeBehavior* opcb = new ObdPageChangeBehavior(pids, obds);
+
         /// build an LLSB
         string title = "OBD Data ";
-        title.append(std::to_string(page + 1));
+        title.append(std::to_string(page));
         LabeledLineSetupBehavior* llsb = new LabeledLineSetupBehavior(textForLines, labelsForLines, spacesForData, title);
 
         /// push a new ScreenData back into pages
@@ -61,3 +61,23 @@ void ObdFactory::buildObdScreens(const std::vector<int>& obdIndices, std::vector
     }
 
 }
+
+void ObdFactory::buildVINScreen(const std::string& VIN, std::vector<ScreenData>& pages) {
+
+    PageChangeBehavior* pcb = new PageChangeBehavior();
+
+    vector<string> lines;
+    lines.push_back("Vehicle Identification Number");
+    lines.push_back(VIN);
+    lines.push_back(" ");
+
+    LineSetupBehavior* lsb = new LineSetupBehavior(lines, "VIN Screen");
+
+    pages.push_back(ScreenData(obds, pcb,lsb));
+}
+
+
+
+
+
+

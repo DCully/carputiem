@@ -30,24 +30,19 @@ class Controller
         ScreenData* getCurPage();
         unsigned int lastPush;
 
-        /// public for testing only!
-        IOHandler * iohandler;
-
     private:
-        void changePageLeft(void);
-        void changePageRight(void);
+        void changePageLeft();
+        void changePageRight();
         // called in constructor, to build ObdSerial's ScreenData objects
         void setUpObdScreens(std::vector<int> pids);
         ScreenData* obdPages;
         LineSetupBehavior* obdlsbs;
         PageChangeBehavior* obdpcbs;
+        IOHandler * iohandler;
 
         std::vector<ScreenData> pages;
         int curPageIndex;
         ObdSerial * obd;
-
-        /// TESTING
-        Observable* obs;
 
 };
 

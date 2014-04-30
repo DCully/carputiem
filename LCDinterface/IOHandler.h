@@ -48,7 +48,6 @@ class IOHandler: public Observer
         Controller * controller;
         std::thread* ScrollingThread;
         volatile bool TextIsScrolling;
-        std::mutex print_lock;
         std::mutex cursor_lock;
 };
 

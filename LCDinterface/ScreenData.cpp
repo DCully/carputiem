@@ -58,6 +58,7 @@ void ScreenData::addCursorSpot(std::pair<int, SelectBehaviorFunc> newSpot) {
 }
 
 void ScreenData::doLoadPageBehavior() {
+    currentSpotIndex = 0;
     pageChangeBehavior->loadPage(*observed);
 }
 
@@ -66,7 +67,6 @@ void ScreenData::doLeavePageBehavior() {
 }
 
 void ScreenData::printPage(IOHandler* ioh) {
-    cout << "in screendata.printpage, calling lsb renderpage" << endl;
     lineSetupBehavior->renderPage(ioh);
 }
 

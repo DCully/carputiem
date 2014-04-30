@@ -12,22 +12,15 @@ an open source program by Gary Briggs available at https://icculus.org/obdgpslog
 This project depends on the wiringPi library (www.wiringpi.com) and C++11.
 
 
+
 TODO:
-
-- test setUpObdScreens and use it to demo entire the front end
-
-- build hardware layer, make program start automatically
-
-
-Longer term stuff:
 
 1) make cursor invisible and place a special character on the cursored spot 
 
-2) improve support for different communication protocols in ObdSerial
+2) add more screens for DTCs interpretation
 
-3) add more screens for different pieces of info from the car
+3) add a music player
 
-4) add a music player
 
-5) customize linux to make it boot faster
+
 

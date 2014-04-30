@@ -15,9 +15,7 @@
 #include <thread> // for multithreading
 #include <chrono> // for sleeping
 
-/// TODO:
-/// 1) broaden protocol support
-/// 2) add support for reading DTCs
+/// add support for reading DTCs
 
 using namespace std;
 
@@ -81,14 +79,14 @@ void ObdSerial::start() {
     if (boolrun == false) {
         // start the data harvesting thread ( start() ) and wait for it to finish
         boolrun = true;
-        std::thread obdthread(&ObdSerial::run, this);
-        obdthread.join();
+        obdthread = new std::thread(&ObdSerial::run, this);
     }
 }
 vector<int> ObdSerial::getSuppdCmds() {
     return suppdCmds;
 }
-string ObdSerial::getVIN() {
+
+const string& ObdSerial::getVIN() {
     return VIN;
 }
 void ObdSerial::setFocusedPIDs(const std::vector<int>& fPIDs) {
@@ -101,8 +99,12 @@ void ObdSerial::setFocusedPIDs(const std::vector<int>& fPIDs) {
         }
     }
 }
-void ObdSerial::setRunStatus(bool brun) {
-    boolrun = brun;
+
+void ObdSerial::stopUpdates() {
+    if (boolrun) {
+        boolrun = false;
+        obdthread->join();
+    }
 }
 
 
@@ -243,10 +245,16 @@ void ObdSerial::run() {
             if (datum.error == false) {
                 dataValue = obdcmds_mode1[focusPIDs.at(ind)].conv(datum.abcd[0], datum.abcd[1], datum.abcd[2], datum.abcd[3]);
             }
+
             cout << obdcmds_mode1[focusPIDs.at(ind)].human_name << " = " << dataValue << endl;
 
-            /// TODO: convert the data value to a string and send it off
-            // notifyObservers(ind, dataValue);
+            // convert dataValue to string, and send it off to observers
+            string maxval = std::to_string( (int) obdcmds_mode1[focusPIDs.at(ind)].max_value);
+            string minval = std::to_string( (int) obdcmds_mode1[focusPIDs.at(ind)].min_value);
+            size_t maxlen = (maxval.size() > minval.size() ? maxval.size() : minval.size());
+            string output = std::to_string(dataValue).substr(0, maxlen);
+            notifyObservers(focusPIDs.at(ind), output);
+
         } //end for
     } //end while
 }

@@ -23,7 +23,7 @@ ObdPageChangeBehavior::ObdPageChangeBehavior(vector<int>& pidIndices, ObdSerial 
 }
 
 void ObdPageChangeBehavior::loadPage(ObdSerial& obs) {
-//    observable->setFocusedPIDs(PIDsIShowFromSuppdCmds);
+    observable->setFocusedPIDs(PIDsIShowFromSuppdCmds);
 }
 
 void ObdPageChangeBehavior::leavePage(ObdSerial& obs) {

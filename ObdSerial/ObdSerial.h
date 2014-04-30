@@ -6,7 +6,7 @@
 #include "../Observable.h"
 #include "obdcomms.h"
 #include <map>
-#include <pthread.h>
+#include <thread>
 
 class ObdSerial: public Observable
 {
@@ -18,9 +18,9 @@ class ObdSerial: public Observable
 
         void start(); // spawns the data polling thread
         std::vector<int> getSuppdCmds();
-        std::string getVIN();
+        const std::string& getVIN();
         void setFocusedPIDs(const std::vector<int>& focusPIDs); // sets which PIDs to query for
-        void setRunStatus(bool brun); // turn data polling thread on or off
+        void stopUpdates(); // turn data polling off
 
     private:
 
@@ -48,7 +48,7 @@ class ObdSerial: public Observable
 
         // multithreading
         volatile bool boolrun;
-        pthread_t thread;
+        std::thread* obdthread;
         void run();
 };
 #endif //OBDSERIAL_H

@@ -48,11 +48,8 @@ void IOHandler::update(size_t linenum, string info) {
 
 void IOHandler::printToLCD(const string& text, const int& spot) {
 
-    // ensures that no other thread prints in middle of this print
-    std::lock_guard<std::mutex> locker(print_lock);
-
     // ensures that nothing else can moveCursor in middle of this print
-    std::lock_guard<std::mutex> locker2(cursor_lock);
+    std::lock_guard<std::mutex> locker(cursor_lock);
 
     lcdPosition(LCDHandle, spot%20,spot/20);
     lcdPuts(LCDHandle, text.c_str());
@@ -118,7 +115,7 @@ void IOHandler::textScroller(std::vector<size_t> startSpots,
 
     unsigned int lastPrint = 0;
     for (size_t x = 0; x < msgs.size(); x++) {
-        msgs.at(x).append("        "); // for space between end of message and start of repeated message
+        msgs.at(x).append(" ");
         msgs.at(x).append(msgs.at(x));
         toScreen.push_back(msgs.at(x).substr(0, stopSpots.at(x) - startSpots.at(x) + 1));
         spotInMsgs.push_back(0);

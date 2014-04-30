@@ -34,9 +34,7 @@ LineSetupBehavior::LineSetupBehavior() {
 }
 
 void LineSetupBehavior::renderPage(IOHandler* iohandler) {
-cout << "in renderpage, calling stopAllScrollingText" << endl;
     iohandler->stopAllScrollingText();
-    cout << "calling printToLCD for title" << endl;
     iohandler->printToLCD(titleLine, 0);
 
     // print the static lines
@@ -46,7 +44,6 @@ cout << "in renderpage, calling stopAllScrollingText" << endl;
 
     // start the scrolling thread for dynamic lines (they all take up the whole line, no need to clear)
     if (textForScrollingLines.size() > 0) {
-cout << "rendering the scrolling lines " << endl;
         vector<size_t> ss;
         vector<size_t> es;
 
@@ -114,13 +111,7 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
     titleLine.append("<->");
 
     // determine body lines setup
-    for (size_t line = 0; line < 3; line++) {
-
-        if (line >= textForLs.size()) { // clears unused lines if this is a partially filled page
-            textForStaticLines.push_back("                    ");
-            staticLineNums.push_back(line+1);
-            continue;
-        }
+    for (size_t line = 0; line < 3 && line < textForLs.size(); line++) {
 
         size_t spaceForText = 20 - labelsForLs.at(line).size() - spaceForDataOnLines.at(line);
         updateSpotsForLines.push_back(spaceForText);
@@ -160,8 +151,6 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
             }
             /// </TESTING>
         }
-
-
     }
 }
 
@@ -211,7 +200,6 @@ void LabeledLineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, 
     output.append(info);
 
     // prints info to updateSpotForLine(lineNum), and deals with update spots being right justified
-    cout << "printing the update string at " << updateSpotsForLines.at(lineNum-1) << endl;
     iohandler->printToLCD(output, 20*lineNum + updateSpotsForLines.at(lineNum-1));
 
 }
