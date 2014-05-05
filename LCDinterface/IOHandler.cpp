@@ -9,53 +9,49 @@
 #include <thread>
 #include <chrono>
 #include "Controller.h"
-// #include "../unit_tests/wPi_mock.h"
 
-using namespace std;
+extern Controller* controller; // only needed for update - better way to do this?
 
 IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
                      const int& rs, const int& strb, const int& d0, const int& d1,
                      const int& d2, const int& d3, const int& d4, const int& d5,
-                     const int& d6, const int& d7, Controller * cont)
+                     const int& d6, const int& d7)
 {
     wiringPiSetup();
     LCDHandle = lcdInit(4,20,8, rs,strb, d0,d1,d2,d3,d4,d5,d6,d7);
-    wiringPiISR(bleft, INT_EDGE_FALLING, &Controller::lButPressed);
-    wiringPiISR(bright, INT_EDGE_FALLING, &Controller::rButPressed);
-    wiringPiISR(bsel, INT_EDGE_FALLING, &Controller::selPressed);
+    wiringPiISR(bleft, INT_EDGE_FALLING, &Controller::staticLeftButPressed);
+    wiringPiISR(bright, INT_EDGE_FALLING, &Controller::staticRightButPressed);
+    wiringPiISR(bsel, INT_EDGE_FALLING, &Controller::staticSelectPressed);
 
     lcdCursor(LCDHandle, 1); // experiment with cursor turned off
     lcdCursorBlink(LCDHandle, 0); // dont blink the cursor
-    moveCursor(cont->getCurPage()->getCurrentCursorSpot());
-    controller = cont;
+    moveCursor(17); // cursor starts off on "change page left" spot
     TextIsScrolling = false;
 }
 
+// this is how to move the cursor from the outside
 void IOHandler::moveCursor(const int& spot) {
     if (spot > 79 || spot < 0) {
-        cerr << "Invalid cursor spot passed to moveCursor" << endl;
-        //throws "Invalid cursor spot passed to moveCursor";
+        std::cerr << "Invalid cursor spot passed to moveCursor" << std::endl;
     }
 
     std::lock_guard<std::mutex> locker2(cursor_lock);
     lcdPosition(LCDHandle, spot%20, spot/20);
-
+    cursorSpotOnScreen = spot;
 }
 
-void IOHandler::update(size_t linenum, string info) {
-    controller->getCurPage()->getLineSetupBehavior()->updateLine(this, linenum, info);
+void IOHandler::update(size_t linenum, std::string info) {
+    controller->getCurPage().getLineSetupBehavior()->updateLine(this, linenum, info);
 }
 
-void IOHandler::printToLCD(const string& text, const int& spot) {
+void IOHandler::printToLCD(const std::string& text, const int& spot) {
 
     // ensures that nothing else can moveCursor in middle of this print
     std::lock_guard<std::mutex> locker(cursor_lock);
 
     lcdPosition(LCDHandle, spot%20,spot/20);
     lcdPuts(LCDHandle, text.c_str());
-
-    /// do we need getCurrentCursorSpot() ?
-    lcdPosition(LCDHandle, controller->getCurPage()->getCurrentCursorSpot()%20, controller->getCurPage()->getCurrentCursorSpot()/20);
+    lcdPosition(LCDHandle, cursorSpotOnScreen%20, cursorSpotOnScreen/20);
 }
 
 void IOHandler::startScrollText(const std::vector<size_t>& startSpots,
@@ -66,23 +62,23 @@ void IOHandler::startScrollText(const std::vector<size_t>& startSpots,
     // check input validity for all scrolled lines
     for (size_t i = 0; i < lineNums.size(); i++) {
         if (lineNums.size() != stopSpots.size() || lineNums.size() != startSpots.size() || lineNums.size() != msgs.size()) {
-            cerr << "Error in startScrollText - vector sizes are uneven" << endl;
+            std::cerr << "Error in startScrollText - vector sizes are uneven" << std::endl;
             return ;
         }
         if ( stopSpots.at(i) <= startSpots.at(i) ) {
-            cerr << "Error in startScrollText - starting spot was before stopping spot for line " << lineNums.at(i) << endl;
+            std::cerr << "Error in startScrollText - starting spot was before stopping spot for line " << lineNums.at(i) << std::endl;
             return ;
         }
         if (  (lineNums.at(i) > 3) || (lineNums.at(i) < 0)  ) {
-            cerr << "Error in startScrollText - invalid line number: " << lineNums.at(i) << endl;
+            std::cerr << "Error in startScrollText - invalid line number: " << lineNums.at(i) << std::endl;
             return ;
         }
         if (stopSpots.at(i)/20 != startSpots.at(i)/20) {
-            cerr << "Error in startScrollText - can't scroll across multiple lines" << endl;
+            std::cerr << "Error in startScrollText - can't scroll across multiple lines" << std::endl;
             return ;
         }
         if ( msgs.at(i).size() < ( stopSpots.at(i) - startSpots.at(i) ) ) {
-            cerr << "Error in startScrollText - message size less than scrolling area" << endl;
+            std::cerr << "Error in startScrollText - message size less than scrolling area" << std::endl;
             return ;
         }
     }
@@ -93,14 +89,14 @@ void IOHandler::startScrollText(const std::vector<size_t>& startSpots,
     }
     // launch a new scroll manager thread
     TextIsScrolling = true;
-    ScrollingThread = new std::thread(&IOHandler::textScroller, this, startSpots, stopSpots, lineNums, msgs);
+    ScrollingThread = std::thread(&IOHandler::textScroller, this, startSpots, stopSpots, lineNums, msgs);
 
 }
 
 void IOHandler::stopAllScrollingText() {
     if (TextIsScrolling) {
         TextIsScrolling = false;
-        ScrollingThread->join();
+        ScrollingThread.join();
     }
 }
 
@@ -110,8 +106,8 @@ void IOHandler::textScroller(std::vector<size_t> startSpots,
     std::vector<std::string> msgs)
 {
     // these only become as large as however many lines are actually scrolled (not always three)
-    vector<string> toScreen;
-    vector<size_t> spotInMsgs;
+    std::vector<std::string> toScreen;
+    std::vector<size_t> spotInMsgs;
 
     unsigned int lastPrint = 0;
     for (size_t x = 0; x < msgs.size(); x++) {

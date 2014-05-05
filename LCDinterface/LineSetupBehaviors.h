@@ -19,7 +19,7 @@ class LineSetupBehavior
         virtual LineSetupBehavior* clone() const { return new LineSetupBehavior(*this); }
 
         // called by controller
-        virtual void renderPage(IOHandler* iohandler);
+        virtual void renderPage(IOHandler& iohandler);
 
         // this does nothing (not supposed to be able to call update on the base class...
         virtual void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
@@ -36,7 +36,7 @@ class LineSetupBehavior
 class LabeledLineSetupBehavior: public virtual LineSetupBehavior
 {
     friend class ObdFactoryTest;
-        
+
     public:
         LabeledLineSetupBehavior();
         virtual ~LabeledLineSetupBehavior() {}

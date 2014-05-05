@@ -1,23 +1,22 @@
-Hello! 
+Hello! This is a program to display a car's ECU data on a character LCD screen via the GPIO pins on a Raspberry Pi.
 
-This is a program-in-progress to display various data from my car on a character LCD screen via a Raspberry Pi.
+- This is organized around a MVC pattern; the controller relies heavily on pointers to implementation classes
 
-To add new screens for a model object, you need to add new ScreenData objects to controller->pages. These objects 
-delegate their individual page printing behaviors and model object interaction behaviors to their LineSetupBehavior
-and PageChangeBehavior objects, respectively. The view object, an IOHandler instance, is an observer, and every model
-object is an Observable. 
+- To add new functionality, just add a new ScreenData object for your new model objects to Controller::pages
 
-I should mention here that some of my code to interface with the OBD2 port is adapted from OBDGPSLogger,
-an open source program by Gary Briggs available at https://icculus.org/obdgpslogger/.
-This project depends on the wiringPi library (www.wiringpi.com) and C++11.
+- Some of this code is adapted from OBDGPSLogger, available at https://icculus.org/obdgpslogger/
+
+- This program depends on the wiringPi library (www.wiringpi.com); this requires root privileges
 
 
 
-TODO:
+Potential improvements:
 
-1) make cursor invisible and place a special character on the cursored spot 
+0) change over to smart pointers
 
-2) add more screens for DTCs interpretation
+1) beautify cursor with a special character
+
+2) add code to read DTCs
 
 3) add a music player
 

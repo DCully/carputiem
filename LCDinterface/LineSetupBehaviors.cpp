@@ -2,11 +2,9 @@
 #include <iostream>
 #include "IOHandler.h"
 
-using namespace std;
-
 /// for base class (one static or scrolled string per line)
 
-LineSetupBehavior::LineSetupBehavior(vector<string> textForLines, const string& t)
+LineSetupBehavior::LineSetupBehavior(std::vector<std::string> textForLines, const std::string& t)
 {
     titleLine = t.substr(0,15);
     while (titleLine.size() < 17) {
@@ -14,7 +12,7 @@ LineSetupBehavior::LineSetupBehavior(vector<string> textForLines, const string& 
     }
     titleLine = titleLine + "<->";
 
-    for (int x = 1; x < 4 && x < textForLines.size() + 1; x++) { // loop through textForLines and pull out scrolling ones
+    for (size_t x = 1; x < 4 && x < textForLines.size() + 1; x++) { // loop through textForLines and pull out scrolling ones
         if (textForLines.at(x-1).size() > 20) {
             scrollingLineNums.push_back(x);
             textForScrollingLines.push_back(textForLines.at(x-1));
@@ -33,33 +31,33 @@ LineSetupBehavior::LineSetupBehavior() {
 
 }
 
-void LineSetupBehavior::renderPage(IOHandler* iohandler) {
-    iohandler->stopAllScrollingText();
-    iohandler->printToLCD(titleLine, 0);
+void LineSetupBehavior::renderPage(IOHandler& iohandler) {
+    iohandler.stopAllScrollingText();
+    iohandler.printToLCD(titleLine, 0);
 
     // print the static lines
     for (size_t x = 0; x < textForStaticLines.size(); x++) {
-        iohandler->printToLCD(textForStaticLines.at(x), staticLineNums.at(x)*20);
+        iohandler.printToLCD(textForStaticLines.at(x), staticLineNums.at(x)*20);
     }
 
     // start the scrolling thread for dynamic lines (they all take up the whole line, no need to clear)
     if (textForScrollingLines.size() > 0) {
-        vector<size_t> ss;
-        vector<size_t> es;
+        std::vector<size_t> ss;
+        std::vector<size_t> es;
 
         for (size_t i = 0; i < textForScrollingLines.size(); i++) {
             ss.push_back(0);
             es.push_back(19);
         }
 
-        iohandler->startScrollText(ss, es, scrollingLineNums, textForScrollingLines);
+        iohandler.startScrollText(ss, es, scrollingLineNums, textForScrollingLines);
     }
 }
 
-void LineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string info) {
+void LineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, std::string info) {
 
     if (lineNum != 1 && lineNum != 2 && lineNum != 3) {
-        cerr << "Invalid line number passed to LineSetupBehavior::updateLine" << endl;
+        std::cerr << "Invalid line number passed to LineSetupBehavior::updateLine" << std::endl;
         return ;
     }
 
@@ -77,12 +75,12 @@ void LineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string 
             return ;
         }
         else {
-            cerr << "Error in LSB::updateLine - lineNum " << lineNum << " not found in either lineNums vector" << endl;
+            std::cerr << "Error in LSB::updateLine - lineNum " << lineNum << " not found in either lineNums vector" << std::endl;
             return ;
         }
     }
 
-    renderPage(iohandler);
+    renderPage(*iohandler);
 
 }
 
@@ -123,7 +121,7 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
             endSpotsForScrollingLines.push_back(spaceForText);
 
             // set up the static text for after the scrolling part
-            string staticText = "";
+            std::string staticText = "";
             for (size_t x = 0; x < spaceForDataOnLines.at(line); x++) {
                 staticText.append(" ");
             }
@@ -132,7 +130,7 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
 
             /// <TESTING>
             if (staticText.size() + spaceForText != 20) {
-                cerr << "Error in LLSB ctor - line length incorrect for scrolling line " << line + 1 << endl;
+                std::cerr << "Error in LLSB ctor - line length incorrect for scrolling line " << line + 1 << std::endl;
             }
             /// </TESTING>
         }
@@ -147,7 +145,7 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
 
             /// <TESTING>
             if (textForLs.at(line).size() != 20) {
-                cerr << "Error in LLSB ctor - line length incorrect for static line " << line + 1 << endl;
+                std::cerr << "Error in LLSB ctor - line length incorrect for static line " << line + 1 << std::endl;
             }
             /// </TESTING>
         }
@@ -181,16 +179,16 @@ void LabeledLineSetupBehavior::renderPage(IOHandler* iohandler) {
 }
 
 
-void LabeledLineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, string info) {
+void LabeledLineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, std::string info) {
 
     if (lineNum != 1 && lineNum != 2 && lineNum != 3) {
-        cerr << "Invalid line number passed to LabeledLineSetupBehavior::updateLine" << endl;
+        std::cerr << "Invalid line number passed to LabeledLineSetupBehavior::updateLine" << std::endl;
         return ;
     }
 
     info = info.substr(0, spaceForDataOnLines.at(lineNum-1));
 
-    string output = "";
+    std::string output = "";
 
     while (output.size() < spaceForDataOnLines.at(lineNum - 1) - info.size() ) {
         // add necessary spaces to print over the entire updateable zone

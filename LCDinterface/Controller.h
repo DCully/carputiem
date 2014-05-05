@@ -16,29 +16,28 @@ class Controller
         Controller();
         ~Controller();
 
-        /*These three functions handle button input calls from
-        the iohandler, routing them as necessary.
+        /*
+         * ISO-C++ forbids non-static member function pointers... so I did this
+         * to route calls from interrupt calls to member functions through the global pointer.
+         * this is definitely not very well designed. It does work, however.
         */
-
-        // ISO-C++ forbids non-static member function pointers... so I did this
-        static void lButPressed();
-        static void rButPressed();
-        static void selPressed();
+        static void staticLeftButPressed();
+        static void staticRightButPressed();
+        static void staticSelectPressed();
         static void staticChangePageRight();
         static void staticChangePageLeft();
 
-        ScreenData* getCurPage();
+        ScreenData& getCurPage();
         unsigned int lastPush;
 
     private:
+        void leftButPressed();
+        void rightButPressed();
+        void selectPressed();
         void changePageLeft();
         void changePageRight();
-        // called in constructor, to build ObdSerial's ScreenData objects
-        void setUpObdScreens(std::vector<int> pids);
-        ScreenData* obdPages;
-        LineSetupBehavior* obdlsbs;
-        PageChangeBehavior* obdpcbs;
-        IOHandler * iohandler;
+
+        IOHandler* iohandler;
 
         std::vector<ScreenData> pages;
         int curPageIndex;

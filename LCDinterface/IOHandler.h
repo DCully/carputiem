@@ -14,12 +14,13 @@ class IOHandler: public Observer
 {
 
     public:
+        IOHandler() {}
         virtual ~IOHandler() {}
 
         IOHandler(const int& bleft, const int& bright, const int& bsel,                       //these are the three button GPIO pin numbers,
                   const int& rs, const int& strb, const int& d0, const int& d1,               //and these are the GPIO pins for the LCD (8-bit)
                   const int& d2, const int& d3, const int& d4, const int& d5,
-                  const int& d6, const int& d7, Controller * cont);
+                  const int& d6, const int& d7);
 
         // updates the data field on a line (calls to an LSB for implementation details)
         void update(size_t linenum, std::string infoToPrint);
@@ -45,8 +46,8 @@ class IOHandler: public Observer
             std::vector<size_t> lineNum,
             std::vector<std::string> msg);
         int LCDHandle;
-        Controller * controller;
-        std::thread* ScrollingThread;
+        int cursorSpotOnScreen;
+        std::thread ScrollingThread;
         volatile bool TextIsScrolling;
         std::mutex cursor_lock;
 };

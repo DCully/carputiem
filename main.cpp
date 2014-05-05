@@ -8,8 +8,6 @@
 
 extern Controller * controller;
 
-using namespace std;
-
 int main()
 {
     // front end testing

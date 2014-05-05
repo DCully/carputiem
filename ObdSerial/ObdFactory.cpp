@@ -6,11 +6,6 @@
 #include <vector>
 #include <iostream>
 
-using std::vector;
-using std::string;
-using std::cout;
-using std::endl;
-
 ObdFactory::ObdFactory(ObdSerial* obs) {
     obds = obs;
 }
@@ -25,10 +20,10 @@ void ObdFactory::buildObdScreens(const std::vector<int>& obdIndices, std::vector
     for (size_t page = 0; page < (obdIndices.size()+2)/3; page++) {
 
         /// build an OPCB with next (up to) 3 PIDs from obdIndices
-        vector<int> pids;
-        vector<string> textForLines;
-        vector<string> labelsForLines;
-        vector<size_t> spacesForData;
+        std::vector<int> pids;
+        std::vector<std::string> textForLines;
+        std::vector<std::string> labelsForLines;
+        std::vector<size_t> spacesForData;
 
         for (size_t index = page*3; index < page*3 + 3 && index < obdIndices.size(); index++) {
 
@@ -40,8 +35,8 @@ void ObdFactory::buildObdScreens(const std::vector<int>& obdIndices, std::vector
             labelsForLines.push_back(obdcmds_mode1[obdIndices.at(index)].units);
 
             // better way to handle nonzero trailing digits?
-            string maxval = std::to_string( (int) obdcmds_mode1[obdIndices.at(index)].max_value);
-            string minval = std::to_string( (int) obdcmds_mode1[obdIndices.at(index)].min_value);
+            std::string maxval = std::to_string( (int) obdcmds_mode1[obdIndices.at(index)].max_value);
+            std::string minval = std::to_string( (int) obdcmds_mode1[obdIndices.at(index)].min_value);
 
 
             size_t maxlen = (maxval.size() > minval.size() ? maxval.size() : minval.size());
@@ -51,7 +46,7 @@ void ObdFactory::buildObdScreens(const std::vector<int>& obdIndices, std::vector
         ObdPageChangeBehavior* opcb = new ObdPageChangeBehavior(pids, obds);
 
         /// build an LLSB
-        string title = "OBD Data ";
+        std::string title = "OBD Data ";
         title.append(std::to_string(page));
         LabeledLineSetupBehavior* llsb = new LabeledLineSetupBehavior(textForLines, labelsForLines, spacesForData, title);
 
@@ -66,7 +61,7 @@ void ObdFactory::buildVINScreen(const std::string& VIN, std::vector<ScreenData>&
 
     PageChangeBehavior* pcb = new PageChangeBehavior();
 
-    vector<string> lines;
+    std::vector<std::string> lines;
     lines.push_back("Vehicle Identification Number");
     lines.push_back(VIN);
     lines.push_back(" ");

@@ -8,15 +8,11 @@
 #include "PageChangeBehaviors.h"
 #include "LineSetupBehaviors.h"
 
-/// changing interface so that controller calls this in order to print the page
-
 typedef void (*SelectBehaviorFunc)(void);
 
 class LineSetupBehavior;
 
 class ScreenData {
-
-    friend class ObdFactoryTest;
 
     public:
         ScreenData(Observable* obs, PageChangeBehavior* pcb, LineSetupBehavior* lsb);
@@ -27,22 +23,14 @@ class ScreenData {
         ScreenData& operator=(ScreenData other);
         void swap(ScreenData& other);
 
-        void moveCursorLeft(IOHandler* ioh);
-        void moveCursorRight(IOHandler* ioh);
+        void moveCursorLeft(IOHandler& ioh);
+        void moveCursorRight(IOHandler& ioh);
         void doCurSpotSelectBehavior();
-
         void doLoadPageBehavior();
         void doLeavePageBehavior();
-
         void addCursorSpot(std::pair<int, SelectBehaviorFunc> newSpot);
-
-        /// if we separate user's "cursor" from actual cursor, this might not be necessary...?
-        const int getCurrentCursorSpot() const;
-
         LineSetupBehavior* getLineSetupBehavior();
-
-        void printPage(IOHandler* ioh);
-
+        void printPage(IOHandler& ioh);
         Observable* observed;
     private:
         // set in constructor

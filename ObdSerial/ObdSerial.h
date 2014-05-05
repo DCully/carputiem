@@ -10,8 +10,6 @@
 
 class ObdSerial: public Observable
 {
-    friend class ObdSerialTest;
-
     public:
         ObdSerial(const std::string& pp);
         ~ObdSerial();

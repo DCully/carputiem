@@ -17,15 +17,13 @@
 
 /// add support for reading DTCs
 
-using namespace std;
-
-ObdSerial::ObdSerial(const string& portpath) : AT_SLEEPTIME(20), NORMAL_OBD_SLEEPTIME(100), EXTRA_LONG_SLEEPTIME(300) {
+ObdSerial::ObdSerial(const std::string& portpath) : AT_SLEEPTIME(20), NORMAL_OBD_SLEEPTIME(100), EXTRA_LONG_SLEEPTIME(300) {
     //open serial port connection
     char buf[4096];
     // open to read and write, not as the controlling terminal, and in nonblocking mode
     fd = open(portpath.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1) {
-        cerr << "Failed to open obd port..." << endl;
+        std::cerr << "Failed to open obd port..." << std::endl;
         throw "Error opening OBD2 port";
     }
     // configure the opened serial port
@@ -37,7 +35,7 @@ ObdSerial::ObdSerial(const string& portpath) : AT_SLEEPTIME(20), NORMAL_OBD_SLEE
     cfsetispeed(&options, B38400);
     cfsetospeed(&options, B38400);
     if (tcsetattr(fd, TCSANOW, &options) != 0) {
-        cerr << "Error setting serial port attributes" << endl;
+        std::cerr << "Error setting serial port attributes" << std::endl;
     }
     // configure the ELM327 device
     write(fd, "AT E0\r", sizeof("AT E0\r")); // turn off echo
@@ -54,7 +52,7 @@ ObdSerial::ObdSerial(const string& portpath) : AT_SLEEPTIME(20), NORMAL_OBD_SLEE
     read(fd, buf, sizeof(buf));
 
     if (fillSuppdCmds() != 0) {
-        cerr << "Error getting supported PIDs" << endl;
+        std::cerr << "Error getting supported PIDs" << std::endl;
         throw "Error getting supported PIDs";
     }
 
@@ -82,17 +80,17 @@ void ObdSerial::start() {
         obdthread = new std::thread(&ObdSerial::run, this);
     }
 }
-vector<int> ObdSerial::getSuppdCmds() {
+std::vector<int> ObdSerial::getSuppdCmds() {
     return suppdCmds;
 }
 
-const string& ObdSerial::getVIN() {
+const std::string& ObdSerial::getVIN() {
     return VIN;
 }
 void ObdSerial::setFocusedPIDs(const std::vector<int>& fPIDs) {
     for (unsigned int x = 0; x < fPIDs.size(); x++) {
         if ( binary_search(suppdCmds.begin(), suppdCmds.end(), fPIDs.at(x)) == false ) {
-            cerr << "setFocusedPIDs error: PID " << obdcmds_mode1[x].cmdid << " not supported, skipping" << endl;
+            std::cerr << "setFocusedPIDs error: PID " << obdcmds_mode1[x].cmdid << " not supported, skipping" << std::endl;
         }
         else {
             focusPIDs.push_back(fPIDs.at(x));
@@ -111,7 +109,7 @@ void ObdSerial::stopUpdates() {
 /// Internal data query/interpretation methods
 // return 0 for success -1 for failure
 int ObdSerial::fillSuppdCmds() {
-    string instr;
+    std::string instr;
     for (int x = 0; x < 4; x++) {
         if (writeToOBD(x*32) != 0) {
             return -1;
@@ -135,18 +133,18 @@ int ObdSerial::fillSuppdCmds() {
             break;
         }
     }
-    sort (suppdCmds.begin(), suppdCmds.end());
+    std::sort (suppdCmds.begin(), suppdCmds.end());
     return 0;
 }
-string ObdSerial::getVINFromCar() {
+std::string ObdSerial::getVINFromCar() {
     //from wikipedia: 17-char VIN, ASCII-encoded and left-padded with null chars
     char vin[256];
-    string input, formatted, output;
+    std::string input, formatted, output;
     write(fd, "09 02\r", sizeof("09 02\r"));
     std::this_thread::sleep_for(std::chrono::milliseconds(EXTRA_LONG_SLEEPTIME));
     read(fd, vin, sizeof(vin));
     input = vin;
-    istringstream iss(input);
+    std::istringstream iss(input);
     getline(iss, input);     // skip first line
     while (getline(iss, input) && input.size() > 2) { // concatenate subsequent lines until empty line or ">"
         // this chops off "#:" at beginning of each line - input is now only 1 line long
@@ -163,23 +161,23 @@ string ObdSerial::getVINFromCar() {
     return output;
 }
 // converts single hex char pair to an ascii char
-char ObdSerial::hexToChar(string input) {
+char ObdSerial::hexToChar(std::string input) {
     if (input.size() != 2) {
-        cerr << "Wrong sized string passed to hexToChar" << endl;
+        std::cerr << "Wrong sized string passed to hexToChar" << std::endl;
         throw "Invalid hex string to convert to ASCII in hexToChar";
     }
-    stringstream ss;
+    std::stringstream ss;
     ss << std::hex << input;
     int x;
     ss >> x;
     return (char) (x);
 }
 // converts hex string into ABCD data interpretation format
-ObdSerial::OBDDatum ObdSerial::hexStrToABCD(string & input) {
+ObdSerial::OBDDatum ObdSerial::hexStrToABCD(std::string & input) {
     OBDDatum info;
-    string byte;
+    std::string byte;
     if ( ((input.size() % 2) != 0) || (input.size() > 8) ) {
-        cerr << "Wrong sized string passed to hexStrToABCD" << endl;
+        std::cerr << "Wrong sized string passed to hexStrToABCD" << std::endl;
         info.error = true;
         return info;
     }
@@ -196,27 +194,27 @@ int ObdSerial::writeToOBD(size_t cmdindex) {
     char outstr[20];
     int outslen;
     if (cmdindex > 100 /*size of obdcmds_mode1*/) {
-        cerr << "Error in writeToOBD - cmd not in obdcmds_mode1" << endl;
+        std::cerr << "Error in writeToOBD - cmd not in obdcmds_mode1" << std::endl;
         return -1;
     }
     outslen = snprintf(outstr, sizeof(outstr), "%02X%s%02X%01d\r", 0x01, " ", obdcmds_mode1[cmdindex].cmdid, obdcmds_mode1[cmdindex].bytes_returned);
     if (write(fd, outstr, outslen) < outslen) {
-        cerr << "Error in writeToOBD for cmd " << obdcmds_mode1[cmdindex].cmdid << endl;
+        std::cerr << "Error in writeToOBD for cmd " << obdcmds_mode1[cmdindex].cmdid << std::endl;
         return -1;
     }
     return 0;
 }
 // trim read to one line of return chars with no echo tags
 // returns 0 for success -1 for failure
-int ObdSerial::readFromOBD(string & strtoreadto) {
+int ObdSerial::readFromOBD(std::string & strtoreadto) {
     char inbuf[4096];
     // read into inbuf, put it into a string, take first line with getline
     read(fd, inbuf, sizeof(inbuf));
     strtoreadto = inbuf;
-    istringstream iss(strtoreadto);
-    getline(iss, strtoreadto);
+    std::istringstream iss(strtoreadto);
+    std::getline(iss, strtoreadto);
     if ( (strtoreadto == "NO DATA") || (strtoreadto == "?") || (strtoreadto == "STOPPED") || (strtoreadto == "ERROR") ) {
-        cerr << "Bad data read from OBD port: " << strtoreadto << endl;
+        std::cerr << "Bad data read from OBD port: " << strtoreadto << std::endl;
         return -1;
     }
     strtoreadto = strtoreadto.substr(4, strtoreadto.size());
@@ -237,7 +235,7 @@ void ObdSerial::run() {
                 continue;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(NORMAL_OBD_SLEEPTIME));
-            string strtoreadto;
+            std::string strtoreadto;
             if (readFromOBD(strtoreadto) != 0) {
                 continue;
             }
@@ -246,13 +244,13 @@ void ObdSerial::run() {
                 dataValue = obdcmds_mode1[focusPIDs.at(ind)].conv(datum.abcd[0], datum.abcd[1], datum.abcd[2], datum.abcd[3]);
             }
 
-            cout << obdcmds_mode1[focusPIDs.at(ind)].human_name << " = " << dataValue << endl;
+            //std::cout << obdcmds_mode1[focusPIDs.at(ind)].human_name << " = " << dataValue << std::endl;
 
             // convert dataValue to string, and send it off to observers
-            string maxval = std::to_string( (int) obdcmds_mode1[focusPIDs.at(ind)].max_value);
-            string minval = std::to_string( (int) obdcmds_mode1[focusPIDs.at(ind)].min_value);
+            std::string maxval = std::to_string( (int) obdcmds_mode1[focusPIDs.at(ind)].max_value);
+            std::string minval = std::to_string( (int) obdcmds_mode1[focusPIDs.at(ind)].min_value);
             size_t maxlen = (maxval.size() > minval.size() ? maxval.size() : minval.size());
-            string output = std::to_string(dataValue).substr(0, maxlen);
+            std::string output = std::to_string(dataValue).substr(0, maxlen);
             notifyObservers(focusPIDs.at(ind), output);
 
         } //end for
