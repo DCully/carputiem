@@ -2,7 +2,7 @@ Hello! This is a program to display a car's ECU data on a character LCD screen v
 
 - This is organized around a MVC pattern; the controller relies heavily on pointers to implementation classes
 
-- To add new functionality, just add a new ScreenData object for your new model objects to Controller::pages
+- To add new functionality, just add a new ScreenData object for your new model object(s) to the controller's "pages" vector
 
 - Some of this code is adapted from OBDGPSLogger, available at https://icculus.org/obdgpslogger/
 

@@ -2,14 +2,12 @@
 #include "Controller.h"
 #include <iostream>
 
-extern Controller * controller; // only needed to register page change funcs in ctor
-
 ScreenData::ScreenData(Observable* obs, PageChangeBehavior* pcb, LineSetupBehavior* lsb)
     : observed(obs), pageChangeBehavior(pcb), lineSetupBehavior(lsb)
 {
     // all screens have next page and previous page buttons at 17 and 19
-    cursorSpots.push_back(std::make_pair(17, &controller->staticChangePageLeft));
-    cursorSpots.push_back(std::make_pair(19, &controller->staticChangePageRight));
+    cursorSpots.push_back(std::make_pair(17, &Controller::staticChangePageLeft));
+    cursorSpots.push_back(std::make_pair(19, &Controller::staticChangePageRight));
 
     currentSpotIndex = 0;
 }

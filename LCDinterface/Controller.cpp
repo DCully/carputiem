@@ -76,14 +76,14 @@ void Controller::staticChangePageLeft() {
 void Controller::changePageLeft() {
     // unhook page from observed
     pages.at(curPageIndex).doLeavePageBehavior();
-    pages.at(curPageIndex).observed->removeObserver(iohandler);
+    pages.at(curPageIndex).observed->removeObserver(this);
 
     // shift to the next page (from the left)
     curPageIndex = (curPageIndex+1)%pages.size();
 
     // hook up new page to observed
     pages.at(curPageIndex).doLoadPageBehavior();
-    pages.at(curPageIndex).observed->registerObserver(iohandler);
+    pages.at(curPageIndex).observed->registerObserver(this);
 
     // print the new page
     pages.at(curPageIndex).printPage(*iohandler);
@@ -97,14 +97,14 @@ void Controller::changePageRight() {
 
     // unhook page from observed
     pages.at(curPageIndex).doLeavePageBehavior();
-    pages.at(curPageIndex).observed->removeObserver(iohandler);
+    pages.at(curPageIndex).observed->removeObserver(this);
 
     // shift to the next page (from the right)
     curPageIndex = (curPageIndex-1)%pages.size();
 
     // hook up new page to observed
     pages.at(curPageIndex).doLoadPageBehavior();
-    pages.at(curPageIndex).observed->registerObserver(iohandler);
+    pages.at(curPageIndex).observed->registerObserver(this);
 
     // print the new page
     pages.at(curPageIndex).printPage(*iohandler);
@@ -113,3 +113,6 @@ void Controller::changePageRight() {
     pages.at(curPageIndex).moveCursorRight(*iohandler);
 }
 
+void Controller::update(size_t linenum, std::string info) {
+    getCurPage().getLineSetupBehavior()->updateLine(iohandler, linenum, info);
+}

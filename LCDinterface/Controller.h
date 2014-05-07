@@ -9,7 +9,7 @@
 
 class IOHandler;
 
-class Controller
+class Controller : public Observer
 {
 
     public:
@@ -17,9 +17,9 @@ class Controller
         ~Controller();
 
         /*
-         * ISO-C++ forbids non-static member function pointers... so I did this
-         * to route calls from interrupt calls to member functions through the global pointer.
-         * this is definitely not very well designed. It does work, however.
+         * ISO-C++ forbids non-static member function pointers... so I did this, in order
+         * to route calls from interrupts to member functions through the global pointer.
+         * this definitely does not feel not very well designed. It does work, though.
         */
         static void staticLeftButPressed();
         static void staticRightButPressed();
@@ -29,6 +29,8 @@ class Controller
 
         ScreenData& getCurPage();
         unsigned int lastPush;
+
+        void update(size_t linenum, std::string infoToPrint);
 
     private:
         void leftButPressed();

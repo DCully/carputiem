@@ -10,8 +10,6 @@
 #include <chrono>
 #include "Controller.h"
 
-extern Controller* controller; // only needed for update - better way to do this?
-
 IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
                      const int& rs, const int& strb, const int& d0, const int& d1,
                      const int& d2, const int& d3, const int& d4, const int& d5,
@@ -38,10 +36,6 @@ void IOHandler::moveCursor(const int& spot) {
     std::lock_guard<std::mutex> locker2(cursor_lock);
     lcdPosition(LCDHandle, spot%20, spot/20);
     cursorSpotOnScreen = spot;
-}
-
-void IOHandler::update(size_t linenum, std::string info) {
-    controller->getCurPage().getLineSetupBehavior()->updateLine(this, linenum, info);
 }
 
 void IOHandler::printToLCD(const std::string& text, const int& spot) {

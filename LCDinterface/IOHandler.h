@@ -8,9 +8,7 @@
 #include <thread>
 #include <vector>
 
-class Controller;
-
-class IOHandler: public Observer
+class IOHandler
 {
 
     public:
@@ -21,9 +19,6 @@ class IOHandler: public Observer
                   const int& rs, const int& strb, const int& d0, const int& d1,               //and these are the GPIO pins for the LCD (8-bit)
                   const int& d2, const int& d3, const int& d4, const int& d5,
                   const int& d6, const int& d7);
-
-        // updates the data field on a line (calls to an LSB for implementation details)
-        void update(size_t linenum, std::string infoToPrint);
 
         // changes user's cursor position
         void moveCursor(const int& spot);
