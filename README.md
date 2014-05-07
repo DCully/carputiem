@@ -35,7 +35,8 @@ Code notes
 
 
 
-Potential improvements:
+Potential improvements
+------------------------
 
 0. change over to smart pointers
 
