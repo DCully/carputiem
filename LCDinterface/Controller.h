@@ -6,6 +6,7 @@
 #include "../Observable.h"
 #include "ScreenData.h"
 #include "../ObdSerial/ObdSerial.h"
+#include "ScreenDataManager.h"
 
 class IOHandler;
 
@@ -24,8 +25,6 @@ class Controller : public Observer
         static void staticLeftButPressed();
         static void staticRightButPressed();
         static void staticSelectPressed();
-        static void staticChangePageRight();
-        static void staticChangePageLeft();
 
         ScreenData& getCurPage();
         unsigned int lastPush;
@@ -36,13 +35,10 @@ class Controller : public Observer
         void leftButPressed();
         void rightButPressed();
         void selectPressed();
-        void changePageLeft();
-        void changePageRight();
 
         IOHandler* iohandler;
 
-        std::vector<ScreenData> pages;
-        int curPageIndex;
+        ScreenDataManager screenDataManager;
         ObdSerial * obd;
 
 };

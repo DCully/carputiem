@@ -2,160 +2,276 @@
 #include <iostream>
 #include "../Exceptions.h"
 
-/// TODO:
-/// 1) ctor, addDrawerToDrawer, addScreensToDrawer
-/// 2)
-
-
-
 using std::cerr;
 using std::endl;
 
-/// LeafNode
+/// TODO: update constructor to build home ScreenDataDrawer properly
 
-LeafNode::LeafNode(const std::vector<ScreenData> myScrns) {
-    myScreens = myScrns;
-    myParent = NULL;
+Node::Node(const std::string& key,
+    const std::string& parKey,
+    const std::vector<std::string>& children,
+    const std::vector<ScreenData>& scrns  ) : myKey(key),
+                                              parentKey(parKey),
+                                              childKeys(children),
+                                              screens(scrns)
+{
+    indexOfCurrentScreen = 0;
 }
 
-void LeafNode::goLeft() {
-    currentMyScreenIndex = (currentMyScreenIndex-1)%myScreens.size();
+void Node::goLeftInScreens() {
+    indexOfCurrentScreen = (indexOfCurrentScreen-1)%screens.size();
 }
 
-void LeafNode::goRight() {
-    currentMyScreenIndex = (currentMyScreenIndex+1)%myScreens.size();
+void Node::goRightInScreens() {
+    indexOfCurrentScreen = (indexOfCurrentScreen+1)%screens.size();
 }
 
-const ScreenData& LeafNode::getCurrentScreenData() {
-    return myScreens.at(currentMyScreenIndex);
-}
-
-
-
-/// ParentNode
-
-const ScreenData& ParentNode::getCurrentScreenData() {
-    return myScreenDataDrawer;
-}
-
-ParentNode::ParentNode(const ScreenDataDrawer& myScrnDataDrawer) {
-    myScreenDataDrawer = myScrnDataDrawer;
-    myParent = NULL;
+ScreenData& Node::getCurrentScreenData() {
+    return screens.at(indexOfCurrentScreen);
 }
 
 
 
 /// ScreenDataManager
 
-ScreenDataManager::ScreenDataManager()
-{
-/*
-    ParentNode root
-    drawerMap.insert(std::pair<std::string, ParentNode>("root", ))
+ScreenDataManager::ScreenDataManager() {
 
-    // etc
-*/
+    // build vector with home drawer in it
+    PageChangeBehavior* pcb = new PageChangeBehavior;
+    std::vector<std::string> drawerNames;
+    drawerNames.push_back("Music");
+    drawerNames.push_back("Vehicle Data");
+    drawerNames.push_back("Settings");
+    DrawerLineSetupBehavior* dlsb = new DrawerLineSetupBehavior(drawerNames, "Home");
+    ScreenDataDrawer homeDrawer(this, pcb, dlsb); /// needs a PCB, LSB, and Observable
+    std::vector<ScreenData> homeScreen(1, homeDrawer);
+
+    // build home node
+    std::vector<std::string> children(3, " ");
+    Node homeNode("home", NULL, children, homeScreen);
+
+    // add home node to map
+    nodeMap.insert(std::pair<std::string, Node>("home", homeNode));
 }
 
-const ScreenData& ScreenDataManager::getCurrentScreenData() {
-    return currentNode->getCurrentScreenData();
+ScreenData& ScreenDataManager::getCurrentScreenData() {
+    return nodeMap.at(keyForCurrentNode).getCurrentScreenData();
 }
 
-// changes currentNode
 void ScreenDataManager::goUp() {
-    if (currentNode->myParent==NULL) {
-        cerr << "Error in ScreenDataManager::goUp() - parentNode marked as null" << endl;
-        throw invalidParentNodeAccessException;
-    }
-    else {
-        currentNode = currentNode->myParent; // go back up the tree
-    }
+    keyForCurrentNode = nodeMap.at(keyForCurrentNode).parentKey;
 }
 
-// changes currentNode
-void ScreenDataManager::goDown(int drawerNum) {
-
-    if (drawerNum < 0 || drawerNum > 3) {
-        cerr << "Out of range drawerNum passed to ScreenDataManager::goDown()" << endl;
-        throw invalidDrawerIndexException;
-    }
-
-    ParentNode* curParentNode = dynamic_cast<ParentNode*>(currentNode);
-
-    if (curParentNode == NULL) {
-        cerr << "Error casting currentNode to ParentNode* in ScreenDataManager::goDown()" << endl;
-        cerr << "This is probably because it tried to cast a different Node type to a ParentNode" << endl;
-        throw badNodeCastException;
-    }
-
-    // this tests if the Node is of class Node (as when myLeaves was built) or if it's been replaced
-    // by either ParentNode or LeafNode - functional, but messy...
-    if (curParentNode->myLeaves.at(drawerNum).validNode==false) {
-        cerr << "Error in ScreenDataManager::goDown() - tried to go down through an invalid drawer in currentNode" << endl;
-        throw invalidDrawerIndexException;
-    }
-
-    currentNode = &curParentNode->myLeaves.at(drawerNum); // change currentNode to point to the newly focused leaf
+void ScreenDataManager::goDownTo(int num) {
+    keyForCurrentNode = nodeMap.at(keyForCurrentNode).childKeys.at(num-1);
 }
 
-// preserves currentNode
 void ScreenDataManager::goLeft() {
-    currentNode->goLeft();
+    nodeMap.at(keyForCurrentNode).goLeftInScreens();
 }
 
-// preserves currentNode
-void ScreenDataManager::goRight(){
-    currentNode->goRight();
+void ScreenDataManager::goRight() {
+    nodeMap.at(keyForCurrentNode).goRightInScreens();
 }
 
-// for adding drawer screens
-void ScreenDataManager::addDrawerToDrawer(ScreenDataDrawer drawerToAdd,
-                                        const std::string& nameForNewDrawerScreen,
-                                        const std::string& nameOfDrawerScreenToAddTo,
-                                        int lineOfDrawerToAddTo)
+void ScreenDataManager::addScreens(const std::vector<ScreenData>& screensToAdd,
+                                    const std::string& nameForNewScreens,
+                                    const std::string& nameOfDrawerToAddTo,
+                                    int lineOfDrawerToAddTo)
 {
-    if (drawerMap.count(nameOfDrawerScreenToAddTo) == 0) {
-        cerr << "You tried to add a drawer to a drawer whose name didn't represent any drawer" << endl;
-        throw badScreenAddException;
-    }
-
-    if (drawerMap.count(nameForNewDrawerScreen)==1) {
-        cerr << "You tried to add a new drawer, but the name was taken" << endl;
-        throw badScreenAddException;
-    }
-
-    if (lineOfDrawerToAddTo < 1 || lineOfDrawerToAddTo > 3) {
-        cerr << "You tried to add a drawer with an invalid line number - use 1, 2, or 3" << endl;
+    if ( lineOfDrawerToAddTo < 1 || lineOfDrawerToAddTo > 3 ) {
+        cerr << "You tried to add new screens to an invalid drawer number" << endl;
         throw invalidDrawerIndexException;
     }
-
-    // build ParentNode for drawerToAdd
-
-    // add it to drawerMap
-
-    // set its parent to nameOfDrawerScreenToAddTo
-
-    // add new ParentNode to drawer at lineOfDrawerToAddTo in nameOfScreenToAddTo
-}
-
-// for adding content screens
-void ScreenDataManager::addScreensToDrawer(const std::vector<ScreenData>& screenToAdd,
-                                        const std::string& nameOfDrawerScreenToAddTo,
-                                        int lineOfDrawerToAddTo)
-{
-    if (drawerMap.count(nameOfDrawerScreenToAddTo) == 0) {
-        cerr << "You tried to add some screens to a drawer whose name didn't represent any drawer" << endl;
+    if (nodeMap.count(nameForNewScreens)==1) {
+        cerr << "You tried to add new screens with an already-taken name" << endl;
+        throw badScreenAddException;
+    }
+    if (nodeMap.count(nameForNewScreens)==0) {
+        cerr << "You tried to add new screens to a non-existant drawer" << endl;
         throw badScreenAddException;
     }
 
-    if (lineOfDrawerToAddTo < 1 || lineOfDrawerToAddTo > 3) {
-        cerr << "You tried to add a drawer with an invalid line number - use 1, 2, or 3" << endl;
+    // build the new Node and add it to the nodeMap
+    std::vector<std::string> newVector(3, " ");
+    Node newNode(nameForNewScreens, nameOfDrawerToAddTo, newVector, screensToAdd);
+    std::pair<std::string, Node> newPair(nameForNewScreens, newNode);
+    nodeMap.insert(newPair);
+
+    // update the parent node
+    nodeMap.at(nameOfDrawerToAddTo).childKeys.at(lineOfDrawerToAddTo-1) = nameForNewScreens;
+}
+
+void ScreenDataManager::addScreens(const ScreenDataDrawer& screenToAdd,
+                                    const std::string& nameForNewScreens,
+                                    const std::string& nameOfDrawerToAddTo,
+                                    int lineOfDrawerToAddTo)
+{
+    if ( lineOfDrawerToAddTo < 1 || lineOfDrawerToAddTo > 3 ) {
+        cerr << "You tried to add new screens to an invalid drawer number" << endl;
         throw invalidDrawerIndexException;
     }
+    if (nodeMap.count(nameForNewScreens)==1) {
+        cerr << "You tried to add new screens with an already-taken name" << endl;
+        throw badScreenAddException;
+    }
+    if (nodeMap.count(nameForNewScreens)==0) {
+        cerr << "You tried to add new screens to a non-existant drawer" << endl;
+        throw badScreenAddException;
+    }
 
-    // build LeafNode for screenToAdd
+    // build the new Node and add it to the nodeMap
+    std::vector<std::string> newVector(3, " ");
+    std::vector<ScreenData> screensToAdd(1, screenToAdd); // small vector for drawer
+    Node newNode(nameForNewScreens, nameOfDrawerToAddTo, newVector, screensToAdd);
+    std::pair<std::string, Node> newPair(nameForNewScreens, newNode);
+    nodeMap.insert(newPair);
 
-    // set its parent to nameOfDrawerScreenToAddTo
-
-    // add new LeafNode to drawer at lineOfDrawerToAddTo in nameOfScreenToAddTo
+    // update the parent node
+    nodeMap.at(nameOfDrawerToAddTo).childKeys.at(lineOfDrawerToAddTo-1) = nameForNewScreens;
 }
+
+void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandler& iohandler, Observer& observer) {
+    int spot = getCurrentScreenData().getCurrentCursorSpot();
+    switch (spot) {
+        case 17:
+        {
+            // get a pointer to save lookups
+            Node* currentNode = &nodeMap.at(keyForCurrentNode);
+
+            // unhook page from observed
+            currentNode->getCurrentScreenData().doLeavePageBehavior();
+            currentNode->getCurrentScreenData().observed->removeObserver(&observer);
+
+            // change page
+            currentNode->goLeftInScreens();
+
+            // hook up new page to observed
+            currentNode->getCurrentScreenData().doLoadPageBehavior();
+            currentNode->getCurrentScreenData().observed->registerObserver(&observer);
+
+            // print the new page
+            currentNode->getCurrentScreenData().printPage(iohandler);
+            break;
+        }
+        case 18:
+        {
+            // get a pointer to save lookups
+            Node* currentNode = &nodeMap.at(keyForCurrentNode);
+
+            // unhook page from observed
+            currentNode->getCurrentScreenData().doLeavePageBehavior();
+            currentNode->getCurrentScreenData().observed->removeObserver(&observer);
+
+            // change page
+            goUp();
+
+            // update the pointer
+            currentNode = &nodeMap.at(keyForCurrentNode);
+
+            // hook up new page to observed
+            currentNode->getCurrentScreenData().doLoadPageBehavior();
+            currentNode->getCurrentScreenData().observed->registerObserver(&observer);
+
+            // print the new page
+            currentNode->getCurrentScreenData().printPage(iohandler);
+            break;
+        }
+        case 19:
+        {
+            // get a pointer to save lookups
+            Node* currentNode = &nodeMap.at(keyForCurrentNode);
+
+            // unhook page from observed
+            currentNode->getCurrentScreenData().doLeavePageBehavior();
+            currentNode->getCurrentScreenData().observed->removeObserver(&observer);
+
+            // change page
+            currentNode->goRightInScreens();
+
+            // hook up new page to observed
+            currentNode->getCurrentScreenData().doLoadPageBehavior();
+            currentNode->getCurrentScreenData().observed->registerObserver(&observer);
+
+            // print the new page
+            currentNode->getCurrentScreenData().printPage(iohandler);
+            break;
+        }
+        case 39:
+        {
+            // get a pointer to save lookups
+            Node* currentNode = &nodeMap.at(keyForCurrentNode);
+
+            // unhook page from observed
+            currentNode->getCurrentScreenData().doLeavePageBehavior();
+            currentNode->getCurrentScreenData().observed->removeObserver(&observer);
+
+            // change page
+            goDownTo(1);
+
+            // update the pointer
+            currentNode = &nodeMap.at(keyForCurrentNode);
+
+            // hook up new page to observed
+            currentNode->getCurrentScreenData().doLoadPageBehavior();
+            currentNode->getCurrentScreenData().observed->registerObserver(&observer);
+
+            // print the new page
+            currentNode->getCurrentScreenData().printPage(iohandler);
+            break;
+        }
+        case 59:
+        {
+            // get a pointer to save lookups
+            Node* currentNode = &nodeMap.at(keyForCurrentNode);
+
+            // unhook page from observed
+            currentNode->getCurrentScreenData().doLeavePageBehavior();
+            currentNode->getCurrentScreenData().observed->removeObserver(&observer);
+
+            // change page
+            goDownTo(2);
+
+            // update the pointer
+            currentNode = &nodeMap.at(keyForCurrentNode);
+
+            // hook up new page to observed
+            currentNode->getCurrentScreenData().doLoadPageBehavior();
+            currentNode->getCurrentScreenData().observed->registerObserver(&observer);
+
+            // print the new page
+            currentNode->getCurrentScreenData().printPage(iohandler);
+            break;
+        }
+        case 79:
+        {
+            // get a pointer to save lookups
+            Node* currentNode = &nodeMap.at(keyForCurrentNode);
+
+            // unhook page from observed
+            currentNode->getCurrentScreenData().doLeavePageBehavior();
+            currentNode->getCurrentScreenData().observed->removeObserver(&observer);
+
+            // change page
+            goDownTo(3);
+
+            // update the pointer
+            currentNode = &nodeMap.at(keyForCurrentNode);
+
+            // hook up new page to observed
+            currentNode->getCurrentScreenData().doLoadPageBehavior();
+            currentNode->getCurrentScreenData().observed->registerObserver(&observer);
+
+            // print the new page
+            currentNode->getCurrentScreenData().printPage(iohandler);
+            break;
+        }
+        default:
+            // otherwise we're not navigating - we're doing stuff with content of ScreenData
+            getCurrentScreenData().doCurSpotSelectBehavior();
+    }
+}
+
+
+
+

@@ -6,8 +6,11 @@ ScreenData::ScreenData(Observable* obs, PageChangeBehavior* pcb, LineSetupBehavi
     : observed(obs), pageChangeBehavior(pcb), lineSetupBehavior(lsb)
 {
     // all screens have next page and previous page buttons at 17 and 19
-    cursorSpots.push_back(std::make_pair(17, &Controller::staticChangePageLeft));
-    cursorSpots.push_back(std::make_pair(19, &Controller::staticChangePageRight));
+    cursorSpots.push_back(17);
+    cursorSpots.push_back(19);
+
+    // all pages have an "up" button at 18
+    cursorSpots.push_back(18);
 
     currentSpotIndex = 0;
 }
@@ -20,6 +23,10 @@ ScreenData::~ScreenData() {
     delete pageChangeBehavior;
     delete lineSetupBehavior;
     // pages don't own their model objects
+}
+
+int ScreenData::getCurrentCursorSpot() {
+    return cursorSpots.at(currentSpotIndex);
 }
 
 ScreenData::ScreenData(const ScreenData& other) :
@@ -44,15 +51,6 @@ void ScreenData::swap(ScreenData& other) {
     std::swap(cursorSpots, other.cursorSpots);
 }
 
-void ScreenData::addCursorSpot(std::pair<int, SelectBehaviorFunc> newSpot) {
-    if (newSpot.first >= 0 && newSpot.first < 80) {
-        cursorSpots.push_back(newSpot);
-    }
-    else {
-        std::cerr << "Attempted to add an invalid cursorable spot - spot out of range" << std::endl;
-    }
-}
-
 void ScreenData::doLoadPageBehavior() {
     currentSpotIndex = 0;
     pageChangeBehavior->loadPage(*observed);
@@ -72,16 +70,27 @@ LineSetupBehavior* ScreenData::getLineSetupBehavior() {
 
 void ScreenData::moveCursorLeft(IOHandler& ioh) {
     currentSpotIndex = (currentSpotIndex+1)%cursorSpots.size();
-    ioh.moveCursor(cursorSpots.at(currentSpotIndex).first);
+    ioh.moveCursor(cursorSpots.at(currentSpotIndex));
 }
 
 void ScreenData::moveCursorRight(IOHandler& ioh) {
     currentSpotIndex = (currentSpotIndex-1)%cursorSpots.size();
-    ioh.moveCursor(cursorSpots.at(currentSpotIndex).first);
+    ioh.moveCursor(cursorSpots.at(currentSpotIndex));
+}
+
+/// this is for adding new functionality to a specific screen, for use with model objects
+/// you need to add some corresponding code to doCurSpotSelectBehavior's switch, too
+void ScreenData::addCursorSpot(int spot) {
+    if (spot >= 0 && spot < 80) {
+        cursorSpots.push_back(spot);
+    }
+    else {
+        std::cerr << "Attempted to add an invalid cursorable spot - spot out of range" << std::endl;
+    }
 }
 
 void ScreenData::doCurSpotSelectBehavior() {
-    cursorSpots.at(currentSpotIndex).second();
+    /// ADD MODEL OBJET INTERACTIONS HERE
 }
 
 

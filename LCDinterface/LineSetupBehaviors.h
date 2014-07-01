@@ -8,7 +8,6 @@ class IOHandler;
 
 class LineSetupBehavior
 {
-    friend class ObdFactoryTest;
 
     public:
 
@@ -20,8 +19,6 @@ class LineSetupBehavior
 
         // called by controller
         virtual void renderPage(IOHandler& iohandler);
-
-        // this does nothing (not supposed to be able to call update on the base class...
         virtual void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
     protected:
         std::string titleLine;
@@ -35,8 +32,6 @@ class LineSetupBehavior
 
 class LabeledLineSetupBehavior: public virtual LineSetupBehavior
 {
-    friend class ObdFactoryTest;
-
     public:
         LabeledLineSetupBehavior();
         virtual ~LabeledLineSetupBehavior() {}
@@ -55,6 +50,14 @@ class LabeledLineSetupBehavior: public virtual LineSetupBehavior
         std::vector<size_t> spaceForDataOnLines;
         std::vector<size_t> updateSpotsForLines;
 
+};
+
+class DrawerLineSetupBehavior : public LineSetupBehavior
+{
+    public:
+        DrawerLineSetupBehavior(std::vector<std::string> textForLines,
+                                const std::string& pageTitle);
+        void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
 };
 
 #endif

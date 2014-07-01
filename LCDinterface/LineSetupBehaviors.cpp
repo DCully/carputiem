@@ -10,7 +10,7 @@ LineSetupBehavior::LineSetupBehavior(std::vector<std::string> textForLines, cons
     while (titleLine.size() < 17) {
         titleLine.append(" ");
     }
-    titleLine = titleLine + "<->";
+    titleLine = titleLine + "<^>";
 
     for (size_t x = 1; x < 4 && x < textForLines.size() + 1; x++) { // loop through textForLines and pull out scrolling ones
         if (textForLines.at(x-1).size() > 20) {
@@ -106,7 +106,7 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
     while (titleLine.size() < 17) {
         titleLine.append(" ");
     }
-    titleLine.append("<->");
+    titleLine.append("<^>");
 
     // determine body lines setup
     for (size_t line = 0; line < 3 && line < textForLs.size(); line++) {
@@ -204,4 +204,27 @@ void LabeledLineSetupBehavior::updateLine(IOHandler* iohandler, size_t lineNum, 
 
 
 
+/// -------------------DrawerLineSetupBehavior-----------------------
 
+DrawerLineSetupBehavior::DrawerLineSetupBehavior(std::vector<std::string> drawerNames,
+                                                 const std::string& pageTitle)
+{
+    titleLine = pageTitle.substr(0,16);
+    while (titleLine.size() < 17) {
+        titleLine.append(" ");
+    }
+    titleLine.append("<^>");
+
+    for (size_t x = 0; x < drawerNames.size(); ++x) {
+        drawerNames.at(x) = drawerNames.at(x).substr(0, 17);
+        drawerNames.at(x).append("  >");
+    }
+
+    while (drawerNames.size() < 3) {
+        drawerNames.push_back("                   >");
+    }
+}
+
+void DrawerLineSetupBehavior::updateLine(IOHandler* ioh, size_t lineNum, std::string info) {
+    // dont do anything
+}

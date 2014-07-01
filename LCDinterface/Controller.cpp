@@ -7,7 +7,7 @@
 Controller * controller; // created in main.cpp as entry point for program (needed for static interrupt functions)
 
 Controller::Controller() {
-
+/*
     // do these need "new"?
     obd = new ObdSerial("/dev/ttyUSB0");
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7);
@@ -20,6 +20,7 @@ Controller::Controller() {
     curPageIndex = 0;
     lastPush = 1;
     pages.at(curPageIndex).printPage(*iohandler);
+*/
 }
 
 Controller::~Controller() {
@@ -44,16 +45,14 @@ void Controller::staticSelectPressed() {
 void Controller::leftButPressed() {
     if (millis() - lastPush > 200) { // smooth inputs
         lastPush = millis();
-        getCurPage().moveCursorLeft(*iohandler);
-
+        screenDataManager.getCurrentScreenData().moveCursorLeft(*iohandler);
     }
 }
 
 void Controller::rightButPressed() {
     if (millis() - lastPush > 200) { // smooth inputs
         lastPush = millis();
-        getCurPage().moveCursorRight(*iohandler);
-
+        screenDataManager.getCurrentScreenData().moveCursorRight(*iohandler);
     }
 
 }
@@ -61,58 +60,16 @@ void Controller::rightButPressed() {
 void Controller::selectPressed() {
     if (millis() - lastPush > 200) {
         lastPush = millis();
-        getCurPage().doCurSpotSelectBehavior();
+        screenDataManager.doCurrentSpotSelectBehavior(*iohandler, *this);
     }
 }
 
 ScreenData& Controller::getCurPage() {
-    return pages.at(curPageIndex);
+    return screenDataManager.getCurrentScreenData();
 }
 
-void Controller::staticChangePageLeft() {
-    controller->changePageLeft();
-}
-
-void Controller::changePageLeft() {
-    // unhook page from observed
-    pages.at(curPageIndex).doLeavePageBehavior();
-    pages.at(curPageIndex).observed->removeObserver(this);
-
-    // shift to the next page (from the left)
-    curPageIndex = (curPageIndex+1)%pages.size();
-
-    // hook up new page to observed
-    pages.at(curPageIndex).doLoadPageBehavior();
-    pages.at(curPageIndex).observed->registerObserver(this);
-
-    // print the new page
-    pages.at(curPageIndex).printPage(*iohandler);
-}
-
-void Controller::staticChangePageRight() {
-    controller->changePageRight();
-}
-
-void Controller::changePageRight() {
-
-    // unhook page from observed
-    pages.at(curPageIndex).doLeavePageBehavior();
-    pages.at(curPageIndex).observed->removeObserver(this);
-
-    // shift to the next page (from the right)
-    curPageIndex = (curPageIndex-1)%pages.size();
-
-    // hook up new page to observed
-    pages.at(curPageIndex).doLoadPageBehavior();
-    pages.at(curPageIndex).observed->registerObserver(this);
-
-    // print the new page
-    pages.at(curPageIndex).printPage(*iohandler);
-
-    // get cursor to right arrow (it starts at the left arrow by default)
-    pages.at(curPageIndex).moveCursorRight(*iohandler);
-}
 
 void Controller::update(size_t linenum, std::string info) {
     getCurPage().getLineSetupBehavior()->updateLine(iohandler, linenum, info);
 }
+

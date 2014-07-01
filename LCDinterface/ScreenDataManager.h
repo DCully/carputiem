@@ -1,94 +1,60 @@
 #ifndef SCREENDATAMANAGER_H
 #define SCREENDATAMANAGER_H
 
-#include <array>
-#include <set>
 #include <string>
 #include "ScreenData.h"
 #include "ScreenDataDrawer.h"
-#include "../Exceptions.h"
-
-class ParentNode;
+#include "../Observer.h"
+#include "../Observable.h"
+#include "IOHandler.h"
 
 class Node
 {
     public:
         Node() {}
-        virtual void goLeft() {}
-        virtual void goRight() {}
-        virtual const ScreenData& getCurrentScreenData()
-            {throw invalidScrnDataMgrNodeFuncCallException;}
-        ParentNode* myParent;
-        bool validNode = false;
-};
-
-class LeafNode : public Node
-{
-    public:
-        LeafNode() {}
-
-        // for setup upon Screens' insertion to ScreenDataManager
-        LeafNode(const std::vector<ScreenData> myScrns);
-        const ScreenData& getCurrentScreenData();
-
-        // for runtime use (again, only within ScreenDataManager)
-        void goLeft();
-        void goRight();
-        bool validNode = true;
+        Node(const std::string& key,
+             const std::string& parKey,
+             const std::vector<std::string>& children,
+             const std::vector<ScreenData>& scrns);
+        void goLeftInScreens();
+        void goRightInScreens();
+        ScreenData& getCurrentScreenData();
+        const std::string myKey;
+        const std::string parentKey;
+        std::vector<std::string> childKeys;
     private:
-        std::vector<ScreenData> myScreens;
-        int currentMyScreenIndex;
+        int indexOfCurrentScreen;
+        std::vector<ScreenData> screens;
 };
 
-class ParentNode : public Node
-{
-    public:
-        ParentNode() {}
-
-        // for setup upon Screen's insertion to ScreenDataManager
-        ParentNode(const ScreenDataDrawer& myScrnDataDrawer);
-        const ScreenData& getCurrentScreenData();
-
-        // for runtime use (only within ScreenDataManager)
-        std::array<Node, 3> myLeaves;
-        bool validNode = true;
-    private:
-        ScreenDataDrawer myScreenDataDrawer;
-};
-
-class ScreenDataManager
+class ScreenDataManager : public Observable
 {
     public:
         ScreenDataManager();
-        ~ScreenDataManager();
+        ~ScreenDataManager() {}
 
-        // for Controller (button --> Controller --> ScreenDataManager.<appropriate call>())
-        const ScreenData& getCurrentScreenData();
+        // for Controller
+        ScreenData& getCurrentScreenData();
+        void doCurrentSpotSelectBehavior(IOHandler& iohandler, Observer& observer);
 
-        // many Controller calls result in calling these
+        // these provide the interface for ScreenData factories
+        void addScreens(const ScreenDataDrawer& screensToAdd,
+                                    const std::string& nameOfNewDrawer,
+                                    const std::string& nameOfDrawerToAddTo,
+                                    int lineOfDrawerToAddTo);
+        void addScreens(const std::vector<ScreenData>& screenToAdd,
+                                    const std::string& nameOfNewDrawer,
+                                    const std::string& nameOfDrawerToAddTo,
+                                    int lineOfDrawerToAddTo);
+    private:
+        // for moving around in the tree
         void goUp();
-        void goDown(int drawerNum);
+        void goDownTo(int num);
         void goLeft();
         void goRight();
 
-        // these provide the interface for ScreenData factories
-        void addDrawerToDrawer(ScreenDataDrawer drawerToAdd,
-                                const std::string& nameOfNewDrawerScreen,
-                                const std::string& nameOfDrawerScreenToAddTo,
-                                int lineOfDrawerToAddTo);
-        void addScreensToDrawer(const std::vector<ScreenData>& screensToAdd,
-                                const std::string& nameOfScreenToAddTo,
-                                int lineOfDrawerToAddTo);
-    private:
-        /*
-        drawers (ParentNodes) are stored in drawerMap, LeafNodes are stored in ParentNode.myLeaves
-        this means there's no manual memory management... everything's in a STL container (or a ScreenData)
-        drawerMap is only used when adding screens, so screen "switching" is still O(1)...
-        it's just just swapping a pointer (and ultimately, reprinting)
-        */
-        std::map<std::string, ParentNode> drawerMap; // map of keys to drawer screens
-        Node* currentNode; // keeps track of where we are in the ScreenData tree
-        ParentNode root; // king of nodes
+        std::map<std::string, Node> nodeMap; // map of keys to drawer screens
+        std::string keyForCurrentNode; // keeps track of where we are in the ScreenData tree
 };
 
 #endif // SCREENDATAMANAGER_H
