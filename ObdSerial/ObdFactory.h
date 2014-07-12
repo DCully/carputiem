@@ -11,8 +11,8 @@ class ObdFactory
         virtual ~ObdFactory();
         // takes a vector of PID indices from obdcmds_mode1 as input
         // outputs ScreenData objects into the ScreenData vector
-        void buildObdScreens(const std::vector<int>& obdIndices, std::vector<ScreenData>& pages);
-        void buildVINScreen(const std::string& VIN, std::vector<ScreenData>& pages);
+        void buildObdScreens(const std::vector<int>& obdIndices, std::vector<ScreenData*>& pages);
+        //void buildVINScreen(const std::string& VIN, std::vector<ScreenData>& pages);
     protected:
     private:
         ObdSerial* obds;

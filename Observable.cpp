@@ -11,9 +11,9 @@ void Observable::removeObserver(Observer * o) {
     observers.erase(std::remove(observers.begin(), observers.end(), o), observers.end());
 }
 
-void Observable::notifyObservers(int focusPIDsIndex, std::string dataVal) {
+void Observable::notifyObservers(ObserverPacket& obsp) {
     std::vector<Observer*>::iterator it;
     for(it = observers.begin(); it != observers.end(); ++it) {
-        (*it)->update(focusPIDsIndex, dataVal);
+        (*it)->update(obsp);
     }
 }

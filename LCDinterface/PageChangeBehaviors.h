@@ -3,6 +3,7 @@
 
 #include "../Observable.h"
 #include "../ObdSerial/ObdSerial.h"
+#include "../MusicPlayer/MusicManager.h"
 
 // this family of classes encapsulates page changing behavior for all screendata objects
 // gets passed to ScreenData objects on their construction
@@ -18,12 +19,11 @@ class PageChangeBehavior {
 class ObdPageChangeBehavior: public PageChangeBehavior {
     public:
         virtual ~ObdPageChangeBehavior() {}
-        ObdPageChangeBehavior(std::vector<int>& pidIndices, ObdSerial* obd);
+        ObdPageChangeBehavior(std::vector<int>& pidIndices);
         void loadPage(ObdSerial& obs);
         void leavePage(ObdSerial& obs);
         ObdPageChangeBehavior* clone() const { return new ObdPageChangeBehavior(*this); } // shallow copy on obd is ok
     private:
-        ObdSerial* observable;
         std::vector<int> PIDsIShowFromSuppdCmds;
 };
 

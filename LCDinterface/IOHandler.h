@@ -7,13 +7,15 @@
 #include "ScreenData.h"
 #include <thread>
 #include <vector>
+#include <queue>
+#include "ScrollPacket.h"
 
 class IOHandler
 {
 
     public:
         IOHandler() {}
-        virtual ~IOHandler() {}
+        ~IOHandler();
 
         IOHandler(const int& bleft, const int& bright, const int& bsel,                       //these are the three button GPIO pin numbers,
                   const int& rs, const int& strb, const int& d0, const int& d1,               //and these are the GPIO pins for the LCD (8-bit)
@@ -32,19 +34,22 @@ class IOHandler
             const std::vector<size_t>& lineNums,
             const std::vector<std::string>& msg);
 
-        // flips scrolling off and waits for the thread to rejoin
+        // flips scrolling thread to paused
         void stopAllScrollingText();
 
     private:
-        void textScroller(std::vector<size_t> startSpot,
-            std::vector<size_t> stopSpot,
-            std::vector<size_t> lineNum,
-            std::vector<std::string> msg);
-        int LCDHandle;
-        int cursorSpotOnScreen;
-        std::thread ScrollingThread;
-        volatile bool TextIsScrolling;
-        std::mutex cursor_lock;
+        void textScroller(); // function for the scrolling thread
+        int LCDHandle; // wiringPi handle for the screen
+        int cursorSpotOnScreen; // where the cursor is actually placed
+        std::mutex cursor_lock; // to prevent multithreaded issues with cursor
+
+        // these are to cleanly terminate the scrolling thread when this object is destroyed
+        static volatile bool run;
+        static std::mutex runLock;
+
+        // these are to send requests to the thread
+        std::mutex queueLock;
+        std::queue<ScrollPacket> scrollQueue;
 };
 
 #endif // IOHANDLER_H

@@ -5,17 +5,21 @@
 using std::cerr;
 using std::endl;
 
-/// TODO: update constructor to build home ScreenDataDrawer properly
-
 Node::Node(const std::string& key,
     const std::string& parKey,
     const std::vector<std::string>& children,
-    const std::vector<ScreenData>& scrns  ) : myKey(key),
+    const std::vector<ScreenData*>& scrns  ) : myKey(key),
                                               parentKey(parKey),
                                               childKeys(children),
                                               screens(scrns)
 {
     indexOfCurrentScreen = 0;
+}
+
+Node::~Node() {
+    for (size_t x = 0; x < screens.size(); ++x) {
+        delete screens.at(x);
+    }
 }
 
 void Node::goLeftInScreens() {
@@ -27,7 +31,7 @@ void Node::goRightInScreens() {
 }
 
 ScreenData& Node::getCurrentScreenData() {
-    return screens.at(indexOfCurrentScreen);
+    return *screens.at(indexOfCurrentScreen);
 }
 
 
@@ -43,8 +47,8 @@ ScreenDataManager::ScreenDataManager() {
     drawerNames.push_back("Vehicle Data");
     drawerNames.push_back("Settings");
     DrawerLineSetupBehavior* dlsb = new DrawerLineSetupBehavior(drawerNames, "Home");
-    ScreenDataDrawer homeDrawer(this, pcb, dlsb); /// needs a PCB, LSB, and Observable
-    std::vector<ScreenData> homeScreen(1, homeDrawer);
+    ScreenDataDrawer* homeDrawer = new ScreenDataDrawer(this, pcb, dlsb);
+    std::vector<ScreenData*> homeScreen(1, homeDrawer);
 
     // build home node
     std::vector<std::string> children(3, " ");
@@ -52,6 +56,7 @@ ScreenDataManager::ScreenDataManager() {
 
     // add home node to map
     nodeMap.insert(std::pair<std::string, Node>("home", homeNode));
+    backStack.push("home");
 }
 
 ScreenData& ScreenDataManager::getCurrentScreenData() {
@@ -59,11 +64,13 @@ ScreenData& ScreenDataManager::getCurrentScreenData() {
 }
 
 void ScreenDataManager::goUp() {
-    keyForCurrentNode = nodeMap.at(keyForCurrentNode).parentKey;
+    keyForCurrentNode = backStack.top();
+    backStack.pop();
 }
 
 void ScreenDataManager::goDownTo(int num) {
     keyForCurrentNode = nodeMap.at(keyForCurrentNode).childKeys.at(num-1);
+    backStack.push(keyForCurrentNode);
 }
 
 void ScreenDataManager::goLeft() {
@@ -74,7 +81,7 @@ void ScreenDataManager::goRight() {
     nodeMap.at(keyForCurrentNode).goRightInScreens();
 }
 
-void ScreenDataManager::addScreens(const std::vector<ScreenData>& screensToAdd,
+void ScreenDataManager::addScreens(const std::vector<ScreenData*>& screensToAdd,
                                     const std::string& nameForNewScreens,
                                     const std::string& nameOfDrawerToAddTo,
                                     int lineOfDrawerToAddTo)
@@ -88,7 +95,7 @@ void ScreenDataManager::addScreens(const std::vector<ScreenData>& screensToAdd,
         throw badScreenAddException;
     }
     if (nodeMap.count(nameForNewScreens)==0) {
-        cerr << "You tried to add new screens to a non-existant drawer" << endl;
+        cerr << "You tried to add new screens to a non-existent drawer" << endl;
         throw badScreenAddException;
     }
 
@@ -102,7 +109,7 @@ void ScreenDataManager::addScreens(const std::vector<ScreenData>& screensToAdd,
     nodeMap.at(nameOfDrawerToAddTo).childKeys.at(lineOfDrawerToAddTo-1) = nameForNewScreens;
 }
 
-void ScreenDataManager::addScreens(const ScreenDataDrawer& screenToAdd,
+void ScreenDataManager::addScreens(ScreenDataDrawer* screenToAdd,
                                     const std::string& nameForNewScreens,
                                     const std::string& nameOfDrawerToAddTo,
                                     int lineOfDrawerToAddTo)
@@ -116,13 +123,13 @@ void ScreenDataManager::addScreens(const ScreenDataDrawer& screenToAdd,
         throw badScreenAddException;
     }
     if (nodeMap.count(nameForNewScreens)==0) {
-        cerr << "You tried to add new screens to a non-existant drawer" << endl;
+        cerr << "You tried to add new screens to a non-existent drawer" << endl;
         throw badScreenAddException;
     }
 
     // build the new Node and add it to the nodeMap
     std::vector<std::string> newVector(3, " ");
-    std::vector<ScreenData> screensToAdd(1, screenToAdd); // small vector for drawer
+    std::vector<ScreenData*> screensToAdd(1, screenToAdd); // small vector for drawer
     Node newNode(nameForNewScreens, nameOfDrawerToAddTo, newVector, screensToAdd);
     std::pair<std::string, Node> newPair(nameForNewScreens, newNode);
     nodeMap.insert(newPair);

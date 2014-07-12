@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "../Observer.h"
 
 class IOHandler;
 
@@ -19,7 +20,7 @@ class LineSetupBehavior
 
         // called by controller
         virtual void renderPage(IOHandler& iohandler);
-        virtual void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
+        virtual void updateLine(IOHandler* iohandler, ObserverPacket& obsp);
     protected:
         std::string titleLine;
 
@@ -44,7 +45,7 @@ class LabeledLineSetupBehavior: public virtual LineSetupBehavior
         LabeledLineSetupBehavior* clone() const { return new LabeledLineSetupBehavior(*this); }
 
         void renderPage(IOHandler* iohandler);
-        void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
+        void updateLine(IOHandler* iohandler, ObserverPacket& obsp);
     protected:
         std::vector<size_t> endSpotsForScrollingLines;
         std::vector<size_t> spaceForDataOnLines;
@@ -57,7 +58,33 @@ class DrawerLineSetupBehavior : public LineSetupBehavior
     public:
         DrawerLineSetupBehavior(std::vector<std::string> textForLines,
                                 const std::string& pageTitle);
-        void updateLine(IOHandler* iohandler, size_t lineNum, std::string info);
+        void updateLine(IOHandler* iohandler, ObserverPacket& obsp);
+};
+
+/// ----------- for music screens -------------------
+
+class SongListLineSetupBehavior : public LineSetupBehavior
+{
+    public:
+        std::string artistAlbum;
+        std::string songName;
+        void renderPage(IOHandler& iohandler); // prints a blank for the song name
+        void updateSong(const std::string& song); // fills in the song name (called by ScreenData)
+        void updateLine(IOHandler* ioh, ObserverPacket& obsp) {/* don't do anything */}
+    private:
+        IOHandler* iohandler;
+        void printSong();
+};
+
+class NowPlayingLineSetupBehavior: public LineSetupBehavior
+{
+    public:
+        Song currentSong;
+        void renderPage(IOHandler& iohandler);
+        void updateLine(IOHandler* ioh, MusicObserverPacket& obsp); // print a new song
+    private:
+        void printTitleAndControls(IOHandler& ioh);
+        void printArtistAndSong(IOHandler& ioh);
 };
 
 #endif

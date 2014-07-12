@@ -17,7 +17,7 @@ class ScreenData {
     public:
         ScreenData(Observable* obs, PageChangeBehavior* pcb, LineSetupBehavior* lsb);
         ScreenData();
-        ~ScreenData();
+        virtual ~ScreenData();
 
         ScreenData(const ScreenData& other);
         ScreenData& operator=(ScreenData other);
@@ -26,9 +26,9 @@ class ScreenData {
         int getCurrentCursorSpot();
         void moveCursorLeft(IOHandler& ioh);
         void moveCursorRight(IOHandler& ioh);
-        void doCurSpotSelectBehavior(); /// for model object interaction only! not for page changes, etc
-        void doLoadPageBehavior();
-        void doLeavePageBehavior();
+        virtual void doCurSpotSelectBehavior();
+        virtual void doLoadPageBehavior(); // these two virtual == an ugly, iffy hack to make the music screens work properly
+        virtual void doLeavePageBehavior(); // refactoring to use an "intent" system like Android would solve this more extensibly
         void addCursorSpot(int newSpot);
         LineSetupBehavior* getLineSetupBehavior();
         void printPage(IOHandler& ioh);

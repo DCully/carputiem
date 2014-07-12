@@ -11,8 +11,8 @@ class Observable
         void registerObserver(Observer * o);
         void removeObserver(Observer * o);
     protected:
-        void notifyObservers(int focusPIDsIndex, std::string dataVal);
+        void notifyObservers(ObserverPacket& obsp);
     private:
         std::vector<Observer*> observers;
 };
-#endif // OBSERVABLE_H 
+#endif // OBSERVABLE_H

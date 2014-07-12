@@ -7,10 +7,8 @@ ScreenData::ScreenData(Observable* obs, PageChangeBehavior* pcb, LineSetupBehavi
 {
     // all screens have next page and previous page buttons at 17 and 19
     cursorSpots.push_back(17);
-    cursorSpots.push_back(19);
-
-    // all pages have an "up" button at 18
     cursorSpots.push_back(18);
+    cursorSpots.push_back(19);
 
     currentSpotIndex = 0;
 }
@@ -78,8 +76,6 @@ void ScreenData::moveCursorRight(IOHandler& ioh) {
     ioh.moveCursor(cursorSpots.at(currentSpotIndex));
 }
 
-/// this is for adding new functionality to a specific screen, for use with model objects
-/// you need to add some corresponding code to doCurSpotSelectBehavior's switch, too
 void ScreenData::addCursorSpot(int spot) {
     if (spot >= 0 && spot < 80) {
         cursorSpots.push_back(spot);
@@ -89,8 +85,9 @@ void ScreenData::addCursorSpot(int spot) {
     }
 }
 
+// override this to add new cursor-able spots to a screen (not 17, 18, 19, 39, 59, or 79)
 void ScreenData::doCurSpotSelectBehavior() {
-    /// ADD MODEL OBJET INTERACTIONS HERE
+    /// ADD MODEL OBJECT INTERACTIONS HERE
 }
 
 

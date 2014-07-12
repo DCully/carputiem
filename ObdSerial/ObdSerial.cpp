@@ -12,10 +12,10 @@
 #include "obdconvs.h" // conversion functions
 #include "../Observable.h"
 #include <algorithm> // sorting
-#include <thread> // for multithreading
 #include <chrono> // for sleeping
 
-/// add support for reading DTCs
+volatile bool ObdSerial::boolrun = false;
+std::mutex ObdSerial::obdLock;
 
 ObdSerial::ObdSerial(const std::string& portpath) : AT_SLEEPTIME(20), NORMAL_OBD_SLEEPTIME(100), EXTRA_LONG_SLEEPTIME(300) {
     //open serial port connection
@@ -57,12 +57,18 @@ ObdSerial::ObdSerial(const std::string& portpath) : AT_SLEEPTIME(20), NORMAL_OBD
     }
 
     VIN = getVINFromCar();
-
-    boolrun = false;
 }
 ObdSerial::~ObdSerial() {
-    //reset device, stop data query thread, close serial port
+    /*
+    * 1) block to take the lock (effectively, safely pausing the thread)
+    * 2) set the run flag for the the thread to false (it checks this before every call)
+    * 3) release the lock, allowing the other thread to continue
+    * 4) since it checks the bool flag after it takes the lock, it will return smoothly on its own
+    **/
+    std::unique_lock<std::mutex> locker(obdLock);
+    locker.lock();
     boolrun = false;
+    locker.unlock();
     std::this_thread::sleep_for(std::chrono::milliseconds(EXTRA_LONG_SLEEPTIME)); // make sure run has time to terminate
     char buf[4096];
     write(fd, "AT Z\r\0", sizeof("AT Z\r\0"));
@@ -71,15 +77,15 @@ ObdSerial::~ObdSerial() {
     close(fd);
 }
 
-
 /// Public interface functions
 void ObdSerial::start() {
     if (boolrun == false) {
         // start the data harvesting thread ( start() ) and wait for it to finish
         boolrun = true;
-        obdthread = new std::thread(&ObdSerial::run, this);
+        std::thread(&ObdSerial::run, this);
     }
 }
+
 std::vector<int> ObdSerial::getSuppdCmds() {
     return suppdCmds;
 }
@@ -87,7 +93,9 @@ std::vector<int> ObdSerial::getSuppdCmds() {
 const std::string& ObdSerial::getVIN() {
     return VIN;
 }
+
 void ObdSerial::setFocusedPIDs(const std::vector<int>& fPIDs) {
+    std::lock_guard<std::mutex> lock(obdLock);
     for (unsigned int x = 0; x < fPIDs.size(); x++) {
         if ( binary_search(suppdCmds.begin(), suppdCmds.end(), fPIDs.at(x)) == false ) {
             std::cerr << "setFocusedPIDs error: PID " << obdcmds_mode1[x].cmdid << " not supported, skipping" << std::endl;
@@ -97,14 +105,6 @@ void ObdSerial::setFocusedPIDs(const std::vector<int>& fPIDs) {
         }
     }
 }
-
-void ObdSerial::stopUpdates() {
-    if (boolrun) {
-        boolrun = false;
-        obdthread->join();
-    }
-}
-
 
 /// Internal data query/interpretation methods
 // return 0 for success -1 for failure
@@ -221,38 +221,68 @@ int ObdSerial::readFromOBD(std::string & strtoreadto) {
     return 0;
 }
 
-/// Static method to poll for data in its own thread (called by public member function "start()")
-// turned off from outside the object by setting ObdSerial instance variable "boolrun" to false
+// method to poll for data in its own thread (called by public member function "start()")
 void ObdSerial::run() {
+    /*
+        Good news, everyone!
+        You only have to check the boolrun flag whenever this thread has just regained the mutex
+        the object can only be destroyed when the destructor takes the lock and flips boolrun
+    */
+    std::unique_lock<std::mutex> locker(obdLock);
+    int curPID;
     OBDDatum datum;
     double dataValue;
-    while (boolrun == true) {
+    while (true) {
+
+        locker.lock();
+        if (boolrun==false) {
+        return;
+        }
+
         for (unsigned int ind = 0; ind < focusPIDs.size(); ind++) {
-            if (boolrun==false) {
+
+            curPID = focusPIDs.at(ind);
+
+            if (writeToOBD(curPID) != 0) {
                 continue;
             }
-            if (writeToOBD(focusPIDs.at(ind)) != 0) {
-                continue;
-            }
+            locker.unlock();
             std::this_thread::sleep_for(std::chrono::milliseconds(NORMAL_OBD_SLEEPTIME));
             std::string strtoreadto;
+
+            locker.lock();
+            if (boolrun==false) {
+                return;
+            }
+
             if (readFromOBD(strtoreadto) != 0) {
                 continue;
             }
             datum = hexStrToABCD(strtoreadto);
+
+            locker.unlock();
+
             if (datum.error == false) {
-                dataValue = obdcmds_mode1[focusPIDs.at(ind)].conv(datum.abcd[0], datum.abcd[1], datum.abcd[2], datum.abcd[3]);
+                dataValue = obdcmds_mode1[curPID].conv(datum.abcd[0], datum.abcd[1], datum.abcd[2], datum.abcd[3]);
             }
 
-            //std::cout << obdcmds_mode1[focusPIDs.at(ind)].human_name << " = " << dataValue << std::endl;
-
             // convert dataValue to string, and send it off to observers
-            std::string maxval = std::to_string( (int) obdcmds_mode1[focusPIDs.at(ind)].max_value);
-            std::string minval = std::to_string( (int) obdcmds_mode1[focusPIDs.at(ind)].min_value);
+            std::string maxval = std::to_string( (int) obdcmds_mode1[curPID].max_value);
+            std::string minval = std::to_string( (int) obdcmds_mode1[curPID].min_value);
             size_t maxlen = (maxval.size() > minval.size() ? maxval.size() : minval.size());
             std::string output = std::to_string(dataValue).substr(0, maxlen);
-            notifyObservers(focusPIDs.at(ind), output);
 
+            locker.lock();
+            if (boolrun==false) {
+                return;
+            }
+            ObdObserverPacket packet;
+            packet.information = output;
+            packet.linenum = curPID;
+            notifyObservers(packet);
         } //end for
+
+        locker.unlock();
+
     } //end while
 }

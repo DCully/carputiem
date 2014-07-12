@@ -10,6 +10,9 @@
 #include <chrono>
 #include "Controller.h"
 
+volatile bool IOHandler::run = false;
+std::mutex IOHandler::runLock;
+
 IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
                      const int& rs, const int& strb, const int& d0, const int& d1,
                      const int& d2, const int& d3, const int& d4, const int& d5,
@@ -24,7 +27,16 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
     lcdCursor(LCDHandle, 1); // experiment with cursor turned off
     lcdCursorBlink(LCDHandle, 0); // dont blink the cursor
     moveCursor(17); // cursor starts off on "change page left" spot
-    TextIsScrolling = false;
+
+    // push a ScrollPacket(true) into the queue and launch thread
+    scrollQueue.push(ScrollPacket(true));
+    run = true;
+    std::thread(&IOHandler::textScroller, this);
+}
+
+IOHandler::~IOHandler() {
+    std::lock_guard<std::mutex> lock(runLock);
+    run = false;
 }
 
 // this is how to move the cursor from the outside
@@ -48,6 +60,8 @@ void IOHandler::printToLCD(const std::string& text, const int& spot) {
     lcdPosition(LCDHandle, cursorSpotOnScreen%20, cursorSpotOnScreen/20);
 }
 
+// this will push a new ScrollPacket into the queue for the thread to process
+// the scrolling thread won't clear the screen! you have to do that
 void IOHandler::startScrollText(const std::vector<size_t>& startSpots,
     const std::vector<size_t>& stopSpots,
     const std::vector<size_t>& lineNums,
@@ -77,45 +91,73 @@ void IOHandler::startScrollText(const std::vector<size_t>& startSpots,
         }
     }
 
-    // double check to make sure nothing's scrolling
-    if (TextIsScrolling) {
-        stopAllScrollingText();
-    }
-    // launch a new scroll manager thread
-    TextIsScrolling = true;
-    ScrollingThread = std::thread(&IOHandler::textScroller, this, startSpots, stopSpots, lineNums, msgs);
-
+    // push a new ScrollPacket
+    std::lock_guard<std::mutex> lock(queueLock);
+    scrollQueue.push(ScrollPacket(startSpots, stopSpots, lineNums, msgs));
 }
 
 void IOHandler::stopAllScrollingText() {
-    if (TextIsScrolling) {
-        TextIsScrolling = false;
-        ScrollingThread.join();
-    }
+    std::lock_guard<std::mutex> lock(queueLock);
+    scrollQueue.push(ScrollPacket(true));
 }
 
-void IOHandler::textScroller(std::vector<size_t> startSpots,
-    std::vector<size_t> stopSpots,
-    std::vector<size_t> lineNums,
-    std::vector<std::string> msgs)
+void IOHandler::textScroller()
 {
     // these only become as large as however many lines are actually scrolled (not always three)
     std::vector<std::string> toScreen;
     std::vector<size_t> spotInMsgs;
-
+    ScrollPacket packet(true);
     unsigned int lastPrint = 0;
-    for (size_t x = 0; x < msgs.size(); x++) {
-        msgs.at(x).append(" ");
-        msgs.at(x).append(msgs.at(x));
-        toScreen.push_back(msgs.at(x).substr(0, stopSpots.at(x) - startSpots.at(x) + 1));
-        spotInMsgs.push_back(0);
-    }
-    while (TextIsScrolling) {
+    std::unique_lock<std::mutex> runlock(runLock);
+    std::unique_lock<std::mutex> queuelock(queueLock);
+    bool newPacket = false;
+
+    while (true) {
+
+        // check if we should return
+        runlock.lock();
+        if (run==false) {
+            return;
+        }
+
+        // check for new packets in queue
+        queuelock.lock();
+        if (!scrollQueue.empty()) {
+            packet = scrollQueue.front();
+            scrollQueue.pop();
+            queuelock.unlock();
+            newPacket = true;
+        }
+        else {
+            queuelock.unlock();
+        }
+        runlock.unlock();
+
+        // the rest of the loop runs independently of the object
+
+        if (packet.sleep==true) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            continue;
+        }
+
+        if (newPacket) {
+            newPacket = false;
+
+            // process the new packet
+            for (size_t x = 0; x < packet.msgsForLines.size(); x++) {
+                packet.msgsForLines.at(x).append(" ");
+                packet.msgsForLines.at(x).append(packet.msgsForLines.at(x));
+                toScreen.push_back(packet.msgsForLines.at(x).substr(0, packet.stopSpots.at(x) - packet.startSpots.at(x) + 1));
+                spotInMsgs.push_back(0);
+            }
+        }
+
+        // this part scrolls the current packet
         if (millis() - lastPrint > 250) {
-            for (size_t i = 0; i < msgs.size(); i++) {
-                printToLCD(toScreen.at(i), lineNums.at(i)*20 + startSpots.at(i));
-                spotInMsgs.at(i) = (spotInMsgs.at(i) + 1) % (msgs.at(i).size()/2);
-                toScreen.at(i) = msgs.at(i).substr(spotInMsgs.at(i), toScreen.at(i).size());
+            for (size_t i = 0; i < packet.msgsForLines.size(); i++) {
+                printToLCD(toScreen.at(i), packet.lineNums.at(i)*20 + packet.startSpots.at(i));
+                spotInMsgs.at(i) = (spotInMsgs.at(i) + 1) % (packet.msgsForLines.at(i).size()/2);
+                toScreen.at(i) = packet.msgsForLines.at(i).substr(spotInMsgs.at(i), toScreen.at(i).size());
             }
             lastPrint = millis();
         }

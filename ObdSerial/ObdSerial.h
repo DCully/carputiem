@@ -7,6 +7,7 @@
 #include "obdcomms.h"
 #include <map>
 #include <thread>
+#include <mutex>
 
 class ObdSerial: public Observable
 {
@@ -18,7 +19,6 @@ class ObdSerial: public Observable
         std::vector<int> getSuppdCmds();
         const std::string& getVIN();
         void setFocusedPIDs(const std::vector<int>& focusPIDs); // sets which PIDs to query for
-        void stopUpdates(); // turn data polling off
 
     private:
 
@@ -45,8 +45,8 @@ class ObdSerial: public Observable
         int readFromOBD(std::string& stringtoreadto); // handles read call and gets the correct line
 
         // multithreading
-        volatile bool boolrun;
-        std::thread* obdthread;
+        static std::mutex obdLock;
+        static volatile bool boolrun;
         void run();
 };
 #endif //OBDSERIAL_H

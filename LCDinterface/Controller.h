@@ -7,9 +7,14 @@
 #include "ScreenData.h"
 #include "../ObdSerial/ObdSerial.h"
 #include "ScreenDataManager.h"
+#include "../MusicPlayer/MusicManager.h"
 
 class IOHandler;
 
+/*
+*   At this point, this object basically delegates all actual "controller"
+*   duties to the screenDataManager object it owns.
+*/
 class Controller : public Observer
 {
 
@@ -29,7 +34,7 @@ class Controller : public Observer
         ScreenData& getCurPage();
         unsigned int lastPush;
 
-        void update(size_t linenum, std::string infoToPrint);
+        void update(ObserverPacket& obsp);
 
     private:
         void leftButPressed();
@@ -37,7 +42,7 @@ class Controller : public Observer
         void selectPressed();
 
         IOHandler* iohandler;
-
+        MusicManager* musicManager;
         ScreenDataManager screenDataManager;
         ObdSerial * obd;
 

@@ -17,4 +17,29 @@ class badScreenAddException : public std::exception
     }
 }badScreenAddException;
 
+class badSerialConnectException : public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "Serial port failed to connect in ObdSerial";
+    }
+}badSerialConnectException;
+
+class MusicManagerDirReadException : public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "Music Manager tried to read from a bad dirpath";
+    }
+}MusicManagerDirReadException;
+
+class IOHandlerSetupException : public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "Display could not be set up properly through GPIO pins";
+    }
+}IOHandlerSetupException;
+
+
 #endif // EXCEPTIONS_H
