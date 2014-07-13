@@ -18,6 +18,7 @@ ScreenData::ScreenData() {
 }
 
 ScreenData::~ScreenData() {
+    std::cerr << "entering screendata dtor" << std::endl;
     delete pageChangeBehavior;
     delete lineSetupBehavior;
     // pages don't own their model objects
@@ -33,7 +34,7 @@ ScreenData::ScreenData(const ScreenData& other) :
     lineSetupBehavior(other.lineSetupBehavior->clone()),
     cursorSpots(other.cursorSpots),
     currentSpotIndex(other.currentSpotIndex)
-{ }
+{std::cerr << "in screendata ctor" << std::endl; }
 
 ScreenData& ScreenData::operator=(ScreenData other) {
     ScreenData temp(other);

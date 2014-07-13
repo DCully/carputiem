@@ -8,6 +8,7 @@
 #include "../Observable.h"
 #include "IOHandler.h"
 #include <stack>
+#include <iostream>
 
 /// Nodes own their ScreenData objects (on the heap)
 /// since I subclass ScreenData a lot, and the details are determined
@@ -18,15 +19,19 @@ class Node
     public:
         Node() {}
         ~Node();
-        Node(const std::string& key,
-             const std::string& parKey,
-             const std::vector<std::string>& children,
-             const std::vector<ScreenData*>& scrns);
+        Node(const std::string key,
+             const std::string parKey,
+             const std::vector<std::string> children,
+             const std::vector<ScreenData*> scrns);
+        Node& operator=(Node other);
+        Node(const Node& other);
+        void swap(Node& other);
         void goLeftInScreens();
         void goRightInScreens();
         ScreenData& getCurrentScreenData();
-        const std::string myKey;
-        const std::string parentKey;
+
+        std::string myKey;
+        std::string parentKey;
         std::vector<std::string> childKeys;
     private:
         int indexOfCurrentScreen;

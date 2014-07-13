@@ -4,9 +4,8 @@
 #include "../ObdSerial/ObdFactory.h"
 #include "../MusicPlayer/MusicScreenFactory.h"
 
-Controller * controller; // created in main.cpp as entry point for program (needed for static interrupt functions)
-
 Controller::Controller() {
+    std::cout << "mem management solved in ScreenData - entering Controller ctor" << std::endl;
 
     // set up iohandler
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7);
@@ -31,6 +30,8 @@ Controller::~Controller() {
     delete obd;
     delete musicManager;
 }
+
+extern Controller * controller; // created in main.cpp as entry point for program (needed for static interrupt functions)
 
 // millis() wraps every 49 days
 // these are static functions because you can't register NSMFs to button interrupts

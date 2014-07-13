@@ -6,9 +6,9 @@
 #include <unistd.h>
 #include <vector>
 
-extern Controller * controller;
+Controller * controller;
 
-int main()
+int main(void)
 {
     // front end testing
     controller = new Controller();

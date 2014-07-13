@@ -22,7 +22,7 @@ class ScreenData {
         ScreenData(const ScreenData& other);
         ScreenData& operator=(ScreenData other);
         void swap(ScreenData& other);
-
+        virtual ScreenData* clone() const { return new ScreenData(*this); }
         int getCurrentCursorSpot();
         void moveCursorLeft(IOHandler& ioh);
         void moveCursorRight(IOHandler& ioh);

@@ -3,22 +3,51 @@
 #include "../Exceptions.h"
 
 using std::cerr;
+using std::cout;
 using std::endl;
 
-Node::Node(const std::string& key,
-    const std::string& parKey,
-    const std::vector<std::string>& children,
-    const std::vector<ScreenData*>& scrns  ) : myKey(key),
+Node::Node(const std::string key,
+    const std::string parKey,
+    const std::vector<std::string> children,
+    const std::vector<ScreenData*> scrns  ) : myKey(key),
                                               parentKey(parKey),
                                               childKeys(children),
                                               screens(scrns)
 {
     indexOfCurrentScreen = 0;
+    cerr << "leaving node ctor" << endl;
 }
 
 Node::~Node() {
+    cerr << "entering node dtor" << endl;
     for (size_t x = 0; x < screens.size(); ++x) {
+        cerr << "    deleting a screen" << endl;
         delete screens.at(x);
+    }
+}
+
+Node& Node::operator=(Node other) {
+    cerr << "node assignment" << endl;
+    swap(other);
+    return *this;
+}
+
+void Node::swap(Node& other) {
+    using std::swap;
+    swap(myKey, other.myKey);
+    swap(indexOfCurrentScreen, other.indexOfCurrentScreen);
+    swap(screens, other.screens);
+    swap(parentKey, other.parentKey);
+    swap(childKeys, other.childKeys);
+}
+
+Node::Node(const Node& other) {
+    myKey = other.myKey;
+    indexOfCurrentScreen = other.indexOfCurrentScreen;
+    parentKey = other.parentKey;
+    childKeys = other.childKeys;
+    for (size_t x = 0; x < other.screens.size(); ++x) {
+        screens.push_back(other.screens.at(x)->clone());
     }
 }
 
@@ -39,23 +68,26 @@ ScreenData& Node::getCurrentScreenData() {
 /// ScreenDataManager
 
 ScreenDataManager::ScreenDataManager() {
-
     // build vector with home drawer in it
-    PageChangeBehavior* pcb = new PageChangeBehavior;
+    PageChangeBehavior* pcb = new PageChangeBehavior();
     std::vector<std::string> drawerNames;
     drawerNames.push_back("Music");
     drawerNames.push_back("Vehicle Data");
     drawerNames.push_back("Settings");
     DrawerLineSetupBehavior* dlsb = new DrawerLineSetupBehavior(drawerNames, "Home");
     ScreenDataDrawer* homeDrawer = new ScreenDataDrawer(this, pcb, dlsb);
-    std::vector<ScreenData*> homeScreen(1, homeDrawer);
+    std::vector<ScreenData*> homeScreen;
+    homeScreen.push_back(homeDrawer);
 
     // build home node
-    std::vector<std::string> children(3, " ");
-    Node homeNode("home", NULL, children, homeScreen);
+    std::vector<std::string> children;
+    for (int x = 0; x < 3; ++x) {
+        children.push_back(" ");
+    }
 
-    // add home node to map
-    nodeMap.insert(std::pair<std::string, Node>("home", homeNode));
+    /// gets through the Node ctor, segfaults... when INSERTING the pair?
+    nodeMap.insert(std::pair<std::string, Node>("home", Node("home", "null", children, homeScreen)));
+
     backStack.push("home");
 }
 
