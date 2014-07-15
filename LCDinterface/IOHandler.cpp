@@ -38,7 +38,8 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
     // push a ScrollPacket(true) into the queue and launch thread
     scrollQueue.push(ScrollPacket(true));
     run = true;
-    std::thread(&IOHandler::textScroller, this);
+    std::cerr<<"launching text scrolling thread"<<std::endl;
+    std::thread(&IOHandler::textScroller, this).detach();
 }
 
 IOHandler::~IOHandler() {

@@ -12,6 +12,9 @@ Controller * controller;
 
 int main(void)
 {
+
+    controller = new Controller();
+    while (true) {}
 /*
     MusicManager* mm = new MusicManager("/home/david/Music/from linnett/");
 

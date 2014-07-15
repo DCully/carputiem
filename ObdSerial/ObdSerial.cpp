@@ -83,7 +83,7 @@ void ObdSerial::start() {
     if (boolrun == false) {
         // start the data harvesting thread ( start() ) and wait for it to finish
         boolrun = true;
-        std::thread(&ObdSerial::run, this);
+        std::thread(&ObdSerial::run, this).detach();
     }
 }
 
