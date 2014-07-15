@@ -4,8 +4,9 @@
 #include "../ObdSerial/ObdFactory.h"
 #include "../MusicPlayer/MusicScreenFactory.h"
 
-/// successfully exits this ctor (remember to un-comment iohandler stuff)
-/// TODO: test MusicManager
+/// MusicManager tested OK - volume problems
+/// ScreenDataFactory builds ok
+/// TODO: test if MusicScreenDatas work correctly
 
 Controller::Controller() {
 
@@ -16,7 +17,7 @@ Controller::Controller() {
     * so for testing without the Pi, I comment that line out.
     */
 
-    ///iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7);
+    iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7);
 
     try{
         // set up OBD stuff
@@ -31,7 +32,7 @@ Controller::Controller() {
     }
     try {
         // set up music playing stuff
-        musicManager = new MusicManager("/home/david/Music/from linnett/");
+        musicManager = new MusicManager("/home/pi/music/");
         MusicScreenFactory msf;
         msf.buildScreens(*musicManager, screenDataManager);
 
@@ -41,7 +42,7 @@ Controller::Controller() {
     }
     // finish setting up the controller regardless of past success
     lastPush = 1;
-    ///screenDataManager.getCurrentScreenData().printPage(*iohandler);
+    screenDataManager.getCurrentScreenData().printPage(*iohandler);
 
 }
 

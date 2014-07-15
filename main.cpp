@@ -12,6 +12,7 @@ Controller * controller;
 
 int main(void)
 {
+/*
     MusicManager* mm = new MusicManager("/home/david/Music/from linnett/");
 
     std::set<std::string> artists = mm->getArtistSet();
@@ -46,7 +47,7 @@ int main(void)
         std::cerr<<"Current Song: " << mm->getCurrentSong().trackName << std::endl;
         mm->decreaseVolume();
     }
-
+*/
     return 0;
 }
 
