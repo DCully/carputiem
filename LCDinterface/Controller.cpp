@@ -4,31 +4,52 @@
 #include "../ObdSerial/ObdFactory.h"
 #include "../MusicPlayer/MusicScreenFactory.h"
 
+/// successfully exits this ctor (remember to un-comment iohandler stuff)
+/// TODO: test MusicManager
+
 Controller::Controller() {
-    std::cout << "mem management solved in ScreenData - entering Controller ctor" << std::endl;
 
-    // set up iohandler
-    iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7);
+    /*
+    * This tries to set up each part of the program, but will continue
+    * if one of them fails. The iohandler object, however, uses the
+    * wiringPi library, which terminates the program internally,
+    * so for testing without the Pi, I comment that line out.
+    */
 
-    // set up OBD stuff
-    obd = new ObdSerial("/dev/ttyUSB0");
-    ObdFactory obdf(obd);
-    std::vector<ScreenData*> pages;
-    obdf.buildObdScreens(obd->getSuppdCmds(), pages);
-    screenDataManager.addScreens(pages, "obdPages", "home", 2);
+    ///iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7);
 
-    // set up music playing stuff
-    musicManager = new MusicManager("/home/music");
-    MusicScreenFactory msf;
-    msf.buildScreens(*musicManager, screenDataManager);
+    try{
+        // set up OBD stuff
+        obd = new ObdSerial("/dev/ttyUSB0");
+        ObdFactory obdf(obd);
+        std::vector<ScreenData*> pages;
+        obdf.buildObdScreens(obd->getSuppdCmds(), pages);
+        screenDataManager.addScreens(pages, "obdPages", "home", 2);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "ERROR: " << e.what() << ", continuing" << std::endl;
+    }
+    try {
+        // set up music playing stuff
+        musicManager = new MusicManager("/home/david/Music/from linnett/");
+        MusicScreenFactory msf;
+        msf.buildScreens(*musicManager, screenDataManager);
 
+    }
+    catch (std::exception& e) {
+        std::cerr << "ERROR: " << e.what() << ", continuing" << std::endl;
+    }
+    // finish setting up the controller regardless of past success
     lastPush = 1;
-    screenDataManager.getCurrentScreenData().printPage(*iohandler);
+    ///screenDataManager.getCurrentScreenData().printPage(*iohandler);
+
 }
+
 
 Controller::~Controller() {
     delete obd;
     delete musicManager;
+    delete iohandler;
 }
 
 extern Controller * controller; // created in main.cpp as entry point for program (needed for static interrupt functions)

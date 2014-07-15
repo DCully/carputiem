@@ -5,6 +5,7 @@
 #include "../Observable.h"
 #include <vector>
 #include <string>
+#include <iostream>
 #include "PageChangeBehaviors.h"
 #include "LineSetupBehaviors.h"
 
@@ -21,8 +22,8 @@ class ScreenData {
 
         ScreenData(const ScreenData& other);
         ScreenData& operator=(ScreenData other);
-        void swap(ScreenData& other);
-        virtual ScreenData* clone() const { return new ScreenData(*this); }
+        virtual void swap(ScreenData& other);
+        virtual ScreenData* clone() const {return new ScreenData(*this);}
         int getCurrentCursorSpot();
         void moveCursorLeft(IOHandler& ioh);
         void moveCursorRight(IOHandler& ioh);

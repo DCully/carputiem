@@ -8,9 +8,40 @@ ArtistOrAlbumScreenData::ArtistOrAlbumScreenData(MusicManager* obs,
                                                 const std::string& drawer1key,
                                                 const std::string& drawer2key,
                                                 const std::string& drawer3key)
-: ScreenDataDrawer(obs, pcb, lsb), keyForDrawer1(drawer1key), keyForDrawer2(drawer2key), keyForDrawer3(drawer3key)
+: ScreenData(obs, pcb, lsb), keyForDrawer1(drawer1key), keyForDrawer2(drawer2key), keyForDrawer3(drawer3key)
 {
-    // do nothing - this class just needs to enforce having a MusicManager observable for doLeavePageBehavior
+    cursorSpots.push_back(39);
+    cursorSpots.push_back(59);
+    cursorSpots.push_back(79);
+}
+
+ArtistOrAlbumScreenData::ArtistOrAlbumScreenData(const ArtistOrAlbumScreenData& other)
+{
+    observed = other.observed;
+    pageChangeBehavior = other.pageChangeBehavior->clone();
+    lineSetupBehavior = other.lineSetupBehavior->clone();
+    cursorSpots = other.cursorSpots;
+    currentSpotIndex = other.currentSpotIndex;
+    keyForDrawer1 = other.keyForDrawer1;
+    keyForDrawer2 = other.keyForDrawer2;
+    keyForDrawer3 = other.keyForDrawer3;
+}
+
+ArtistOrAlbumScreenData& ArtistOrAlbumScreenData::operator=(ArtistOrAlbumScreenData other) {
+    ArtistOrAlbumScreenData temp(other);
+    swap(temp);
+    return *this;
+}
+
+void ArtistOrAlbumScreenData::swap(ArtistOrAlbumScreenData& other) {
+    std::swap(observed, other.observed);
+    std::swap(lineSetupBehavior, other.lineSetupBehavior);
+    std::swap(pageChangeBehavior, other.pageChangeBehavior);
+    std::swap(currentSpotIndex, other.currentSpotIndex);
+    std::swap(cursorSpots, other.cursorSpots);
+    std::swap(keyForDrawer1, other.keyForDrawer1);
+    std::swap(keyForDrawer2, other.keyForDrawer2);
+    std::swap(keyForDrawer3, other.keyForDrawer3);
 }
 
 void ArtistOrAlbumScreenData::doLeavePageBehavior()
@@ -77,9 +108,36 @@ void SongListScreenData::doCurSpotSelectBehavior() {
     }
 }
 
+SongListScreenData::SongListScreenData(const SongListScreenData& other) {
+    observed = other.observed;
+    pageChangeBehavior = other.pageChangeBehavior->clone();
+    lineSetupBehavior = other.lineSetupBehavior->clone();
+    cursorSpots = other.cursorSpots;
+    currentSpotIndex = other.currentSpotIndex;
+    songSelectionEndpointIterators = other.songSelectionEndpointIterators;
+    currentSongIterator = other.currentSongIterator;
+}
+
+SongListScreenData& SongListScreenData::operator=(SongListScreenData other) {
+    SongListScreenData temp(other);
+    swap(temp);
+    return *this;
+}
+
+void SongListScreenData::swap(SongListScreenData& other) {
+    std::swap(observed, other.observed);
+    std::swap(lineSetupBehavior, other.lineSetupBehavior);
+    std::swap(pageChangeBehavior, other.pageChangeBehavior);
+    std::swap(currentSpotIndex, other.currentSpotIndex);
+    std::swap(cursorSpots, other.cursorSpots);
+    std::swap(songSelectionEndpointIterators, other.songSelectionEndpointIterators);
+    std::swap(currentSongIterator, other.currentSongIterator);
+}
+
 ///------------NowPlayingScreenData--------------
 
 NowPlayingScreenData::NowPlayingScreenData(MusicManager* obs, PageChangeBehavior* pcb, NowPlayingLineSetupBehavior* lsb)
+: ScreenData(obs, pcb, lsb)
 {
     cursorSpots.push_back(68); // play/pause
     cursorSpots.push_back(76); // volume up
@@ -106,3 +164,30 @@ void NowPlayingScreenData::doCurSpotSelectBehavior() {
             break;
     }
 }
+
+NowPlayingScreenData::NowPlayingScreenData(const NowPlayingScreenData& other)
+{
+    observed = other.observed;
+    cursorSpots = other.cursorSpots;
+    currentSpotIndex = other.currentSpotIndex;
+    lineSetupBehavior = other.lineSetupBehavior->clone();
+    pageChangeBehavior = other.pageChangeBehavior->clone();
+}
+
+NowPlayingScreenData& NowPlayingScreenData::operator=(NowPlayingScreenData other)
+{
+    NowPlayingScreenData temp(other);
+    swap(temp);
+    return *this;
+}
+
+void NowPlayingScreenData::swap(NowPlayingScreenData& other)
+{
+    std::swap(observed, other.observed);
+    std::swap(lineSetupBehavior, other.lineSetupBehavior);
+    std::swap(pageChangeBehavior, other.pageChangeBehavior);
+    std::swap(currentSpotIndex, other.currentSpotIndex);
+    std::swap(cursorSpots, other.cursorSpots);
+}
+
+

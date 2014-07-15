@@ -18,8 +18,13 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
                      const int& d2, const int& d3, const int& d4, const int& d5,
                      const int& d6, const int& d7)
 {
+
     wiringPiSetup();
+    // this stuff can throw if there's no GPIO connection (like if you're not running this on a Pi)
     LCDHandle = lcdInit(4,20,8, rs,strb, d0,d1,d2,d3,d4,d5,d6,d7);
+    if (LCDHandle<0) {
+        throw IOHandlerSetupException();
+    }
     wiringPiISR(bleft, INT_EDGE_FALLING, &Controller::staticLeftButPressed);
     wiringPiISR(bright, INT_EDGE_FALLING, &Controller::staticRightButPressed);
     wiringPiISR(bsel, INT_EDGE_FALLING, &Controller::staticSelectPressed);
@@ -27,6 +32,8 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
     lcdCursor(LCDHandle, 1); // experiment with cursor turned off
     lcdCursorBlink(LCDHandle, 0); // dont blink the cursor
     moveCursor(17); // cursor starts off on "change page left" spot
+
+
 
     // push a ScrollPacket(true) into the queue and launch thread
     scrollQueue.push(ScrollPacket(true));
@@ -108,8 +115,8 @@ void IOHandler::textScroller()
     std::vector<size_t> spotInMsgs;
     ScrollPacket packet(true);
     unsigned int lastPrint = 0;
-    std::unique_lock<std::mutex> runlock(runLock);
-    std::unique_lock<std::mutex> queuelock(queueLock);
+    std::unique_lock<std::mutex> runlock(runLock, std::defer_lock);
+    std::unique_lock<std::mutex> queuelock(queueLock, std::defer_lock);
     bool newPacket = false;
 
     while (true) {

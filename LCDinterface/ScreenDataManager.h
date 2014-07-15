@@ -10,6 +10,22 @@
 #include <stack>
 #include <iostream>
 
+class invalidDrawerIndexException : public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "Out of range drawer number passed to ScreenDataManager::goDown()";
+    }
+};
+
+class badScreenAddException : public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "You're trying to add screens but that name doesn't correspond to any existing drawer";
+    }
+};
+
 /// Nodes own their ScreenData objects (on the heap)
 /// since I subclass ScreenData a lot, and the details are determined
 /// at runtime, this is necessary, in order to avoid object slicing
@@ -55,7 +71,7 @@ class ScreenDataManager : public Observable
                                     const std::string& nameOfNewDrawer,
                                     const std::string& nameOfDrawerToAddTo,
                                     int lineOfDrawerToAddTo);
-        void addScreens(const std::vector<ScreenData*>& screenToAdd,
+        void addScreens(const std::vector<ScreenData*> screenToAdd,
                                     const std::string& nameOfNewDrawer,
                                     const std::string& nameOfDrawerToAddTo,
                                     int lineOfDrawerToAddTo);

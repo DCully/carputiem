@@ -23,40 +23,41 @@ ObdSerial::ObdSerial(const std::string& portpath) : AT_SLEEPTIME(20), NORMAL_OBD
     // open to read and write, not as the controlling terminal, and in nonblocking mode
     fd = open(portpath.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1) {
-        std::cerr << "Failed to open obd port..." << std::endl;
-        throw "Error opening OBD2 port";
+        throw badSerialConnectException();
     }
-    // configure the opened serial port
-    fcntl(fd, F_SETFL, 0);
-    tcgetattr(fd, &options);
-    options.c_cflag |= (CLOCAL | CREAD);
-    options.c_lflag &= !(ICANON | ECHOE | ISIG);
-    options.c_oflag &= !(OPOST);
-    cfsetispeed(&options, B38400);
-    cfsetospeed(&options, B38400);
-    if (tcsetattr(fd, TCSANOW, &options) != 0) {
-        std::cerr << "Error setting serial port attributes" << std::endl;
-    }
-    // configure the ELM327 device
-    write(fd, "AT E0\r", sizeof("AT E0\r")); // turn off echo
-    std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
-    read(fd, buf, sizeof(buf));
-    write(fd, "AT S0\r", sizeof("AT S0\r")); //turn off spaces
-    std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
-    read(fd, buf, sizeof(buf));
-    write(fd, "AT ST 19\r", sizeof("AT ST 19\r")); //lower timeout settings
-    std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
-    read(fd, buf, sizeof(buf));
-    write(fd, "AT SH 7E0\r", sizeof("AT SH 7E0\r")); // specify 7E8 device only (engine ECU)
-    std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
-    read(fd, buf, sizeof(buf));
+    else {
+        // configure the opened serial port
+        fcntl(fd, F_SETFL, 0);
+        tcgetattr(fd, &options);
+        options.c_cflag |= (CLOCAL | CREAD);
+        options.c_lflag &= !(ICANON | ECHOE | ISIG);
+        options.c_oflag &= !(OPOST);
+        cfsetispeed(&options, B38400);
+        cfsetospeed(&options, B38400);
+        if (tcsetattr(fd, TCSANOW, &options) != 0) {
+            std::cerr << "Error setting serial port attributes" << std::endl;
+        }
+        // configure the ELM327 device
+        write(fd, "AT E0\r", sizeof("AT E0\r")); // turn off echo
+        std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
+        read(fd, buf, sizeof(buf));
+        write(fd, "AT S0\r", sizeof("AT S0\r")); //turn off spaces
+        std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
+        read(fd, buf, sizeof(buf));
+        write(fd, "AT ST 19\r", sizeof("AT ST 19\r")); //lower timeout settings
+        std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
+        read(fd, buf, sizeof(buf));
+        write(fd, "AT SH 7E0\r", sizeof("AT SH 7E0\r")); // specify 7E8 device only (engine ECU)
+        std::this_thread::sleep_for(std::chrono::milliseconds(AT_SLEEPTIME));
+        read(fd, buf, sizeof(buf));
 
-    if (fillSuppdCmds() != 0) {
-        std::cerr << "Error getting supported PIDs" << std::endl;
-        throw "Error getting supported PIDs";
-    }
+        if (fillSuppdCmds() != 0) {
+            std::cerr << "Error getting supported PIDs" << std::endl;
+            throw "Error getting supported PIDs";
+        }
 
-    VIN = getVINFromCar();
+        VIN = getVINFromCar();
+    }
 }
 ObdSerial::~ObdSerial() {
     /*
@@ -65,7 +66,7 @@ ObdSerial::~ObdSerial() {
     * 3) release the lock, allowing the other thread to continue
     * 4) since it checks the bool flag after it takes the lock, it will return smoothly on its own
     **/
-    std::unique_lock<std::mutex> locker(obdLock);
+    std::unique_lock<std::mutex> locker(obdLock, std::defer_lock);
     locker.lock();
     boolrun = false;
     locker.unlock();
@@ -228,7 +229,7 @@ void ObdSerial::run() {
         You only have to check the boolrun flag whenever this thread has just regained the mutex
         the object can only be destroyed when the destructor takes the lock and flips boolrun
     */
-    std::unique_lock<std::mutex> locker(obdLock);
+    std::unique_lock<std::mutex> locker(obdLock, std::defer_lock);
     int curPID;
     OBDDatum datum;
     double dataValue;

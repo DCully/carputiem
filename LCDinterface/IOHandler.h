@@ -10,6 +10,14 @@
 #include <queue>
 #include "ScrollPacket.h"
 
+class IOHandlerSetupException : public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "Display could not be set up properly through GPIO pins";
+    }
+};
+
 class IOHandler
 {
 

@@ -12,6 +12,14 @@
 #include <queue>
 #include <mutex>
 
+class MusicManagerDirReadException : public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "Music Manager tried to read from a bad dirpath";
+    }
+};
+
 // this is the model object for music-playing model objects
 class MusicManager : public Observable
 {
@@ -51,7 +59,7 @@ class MusicManager : public Observable
         const std::map<std::string, Song>::iterator getCurrentSongIterator();
         void setCurrentSongIterator(const std::map<std::string, Song>::iterator it);
 
-        void play(std::string musicDirPath); // separate thread
+        void play(); // separate thread
         /*
         * communication with the worker thread is coordinated through the taskQueue
         * 1 - change song

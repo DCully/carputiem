@@ -1,6 +1,5 @@
 #include "ScreenDataManager.h"
 #include <iostream>
-#include "../Exceptions.h"
 
 using std::cerr;
 using std::cout;
@@ -15,19 +14,15 @@ Node::Node(const std::string key,
                                               screens(scrns)
 {
     indexOfCurrentScreen = 0;
-    cerr << "leaving node ctor" << endl;
 }
 
 Node::~Node() {
-    cerr << "entering node dtor" << endl;
     for (size_t x = 0; x < screens.size(); ++x) {
-        cerr << "    deleting a screen" << endl;
         delete screens.at(x);
     }
 }
 
 Node& Node::operator=(Node other) {
-    cerr << "node assignment" << endl;
     swap(other);
     return *this;
 }
@@ -85,9 +80,8 @@ ScreenDataManager::ScreenDataManager() {
         children.push_back(" ");
     }
 
-    /// gets through the Node ctor, segfaults... when INSERTING the pair?
     nodeMap.insert(std::pair<std::string, Node>("home", Node("home", "null", children, homeScreen)));
-
+    keyForCurrentNode = "home";
     backStack.push("home");
 }
 
@@ -113,30 +107,29 @@ void ScreenDataManager::goRight() {
     nodeMap.at(keyForCurrentNode).goRightInScreens();
 }
 
-void ScreenDataManager::addScreens(const std::vector<ScreenData*>& screensToAdd,
+void ScreenDataManager::addScreens(const std::vector<ScreenData*> screensToAdd,
                                     const std::string& nameForNewScreens,
                                     const std::string& nameOfDrawerToAddTo,
                                     int lineOfDrawerToAddTo)
 {
+
     if ( lineOfDrawerToAddTo < 1 || lineOfDrawerToAddTo > 3 ) {
         cerr << "You tried to add new screens to an invalid drawer number" << endl;
-        throw invalidDrawerIndexException;
+        throw invalidDrawerIndexException();
     }
     if (nodeMap.count(nameForNewScreens)==1) {
         cerr << "You tried to add new screens with an already-taken name" << endl;
-        throw badScreenAddException;
+        throw badScreenAddException();
     }
-    if (nodeMap.count(nameForNewScreens)==0) {
+    if (nodeMap.count(nameOfDrawerToAddTo)==0) {
         cerr << "You tried to add new screens to a non-existent drawer" << endl;
-        throw badScreenAddException;
+        throw badScreenAddException();
     }
-
     // build the new Node and add it to the nodeMap
     std::vector<std::string> newVector(3, " ");
     Node newNode(nameForNewScreens, nameOfDrawerToAddTo, newVector, screensToAdd);
     std::pair<std::string, Node> newPair(nameForNewScreens, newNode);
     nodeMap.insert(newPair);
-
     // update the parent node
     nodeMap.at(nameOfDrawerToAddTo).childKeys.at(lineOfDrawerToAddTo-1) = nameForNewScreens;
 }
@@ -146,19 +139,19 @@ void ScreenDataManager::addScreens(ScreenDataDrawer* screenToAdd,
                                     const std::string& nameOfDrawerToAddTo,
                                     int lineOfDrawerToAddTo)
 {
+
     if ( lineOfDrawerToAddTo < 1 || lineOfDrawerToAddTo > 3 ) {
         cerr << "You tried to add new screens to an invalid drawer number" << endl;
-        throw invalidDrawerIndexException;
+        throw invalidDrawerIndexException();
     }
     if (nodeMap.count(nameForNewScreens)==1) {
         cerr << "You tried to add new screens with an already-taken name" << endl;
-        throw badScreenAddException;
+        throw badScreenAddException();
     }
-    if (nodeMap.count(nameForNewScreens)==0) {
+    if (nodeMap.count(nameOfDrawerToAddTo)==0) {
         cerr << "You tried to add new screens to a non-existent drawer" << endl;
-        throw badScreenAddException;
+        throw badScreenAddException();
     }
-
     // build the new Node and add it to the nodeMap
     std::vector<std::string> newVector(3, " ");
     std::vector<ScreenData*> screensToAdd(1, screenToAdd); // small vector for drawer

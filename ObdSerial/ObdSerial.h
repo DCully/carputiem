@@ -9,6 +9,14 @@
 #include <thread>
 #include <mutex>
 
+class badSerialConnectException : public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "Serial port failed to connect in ObdSerial";
+    }
+};
+
 class ObdSerial: public Observable
 {
     public:

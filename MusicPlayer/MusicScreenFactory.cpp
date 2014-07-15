@@ -3,6 +3,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <iostream>
 
 /*
     Builds all the screens to hook up a MusicManager to a ScreenDataManager.
@@ -11,7 +12,9 @@
 
 void MusicScreenFactory::buildScreens(MusicManager& mm, ScreenDataManager& scdm)
 {
-    /// add main drawer for music branch
+
+
+    // add main drawer for music branch
     std::vector<std::string> textforlines;
     textforlines.push_back("Artists");
     textforlines.push_back("Albums");
@@ -19,10 +22,10 @@ void MusicScreenFactory::buildScreens(MusicManager& mm, ScreenDataManager& scdm)
     DrawerLineSetupBehavior* dlsb = new DrawerLineSetupBehavior(textforlines, "Music");
     PageChangeBehavior* pcb = new PageChangeBehavior();
     ScreenDataDrawer* musicmain = new ScreenDataDrawer(&scdm, pcb, dlsb);
+
     scdm.addScreens(musicmain, "MusicMain", "home", 1);
 
-
-    /// build drawers for artists
+    // build drawers for artists
     std::set<std::string> artists = mm.getArtistSet();
     std::vector<ScreenData*> artistScreens;
 
@@ -50,11 +53,10 @@ void MusicScreenFactory::buildScreens(MusicManager& mm, ScreenDataManager& scdm)
         }
     }
 
-    /// add artist screens to music drawer
+    // add artist screens to music drawer
     scdm.addScreens(artistScreens, "ArtistScreens", "MusicMain", 1);
 
-
-    /// build drawers for albums
+    // build drawers for albums
     std::set<std::string> albums = mm.getAlbumSet();
     std::vector<ScreenData*> albumScreens;
 
@@ -82,18 +84,22 @@ void MusicScreenFactory::buildScreens(MusicManager& mm, ScreenDataManager& scdm)
         }
     }
 
-    /// add album screens to music drawer
+    // add album screens to music drawer
     scdm.addScreens(albumScreens, "AlbumScreens", "MusicMain", 2);
 
-    /// build Now Playing screen and add it
-    NowPlayingScreenData* npsd = new NowPlayingScreenData(&mm, new PageChangeBehavior(), new NowPlayingLineSetupBehavior());
+    // build Now Playing screen and add it
+    PageChangeBehavior* nppcb = new PageChangeBehavior();
+    NowPlayingLineSetupBehavior* nplsb = new NowPlayingLineSetupBehavior();
+    NowPlayingScreenData* npsd = new NowPlayingScreenData(&mm, nppcb, nplsb);
     std::vector<ScreenData*> invec;
     invec.push_back(npsd);
+
     scdm.addScreens(invec, "NowPlaying", "MusicMain", 3);
 
-    /// build the Song List screen and add it
+    // build the Song List screen and add it
     SongListScreenData* slsd = new SongListScreenData(&mm, new PageChangeBehavior(), new SongListLineSetupBehavior());
     std::vector<ScreenData*> invec2;
     invec2.push_back(slsd);
+
     scdm.addScreens(invec2, "SongList", "AlbumScreens", 2);
 }

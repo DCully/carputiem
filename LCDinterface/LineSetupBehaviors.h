@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 #include "../Observer.h"
+#include <iostream>
+
 
 class IOHandler;
 
@@ -59,6 +61,7 @@ class DrawerLineSetupBehavior : public LineSetupBehavior
         DrawerLineSetupBehavior(std::vector<std::string> textForLines,
                                 const std::string& pageTitle);
         void updateLine(IOHandler* iohandler, ObserverPacket& obsp);
+        DrawerLineSetupBehavior* clone() const { return new DrawerLineSetupBehavior(*this); }
 };
 
 /// ----------- for music screens -------------------
@@ -71,6 +74,7 @@ class SongListLineSetupBehavior : public LineSetupBehavior
         void renderPage(IOHandler& iohandler); // prints a blank for the song name
         void updateSong(const std::string& song); // fills in the song name (called by ScreenData)
         void updateLine(IOHandler* ioh, ObserverPacket& obsp) {/* don't do anything */}
+        virtual SongListLineSetupBehavior* clone() const { return new SongListLineSetupBehavior(*this); }
     private:
         IOHandler* iohandler;
         void printSong();
@@ -82,6 +86,7 @@ class NowPlayingLineSetupBehavior: public LineSetupBehavior
         Song currentSong;
         void renderPage(IOHandler& iohandler);
         void updateLine(IOHandler* ioh, MusicObserverPacket& obsp); // print a new song
+        virtual NowPlayingLineSetupBehavior* clone() const { return new NowPlayingLineSetupBehavior(*this); }
     private:
         void printTitleAndControls(IOHandler& ioh);
         void printArtistAndSong(IOHandler& ioh);
