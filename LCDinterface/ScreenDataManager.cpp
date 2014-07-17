@@ -1,5 +1,6 @@
 #include "ScreenDataManager.h"
 #include <iostream>
+#include <typeinfo>
 
 using std::cerr;
 using std::cout;
@@ -47,11 +48,21 @@ Node::Node(const Node& other) {
 }
 
 void Node::goLeftInScreens() {
-    indexOfCurrentScreen = (indexOfCurrentScreen-1)%screens.size();
+    if (indexOfCurrentScreen==0) {
+        indexOfCurrentScreen = screens.size() - 1;
+    }
+    else {
+        --indexOfCurrentScreen;
+    }
 }
 
 void Node::goRightInScreens() {
-    indexOfCurrentScreen = (indexOfCurrentScreen+1)%screens.size();
+    if (indexOfCurrentScreen==screens.size() - 1) {
+        indexOfCurrentScreen = 0;
+    }
+    else {
+        ++indexOfCurrentScreen;
+    }
 }
 
 ScreenData& Node::getCurrentScreenData() {
@@ -90,13 +101,17 @@ ScreenData& ScreenDataManager::getCurrentScreenData() {
 }
 
 void ScreenDataManager::goUp() {
-    keyForCurrentNode = backStack.top();
-    backStack.pop();
+    if (!backStack.empty()) {
+        keyForCurrentNode = backStack.top();
+        backStack.pop();
+    }
 }
 
 void ScreenDataManager::goDownTo(int num) {
-    keyForCurrentNode = nodeMap.at(keyForCurrentNode).childKeys.at(num-1);
-    backStack.push(keyForCurrentNode);
+    if (nodeMap.at(keyForCurrentNode).childKeys.at(num-1) != " ") {
+        backStack.push(keyForCurrentNode);
+        keyForCurrentNode = nodeMap.at(keyForCurrentNode).childKeys.at(num-1);
+    }
 }
 
 void ScreenDataManager::goLeft() {
@@ -163,7 +178,36 @@ void ScreenDataManager::addScreens(ScreenDataDrawer* screenToAdd,
     nodeMap.at(nameOfDrawerToAddTo).childKeys.at(lineOfDrawerToAddTo-1) = nameForNewScreens;
 }
 
-void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandler& iohandler, Observer& observer) {
+// for adding a drawer to many parents (like NowPlaying)
+void ScreenDataManager::addScreens(const std::vector<ScreenData*> screensToAdd,
+                                    const std::string& nameForNewScreens,
+                                    const std::vector<std::pair<std::string, int>>& parentDrawers)
+{
+    if (nodeMap.count(nameForNewScreens)==1) {
+        cerr << "You tried to add new screens with an already-taken name" << endl;
+        throw badScreenAddException();
+    }
+    // build the new Node and add it to the nodeMap
+    std::vector<std::string> newVector(3, " ");
+    Node newNode(nameForNewScreens, "thisdoesntmatter", newVector, screensToAdd);
+    std::pair<std::string, Node> newPair(nameForNewScreens, newNode);
+    nodeMap.insert(newPair);
+
+    // update the parent nodes
+    for (size_t x = 0; x < parentDrawers.size(); ++x) {
+        if ( parentDrawers.at(x).second < 1 || parentDrawers.at(x).second > 3 ) {
+            cerr << "You tried to add new screens to an invalid drawer number" << endl;
+            throw invalidDrawerIndexException();
+        }
+        if (nodeMap.count(parentDrawers.at(x).first)==0) {
+            cerr << "You tried to add new screens to a non-existent drawer" << endl;
+            throw badScreenAddException();
+        }
+        nodeMap.at(parentDrawers.at(x).first).childKeys.at(parentDrawers.at(x).second-1) = nameForNewScreens;
+    }
+}
+
+void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandlerInterface& iohandler, Observer& observer) {
     int spot = getCurrentScreenData().getCurrentCursorSpot();
     switch (spot) {
         case 17:
@@ -179,7 +223,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandler& iohandler, Observ
             currentNode->goLeftInScreens();
 
             // hook up new page to observed
-            currentNode->getCurrentScreenData().doLoadPageBehavior();
+            currentNode->getCurrentScreenData().doLoadPageBehavior(iohandler);
             currentNode->getCurrentScreenData().observed->registerObserver(&observer);
 
             // print the new page
@@ -202,7 +246,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandler& iohandler, Observ
             currentNode = &nodeMap.at(keyForCurrentNode);
 
             // hook up new page to observed
-            currentNode->getCurrentScreenData().doLoadPageBehavior();
+            currentNode->getCurrentScreenData().doLoadPageBehavior(iohandler);
             currentNode->getCurrentScreenData().observed->registerObserver(&observer);
 
             // print the new page
@@ -222,7 +266,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandler& iohandler, Observ
             currentNode->goRightInScreens();
 
             // hook up new page to observed
-            currentNode->getCurrentScreenData().doLoadPageBehavior();
+            currentNode->getCurrentScreenData().doLoadPageBehavior(iohandler);
             currentNode->getCurrentScreenData().observed->registerObserver(&observer);
 
             // print the new page
@@ -245,7 +289,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandler& iohandler, Observ
             currentNode = &nodeMap.at(keyForCurrentNode);
 
             // hook up new page to observed
-            currentNode->getCurrentScreenData().doLoadPageBehavior();
+            currentNode->getCurrentScreenData().doLoadPageBehavior(iohandler);
             currentNode->getCurrentScreenData().observed->registerObserver(&observer);
 
             // print the new page
@@ -268,7 +312,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandler& iohandler, Observ
             currentNode = &nodeMap.at(keyForCurrentNode);
 
             // hook up new page to observed
-            currentNode->getCurrentScreenData().doLoadPageBehavior();
+            currentNode->getCurrentScreenData().doLoadPageBehavior(iohandler);
             currentNode->getCurrentScreenData().observed->registerObserver(&observer);
 
             // print the new page
@@ -291,7 +335,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandler& iohandler, Observ
             currentNode = &nodeMap.at(keyForCurrentNode);
 
             // hook up new page to observed
-            currentNode->getCurrentScreenData().doLoadPageBehavior();
+            currentNode->getCurrentScreenData().doLoadPageBehavior(iohandler);
             currentNode->getCurrentScreenData().observed->registerObserver(&observer);
 
             // print the new page
@@ -300,7 +344,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandler& iohandler, Observ
         }
         default:
             // otherwise we're not navigating - we're doing stuff with content of ScreenData
-            getCurrentScreenData().doCurSpotSelectBehavior();
+            getCurrentScreenData().doCurSpotSelectBehavior(iohandler);
     }
 }
 

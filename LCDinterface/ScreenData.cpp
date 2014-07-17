@@ -50,7 +50,7 @@ void ScreenData::swap(ScreenData& other) {
     std::swap(cursorSpots, other.cursorSpots);
 }
 
-void ScreenData::doLoadPageBehavior() {
+void ScreenData::doLoadPageBehavior(IOHandlerInterface& ioh) {
     currentSpotIndex = 0;
     pageChangeBehavior->loadPage(*observed);
 }
@@ -59,7 +59,7 @@ void ScreenData::doLeavePageBehavior() {
     pageChangeBehavior->leavePage(*observed);
 }
 
-void ScreenData::printPage(IOHandler& ioh) {
+void ScreenData::printPage(IOHandlerInterface& ioh) {
     lineSetupBehavior->renderPage(ioh);
 }
 
@@ -67,13 +67,23 @@ LineSetupBehavior* ScreenData::getLineSetupBehavior() {
     return lineSetupBehavior;
 }
 
-void ScreenData::moveCursorLeft(IOHandler& ioh) {
-    currentSpotIndex = (currentSpotIndex+1)%cursorSpots.size();
+void ScreenData::moveCursorLeft(IOHandlerInterface& ioh) {
+    if (currentSpotIndex == cursorSpots.size() - 1) {
+        currentSpotIndex = 0;
+    }
+    else {
+        ++currentSpotIndex;
+    }
     ioh.moveCursor(cursorSpots.at(currentSpotIndex));
 }
 
-void ScreenData::moveCursorRight(IOHandler& ioh) {
-    currentSpotIndex = (currentSpotIndex-1)%cursorSpots.size();
+void ScreenData::moveCursorRight(IOHandlerInterface& ioh) {
+    if (currentSpotIndex == 0) {
+        currentSpotIndex = cursorSpots.size() - 1;
+    }
+    else {
+        --currentSpotIndex;
+    }
     ioh.moveCursor(cursorSpots.at(currentSpotIndex));
 }
 
@@ -87,8 +97,8 @@ void ScreenData::addCursorSpot(int spot) {
 }
 
 // override this to add new cursor-able spots to a screen (not 17, 18, 19, 39, 59, or 79)
-void ScreenData::doCurSpotSelectBehavior() {
-    /// ADD MODEL OBJECT INTERACTIONS HERE
+void ScreenData::doCurSpotSelectBehavior(IOHandlerInterface& ioh) {
+    /// add model object interactions here, by subclassing
 }
 
 

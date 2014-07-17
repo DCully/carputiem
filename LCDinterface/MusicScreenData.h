@@ -23,6 +23,7 @@ class ArtistOrAlbumScreenData: public ScreenData
         virtual void swap(ArtistOrAlbumScreenData& other);
         void doLeavePageBehavior();
     private:
+        /// these need to be artist names or artist+album names
         std::string keyForDrawer1;
         std::string keyForDrawer2;
         std::string keyForDrawer3;
@@ -32,16 +33,16 @@ class SongListScreenData: public ScreenData
 {
     public:
         SongListScreenData(MusicManager* obs, PageChangeBehavior* pcb, SongListLineSetupBehavior* lsb);
-        void doLoadPageBehavior();
+        void doLoadPageBehavior(IOHandlerInterface& ioh);
         void doLeavePageBehavior();
-        void doCurSpotSelectBehavior();
+        void doCurSpotSelectBehavior(IOHandlerInterface& ioh);
         SongListScreenData(const SongListScreenData& other);
         SongListScreenData& operator=(SongListScreenData other);
         virtual void swap(SongListScreenData& other);
         virtual SongListScreenData* clone() const {return new SongListScreenData(*this); }
     private:
-        std::pair<std::map<std::string, Song>::iterator, std::map<std::string, Song>::iterator> songSelectionEndpointIterators;
-        std::map<std::string, Song>::iterator currentSongIterator;
+        std::vector<std::string> songList;
+        size_t curSongIndex;
 };
 
 class NowPlayingScreenData: public ScreenData
@@ -52,8 +53,8 @@ class NowPlayingScreenData: public ScreenData
         NowPlayingScreenData& operator=(NowPlayingScreenData other);
         virtual void swap(NowPlayingScreenData& other);
         virtual NowPlayingScreenData* clone() const {return new NowPlayingScreenData(*this); }
-        void doLoadPageBehavior();
-        void doCurSpotSelectBehavior();
+        void doLoadPageBehavior(IOHandlerInterface& ioh);
+        void doCurSpotSelectBehavior(IOHandlerInterface& ioh);
 };
 
 #endif

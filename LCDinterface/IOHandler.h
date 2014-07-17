@@ -9,6 +9,7 @@
 #include <vector>
 #include <queue>
 #include "ScrollPacket.h"
+#include "mockIOHandler.h" // this is the generalized IOHandler interface
 
 class IOHandlerSetupException : public std::exception
 {
@@ -18,7 +19,7 @@ class IOHandlerSetupException : public std::exception
     }
 };
 
-class IOHandler
+class IOHandler: public IOHandlerInterface
 {
 
     public:

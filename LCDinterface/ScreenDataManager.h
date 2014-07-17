@@ -6,7 +6,7 @@
 #include "ScreenDataDrawer.h"
 #include "../Observer.h"
 #include "../Observable.h"
-#include "IOHandler.h"
+#include "mockIOHandler.h"
 #include <stack>
 #include <iostream>
 
@@ -64,17 +64,22 @@ class ScreenDataManager : public Observable
 
         // for Controller
         ScreenData& getCurrentScreenData();
-        void doCurrentSpotSelectBehavior(IOHandler& iohandler, Observer& observer);
+        void doCurrentSpotSelectBehavior(IOHandlerInterface& iohandler, Observer& observer);
 
         // these provide the interface for ScreenData factories
         void addScreens(ScreenDataDrawer* screensToAdd,
                                     const std::string& nameOfNewDrawer,
                                     const std::string& nameOfDrawerToAddTo,
                                     int lineOfDrawerToAddTo);
+        // this is to add a screen with just one parent
         void addScreens(const std::vector<ScreenData*> screenToAdd,
                                     const std::string& nameOfNewDrawer,
                                     const std::string& nameOfDrawerToAddTo,
                                     int lineOfDrawerToAddTo);
+        // this is to add a screen with a bunch of parent drawers
+        void addScreens(const std::vector<ScreenData*> screenToAdd,
+                                    const std::string& nameForNewScreens,
+                                    const std::vector<std::pair<std::string, int>>& parentDrawers);
     private:
         // for moving around in the tree
         void goUp();

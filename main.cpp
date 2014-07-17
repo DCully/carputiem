@@ -10,46 +10,34 @@
 
 Controller * controller;
 
+using namespace std;
+
 int main(void)
 {
 
     controller = new Controller();
     while (true) {}
+
 /*
     MusicManager* mm = new MusicManager("/home/david/Music/from linnett/");
 
-    std::set<std::string> artists = mm->getArtistSet();
-    std::set<std::string> albums = mm->getAlbumSet();
+    std::set<std::string> artistKeys = mm->getArtistSet();
 
-    // print the artist and album lists
-    std::cerr<<"ARTISTS:"<<std::endl;
-    for (auto it = artists.begin(); it != artists.end(); ++it) {
-        std::cerr << "    " << *it << std::endl;
-    }
-    std::cerr << std::endl << "ALBUMS:"<< std::endl;
-    for (auto it = albums.begin(); it != albums.end(); ++it) {
-        std::cerr << "    " << *it << std::endl;
-    }
-    std::cerr<< std::endl << std::endl;
+    mm->setCurrentSongSubset(*artistKeys.begin());
 
-    auto it = artists.begin();
-    ++it;
-    ++it;
-    ++it;
+    std::vector<std::string> songs = mm->getCurrentSongSubset();
 
-    std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> song = mm->getSongsByArtistFromAlbum(*it);
-    std::map<std::string, Song>::iterator firstSong = song.first;
-    mm->playSong(firstSong);
-    for (int x = 0; x < 6; ++x) {
-        sleep(2);
-        std::cerr<<"Current Song: " << mm->getCurrentSong().trackName << std::endl;
-        mm->increaseVolume();
-    }
-    for (int x = 0; x < 6; ++x) {
-        sleep(2);
-        std::cerr<<"Current Song: " << mm->getCurrentSong().trackName << std::endl;
-        mm->decreaseVolume();
-    }
+    mm->playSong(songs.at(0));
+
+    sleep(5);
+    mm->togglePause();
+    sleep(5);
+    mm->togglePause();
+
+    cout << mm->getCurrentSong().trackName << endl;
+
+
+    while (true) {}
 */
     return 0;
 }

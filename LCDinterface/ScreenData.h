@@ -1,7 +1,7 @@
 #ifndef SCREENDATA_H
 #define SCREENDATA_H
 
-#include "IOHandler.h"
+#include "mockIOHandler.h"
 #include "../Observable.h"
 #include <vector>
 #include <string>
@@ -25,14 +25,14 @@ class ScreenData {
         virtual void swap(ScreenData& other);
         virtual ScreenData* clone() const {return new ScreenData(*this);}
         int getCurrentCursorSpot();
-        void moveCursorLeft(IOHandler& ioh);
-        void moveCursorRight(IOHandler& ioh);
-        virtual void doCurSpotSelectBehavior();
-        virtual void doLoadPageBehavior(); // these two virtual == an ugly, iffy hack to make the music screens work properly
+        void moveCursorLeft(IOHandlerInterface& ioh);
+        void moveCursorRight(IOHandlerInterface& ioh);
+        virtual void doCurSpotSelectBehavior(IOHandlerInterface& ioh);
+        virtual void doLoadPageBehavior(IOHandlerInterface& ioh); // these two virtual == an ugly, iffy hack to make the music screens work properly
         virtual void doLeavePageBehavior(); // refactoring to use an "intent" system like Android would solve this more extensibly
         void addCursorSpot(int newSpot);
         LineSetupBehavior* getLineSetupBehavior();
-        void printPage(IOHandler& ioh);
+        void printPage(IOHandlerInterface& ioh);
         Observable* observed;
     protected:
         // set in constructor

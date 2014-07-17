@@ -4,10 +4,6 @@
 #include "../ObdSerial/ObdFactory.h"
 #include "../MusicPlayer/MusicScreenFactory.h"
 
-/// MusicManager tested OK - volume problems
-/// ScreenDataFactory builds ok
-/// TODO: test if MusicScreenDatas work correctly
-
 using std::cerr;
 using std::endl;
 
@@ -19,9 +15,8 @@ Controller::Controller() {
     * wiringPi library, which terminates the program internally,
     * so for testing without the Pi, I comment that line out.
     */
-    cerr <<"starting screen interface" <<endl;
     iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7);
-    cerr<<"finished screen interface"<<endl;
+    //iohandler = new IOHandlerInterface();
     try{
         // set up OBD stuff
         obd = new ObdSerial("/dev/ttyUSB0");
@@ -36,9 +31,7 @@ Controller::Controller() {
     }
     try {
         // set up music playing stuff
-        cerr<<"starting music manager"<<endl;
-        musicManager = new MusicManager("/home/david/Music/from linnett/");
-        cerr<<"building music screens"<<endl;
+        musicManager = new MusicManager("/home/pi/music");
         MusicScreenFactory msf;
         msf.buildScreens(*musicManager, screenDataManager);
 

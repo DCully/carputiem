@@ -2,6 +2,7 @@
 #define CONTROLLER_H
 
 #include <vector>
+#include "mockIOHandler.h"
 #include "IOHandler.h"
 #include "../Observable.h"
 #include "ScreenData.h"
@@ -41,7 +42,7 @@ class Controller : public Observer
         void rightButPressed();
         void selectPressed();
 
-        IOHandler* iohandler;
+        IOHandlerInterface* iohandler;
         MusicManager* musicManager;
         ScreenDataManager screenDataManager;
         ObdSerial * obd;

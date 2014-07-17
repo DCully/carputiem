@@ -49,13 +49,13 @@ void ArtistOrAlbumScreenData::doLeavePageBehavior()
     // if leaving by 39, 59, or 79, update the current song subset in the MusicManager
     switch (cursorSpots.at(currentSpotIndex)) {
         case (39):
-            ((MusicManager*) observed)->setCurrentlyBrowsedSongSubset(keyForDrawer1);
+            ((MusicManager*) observed)->setCurrentSongSubset(keyForDrawer1);
             break;
         case (59):
-            ((MusicManager*) observed)->setCurrentlyBrowsedSongSubset(keyForDrawer2);
+            ((MusicManager*) observed)->setCurrentSongSubset(keyForDrawer2);
             break;
         case (79):
-            ((MusicManager*) observed)->setCurrentlyBrowsedSongSubset(keyForDrawer3);
+            ((MusicManager*) observed)->setCurrentSongSubset(keyForDrawer3);
             break;
     }
 }
@@ -69,42 +69,46 @@ SongListScreenData::SongListScreenData(MusicManager* obs, PageChangeBehavior* pc
     cursorSpots.push_back(41);
     cursorSpots.push_back(58);
     cursorSpots.push_back(79);
+    curSongIndex = 0;
 }
 
-void SongListScreenData::doLoadPageBehavior()
+void SongListScreenData::doLoadPageBehavior(IOHandlerInterface& ioh)
 {
-    // getCurrentSongSubset
-    songSelectionEndpointIterators = ((MusicManager*) observed)->getCurrentlyBrowsedSongSubset();
-    currentSongIterator = songSelectionEndpointIterators.first;
-    ((SongListLineSetupBehavior*)lineSetupBehavior)->updateSong(currentSongIterator->second.trackName);
-    ((SongListLineSetupBehavior*)lineSetupBehavior)->artistAlbum = currentSongIterator->second.artistName;
+    /// songList should be a vector of complete keys
+    songList = ((MusicManager*) observed)->getCurrentSongSubset();
+    curSongIndex = 0;
+
+    /// pass song from current key to LSB
+    Song song = ((MusicManager*) observed)->getSongByKey(songList.at(curSongIndex));
+    ((SongListLineSetupBehavior*) lineSetupBehavior)->updateSong(song, ioh);
 }
 
 void SongListScreenData::doLeavePageBehavior()
 {
-    // if leaving via "play" button, change what song is playing as you leave...
+    /// if leaving via "play" button, change what song is playing as you leave...
     if (cursorSpots.at(currentSpotIndex) == 79) {
-        ((MusicManager*) observed)->playSong(currentSongIterator);
+        ((MusicManager*) observed)->playSong(songList.at(curSongIndex));
     }
 }
 
-void SongListScreenData::doCurSpotSelectBehavior() {
+void SongListScreenData::doCurSpotSelectBehavior(IOHandlerInterface& ioh) {
     if (cursorSpots.at(currentSpotIndex) == 41) {
         // update the currentSongSelectionIterator
-        if (--currentSongIterator != songSelectionEndpointIterators.first) {
-            --currentSongIterator;
+        if (curSongIndex > 0) {
+            --curSongIndex;
         }
-        // call LSBs update line with name of the previous song
-        ((SongListLineSetupBehavior*)lineSetupBehavior)->updateSong(currentSongIterator->second.trackName);
+        // call LSBs update line with name of the song
+        ((SongListLineSetupBehavior*)lineSetupBehavior)->updateSong( ((MusicManager*) observed)->getSongByKey(songList.at(curSongIndex)), ioh );
 
     }
     else if (cursorSpots.at(currentSpotIndex) == 58) {
         // update the currentSongSelectionIterator
-        if (++currentSongIterator != songSelectionEndpointIterators.second) {
-            ++currentSongIterator;
+        // update the currentSongSelectionIterator
+        if (curSongIndex < songList.size() - 1) {
+            ++curSongIndex;
         }
         // call LSBs update line with name of the next song
-        ((SongListLineSetupBehavior*)lineSetupBehavior)->updateSong(currentSongIterator->second.trackName);
+        ((SongListLineSetupBehavior*)lineSetupBehavior)->updateSong( ((MusicManager*) observed)->getSongByKey(songList.at(curSongIndex)), ioh );
     }
 }
 
@@ -114,8 +118,8 @@ SongListScreenData::SongListScreenData(const SongListScreenData& other) {
     lineSetupBehavior = other.lineSetupBehavior->clone();
     cursorSpots = other.cursorSpots;
     currentSpotIndex = other.currentSpotIndex;
-    songSelectionEndpointIterators = other.songSelectionEndpointIterators;
-    currentSongIterator = other.currentSongIterator;
+    songList = other.songList;
+    curSongIndex = other.curSongIndex;
 }
 
 SongListScreenData& SongListScreenData::operator=(SongListScreenData other) {
@@ -130,8 +134,8 @@ void SongListScreenData::swap(SongListScreenData& other) {
     std::swap(pageChangeBehavior, other.pageChangeBehavior);
     std::swap(currentSpotIndex, other.currentSpotIndex);
     std::swap(cursorSpots, other.cursorSpots);
-    std::swap(songSelectionEndpointIterators, other.songSelectionEndpointIterators);
-    std::swap(currentSongIterator, other.currentSongIterator);
+    std::swap(songList, other.songList);
+    std::swap(curSongIndex, other.curSongIndex);
 }
 
 ///------------NowPlayingScreenData--------------
@@ -144,13 +148,14 @@ NowPlayingScreenData::NowPlayingScreenData(MusicManager* obs, PageChangeBehavior
     cursorSpots.push_back(78); // volume down
 }
 
-void NowPlayingScreenData::doLoadPageBehavior()
+void NowPlayingScreenData::doLoadPageBehavior(IOHandlerInterface& ioh)
 {
     // getCurrentSong and pass it to the LSB
-    ((NowPlayingLineSetupBehavior*)lineSetupBehavior)->currentSong = ((MusicManager*) observed)->getCurrentSong();
+    Song song = ((MusicManager*) observed)->getCurrentSong();
+    ((NowPlayingLineSetupBehavior*)lineSetupBehavior)->currentSong = song;
 }
 
-void NowPlayingScreenData::doCurSpotSelectBehavior() {
+void NowPlayingScreenData::doCurSpotSelectBehavior(IOHandlerInterface& ioh) {
     int spot = cursorSpots.at(currentSpotIndex);
     switch (spot) {
         case 68:

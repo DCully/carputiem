@@ -42,12 +42,10 @@ MusicManager::MusicManager(const std::string& musicDirPath)
 
     std::unique_lock<std::mutex> slock(songLock, std::defer_lock);
     slock.lock();
-    currentSongIterator = songMap.begin();
+    keyForCurrentSong = songMap.begin()->first;
     slock.unlock();
 
     std::thread(&MusicManager::play, this).detach();
-    keyForCurrentlyBrowsedSongSubset = "";
-
 }
 
 MusicManager::~MusicManager()
@@ -60,61 +58,6 @@ MusicManager::~MusicManager()
        only try to access member variables when it has the runLock, and will
        check the boolean variable "run" whenever it reacquires runLock
     */
-}
-
-void MusicManager::setCurrentSongIterator(const std::map<std::string, Song>::iterator it) {
-
-    MusicObserverPacket packet;
-    std::unique_lock<std::mutex> locker(songLock, std::defer_lock);
-    locker.lock();
-    currentSongIterator = it;
-    locker.unlock();
-    packet.currentSong = currentSongIterator->second;
-    notifyObservers(packet);
-}
-
-const std::map<std::string, Song>::iterator MusicManager::getCurrentSongIterator() {
-    std::lock_guard<std::mutex> lock(songLock);
-    return currentSongIterator;
-}
-
-Song MusicManager::getCurrentSong() {
-    std::lock_guard<std::mutex> lock(songLock);
-    return (currentSongIterator->second);
-}
-
-std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> MusicManager::getSongsByArtist(const std::string& artistName)
-{
-    // sorted by ASCII values - " " is really low, and "~" is very high
-    std::string lowkey = artistName;
-    std::string highkey = artistName;
-    while (lowkey.size() < 200) {
-        lowkey.append(" ");
-        highkey.append("~");
-    }
-    std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> myPair(songMap.lower_bound(lowkey), songMap.upper_bound(highkey));
-    return myPair;
-}
-
-std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> MusicManager::getSongsByArtistFromAlbum(const std::string& artistName, const std::string& albumName)
-{
-    // sorted by ASCII values - " " is really low, and "~" is very high
-    std::string lowkey = artistName+albumName;
-    std::string highkey = artistName+albumName;
-    while (lowkey.size() < 200) {
-        lowkey.append(" ");
-        highkey.append("~");
-    }
-    std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> myPair(songMap.lower_bound(lowkey), songMap.upper_bound(highkey));
-    return myPair;
-}
-
-void MusicManager::playSong(const std::map<std::string, Song>::iterator it) {
-    // lock the queue first, so the song thread doesnt read between iterator change and queue push
-    std::lock_guard<std::mutex> lock(queueLock);
-    std::lock_guard<std::mutex> lock2(songLock);
-    currentSongIterator = it; // swap currentSong iterator to point to the new song
-    taskQueue.push(1); // 1 changes the song
 }
 
 void MusicManager::increaseVolume() {
@@ -132,88 +75,87 @@ void MusicManager::togglePause() {
     taskQueue.push(2);
 }
 
-// setup function
-void MusicManager::addSong(const std::string& songFileName) {
-
-    // get metadata from the file using taglib
-    std::string artistName, albumName, trackName;
-    int trackNumber;
-
-    /// why does it have to spam std::cerr with it's invalid sample rate reports?!
-    TagLib::FileRef f( (musicDirectory + songFileName).c_str() );
-
-    // data sanity
-    if (f.tag()->artist() == TagLib::String::null) {
-        std::cerr << "Song file named: " << songFileName << " had empty artist tag - not indexing it" << std::endl;
-        return;
-    }
-
-    if (f.tag()->album() == TagLib::String::null) {
-        std::cerr << "Song file named: " << songFileName << " had empty album tag - not indexing it" << std::endl;
-        return;
-    }
-
-    if (f.tag()->title() == TagLib::String::null) {
-        std::cerr << "Song file named: " << songFileName << " had empty title tag - not indexing it" << std::endl;
-        return;
-    }
-
-    artistName = f.tag()->artist().to8Bit(true);
-    albumName = f.tag()->album().to8Bit(true);
-    trackNumber = f.tag()->track(); // returns 0 if tag is empty
-    trackName = f.tag()->title().to8Bit(true);
-
-    // add new song to songMap with appropriate key
-    Song song(songFileName, artistName, albumName, trackNumber, trackName);
-    std::string key = "";
-    key.append(artistName);
-    key.append(albumName);
-
-    //this makes sure track 10 doesnt preced track 1 in songMap
-    std::string trackNumAsString = std::to_string(trackNumber);
-    for (size_t x = 0; x < 3-trackNumAsString.size(); ++x) {
-        key.append("0");
-    }
-    key.append(trackNumAsString);
-
-    key.append(trackName);
-    std::pair<std::string, Song> newPair1(key, song);
-
-    songMap.insert(newPair1);
-
-    // add artist/album pair to set
-    artistSet.insert(artistName);
-    albumSet.insert(albumName);
-}
-
 std::set<std::string> MusicManager::getArtistSet() {
     return artistSet;
 }
 
-std::set<std::string> MusicManager::getAlbumSet() {
+std::set<std::pair<std::string, std::string>> MusicManager::getAlbumSet() {
     return albumSet;
 }
 
-void MusicManager::setCurrentlyBrowsedSongSubset(const std::string& key) {
-    keyForCurrentlyBrowsedSongSubset = key;
+void MusicManager::playSong(const std::string& songKey) {
+    // lock the queue first, so the song thread doesnt read between iterator change and queue push
+    std::lock_guard<std::mutex> lock(queueLock);
+    std::lock_guard<std::mutex> lock2(songLock);
+    if (songMap.count(songKey)==1) {
+        keyForCurrentSong = songKey;
+    }
+    else {
+        std::cerr << "You tried to play a song with an invalid key" << std::endl;
+    }
+    taskQueue.push(1); // 1 changes the song
 }
 
-std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> MusicManager::getCurrentlyBrowsedSongSubset() {
-    std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> myPair(songMap.lower_bound(keyForCurrentlyBrowsedSongSubset), songMap.upper_bound(keyForCurrentlyBrowsedSongSubset));
-    return myPair;
+Song MusicManager::getCurrentSong() {
+    std::lock_guard<std::mutex> lock(songLock);
+    return (songMap.at(keyForCurrentSong));
 }
 
-std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> MusicManager::getSongsByArtistFromAlbum(const std::string& artistPlusAlbumName) {
-    std::string lowkey = artistPlusAlbumName;
-    std::string highkey = artistPlusAlbumName;
+void MusicManager::setCurrentSongSubset(const std::string& ArtOrArtAndAlbName) {
+    // the user passes in a key that's the artist or artist+album name
+    currentSongSubsetKey = ArtOrArtAndAlbName;
+}
 
+std::vector<std::string> MusicManager::getCurrentSongSubset()
+{
+    return getSongKeysByPartialKey(currentSongSubsetKey);
+}
+
+std::vector<std::string> MusicManager::getSongKeysByArtist(const std::string& input)
+{
+    return getSongKeysByPartialKey(input);
+}
+
+std::vector<std::string> MusicManager::getSongKeysByAlbum(const std::string& input)
+{
+    return getSongKeysByPartialKey(input);
+}
+
+Song MusicManager::getSongByKey(const std::string& key)
+{
+    std::lock_guard<std::mutex> lock(songLock);
+    if (songMap.count(key) > 0) {
+        return songMap.at(key);
+    }
+    else {
+        throw MusicManagerInvalidKeyException();
+    }
+}
+
+/// ---------------------- private functions below -----------------------
+
+std::vector<std::string> MusicManager::getSongKeysByPartialKey(const std::string& input)
+{
     // sorted by ASCII values - " " is really low, and "~" is very high
+    std::string lowkey = input;
+    std::string highkey = input;
     while (lowkey.size() < 200) {
         lowkey.append(" ");
         highkey.append("~");
     }
-    std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> myPair(songMap.lower_bound(lowkey), songMap.upper_bound(highkey));
-    return myPair;
+
+    std::vector<std::string> result;
+
+    std::lock_guard<std::mutex> lock(songLock);
+    auto it = songMap.lower_bound(lowkey);
+    auto it2 = songMap.upper_bound(highkey);
+    while (it != it2) {
+        result.push_back(it->first);
+        ++it;
+    }
+
+    return result;
+
 }
 
 std::vector<std::string> MusicManager::getRawMp3FileNames() {
@@ -256,7 +198,6 @@ void MusicManager::play() {
 
     // for use with thread coordination
     std::string songPath;
-    std::map<std::string, Song>::iterator songPlaying;
     std::unique_lock<std::mutex> rlock(runLock, std::defer_lock);
     std::unique_lock<std::mutex> qlock(queueLock, std::defer_lock);
     std::unique_lock<std::mutex> slock(songLock, std::defer_lock);
@@ -283,11 +224,30 @@ void MusicManager::play() {
     volatile bool increaseVolume = false;
     volatile bool decreaseVolume = false;
     volatile bool songPathChanged = false;
+    volatile bool theLastSongFinished = false;
 
     while (true) {
         rlock.lock(); // lock this when accessing stuff from object
         if (run==false) {
             return;
+        }
+
+        if (theLastSongFinished) {
+            theLastSongFinished = false;
+
+            // update song info in object...
+            incrementCurrentSong();
+
+            // and then in this thread
+            songPathChanged = true;
+            paused = false;
+            songPath = musicDirPath;
+            Song newSong = getCurrentSong();
+            songPath.append(newSong.fileName);
+
+            MusicObserverPacket packet;
+            packet.currentSong = newSong;
+            notifyObservers(packet);
         }
 
         qlock.lock();
@@ -305,8 +265,7 @@ void MusicManager::play() {
                     songPathChanged = true;
                     paused = false;
                     songPath = musicDirPath;
-                    songPlaying = getCurrentSongIterator();
-                    songPath.append(songPlaying->second.fileName);
+                    songPath.append(getCurrentSong().fileName);
                     break;
                 }
                 case 2:
@@ -376,16 +335,7 @@ void MusicManager::play() {
                 continue;
             }
         }
-        slock.lock();
-        ++songPlaying;
-        if (songPlaying==songMap.end()) {
-            songPlaying = songMap.begin();
-        }
-        songPath = musicDirPath;
-        songPath.append(songPlaying->second.fileName);
-        songPathChanged = true;
-        currentSongIterator = songPlaying;
-        slock.unlock();
+        theLastSongFinished = true;
     } // end of main work loop
 
     // clean up before returning from worker thread
@@ -396,3 +346,70 @@ void MusicManager::play() {
     ao_shutdown();
 }
 
+void MusicManager::incrementCurrentSong() {
+    std::lock_guard<std::mutex> lock(songLock);
+    std::map<std::string, Song>::iterator it = songMap.upper_bound(keyForCurrentSong);
+    if (it == songMap.end()) {
+        keyForCurrentSong = songMap.begin()->first;
+    }
+    else {
+        keyForCurrentSong = it->first;
+    }
+}
+
+// setup function
+void MusicManager::addSong(const std::string& songFileName) {
+
+    // get metadata from the file using taglib
+    std::string artistName, albumName, trackName;
+    int trackNumber;
+
+    /// why does it have to spam std::cerr with it's invalid sample rate reports?!
+    TagLib::FileRef f( (musicDirectory + songFileName).c_str() );
+
+    // data sanity
+    if (f.tag()->artist() == TagLib::String::null) {
+        std::cerr << "Song file named: " << songFileName << " had empty artist tag - not indexing it" << std::endl;
+        return;
+    }
+
+    if (f.tag()->album() == TagLib::String::null) {
+        std::cerr << "Song file named: " << songFileName << " had empty album tag - not indexing it" << std::endl;
+        return;
+    }
+
+    if (f.tag()->title() == TagLib::String::null) {
+        std::cerr << "Song file named: " << songFileName << " had empty title tag - not indexing it" << std::endl;
+        return;
+    }
+
+    artistName = f.tag()->artist().to8Bit(true);
+    albumName = f.tag()->album().to8Bit(true);
+    trackNumber = f.tag()->track(); // returns 0 if tag is empty
+    trackName = f.tag()->title().to8Bit(true);
+
+    // add new song to songMap with appropriate key
+    Song song(songFileName, artistName, albumName, trackNumber, trackName);
+    std::string key = "";
+    key.append(artistName);
+    key.append(albumName);
+
+    //this makes sure track 10 doesnt preced track 1 in songMap
+    std::string trackNumAsString = std::to_string(trackNumber);
+    for (size_t x = 0; x < 3-trackNumAsString.size(); ++x) {
+        key.append("0");
+    }
+    key.append(trackNumAsString);
+
+    key.append(trackName);
+    std::pair<std::string, Song> newPair1(key, song);
+
+    songMap.insert(newPair1);
+
+    // add artist to set
+    artistSet.insert(artistName);
+
+    // add album/artist+album to set
+    std::pair<std::string, std::string> newPair(albumName, artistName+albumName);
+    albumSet.insert(newPair);
+}

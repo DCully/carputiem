@@ -12,6 +12,14 @@
 #include <queue>
 #include <mutex>
 
+class MusicManagerInvalidKeyException : public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "Music Manager tried to access a song from the SongMap with an invalid key";
+    }
+};
+
 class MusicManagerDirReadException : public std::exception
 {
     virtual const char* what() const throw()
@@ -28,38 +36,85 @@ class MusicManager : public Observable
         MusicManager(const std::string& musicDirPath);
         ~MusicManager();
 
-        // for user's controls
-        void playSong(const std::map<std::string, Song>::iterator it);
+
+        /*  These functions have fairly obvious jobs, right?
+        */
         void togglePause();
         void increaseVolume();
         void decreaseVolume();
-        Song getCurrentSong();
-        void setCurrentlyBrowsedSongSubset(const std::string& key);
-        std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> getCurrentlyBrowsedSongSubset();
 
-        // for MusicScreenDatas to provide content
-        // these two functions return iterator pairs to the beginning and ending of the range requested
-        // just increment the iterators to traverse through the songs from that artist or album
-        std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> getSongsByArtist(const std::string& artistName);
-        std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> getSongsByArtistFromAlbum(const std::string& artistName, const std::string& albumName);
-        std::pair<const std::map<std::string, Song>::iterator, const std::map<std::string, Song>::iterator> getSongsByArtistFromAlbum(const std::string& artistPlusAlbumName);
+
+        /* This is how you play songs. Be sure to use the other member
+        *  functions to get valid keys!
+        */
+        void playSong(const std::string& songKey);
+
+
+        /*
+        *  These functions each return a vector of pairs of songs and their keys.
+        */
+        std::vector<std::string> getSongKeysByArtist(const std::string& artistName);
+        std::vector<std::string> getSongKeysByAlbum(const std::string& artistPlusAlbumName);
+
+
+        /* This returns all the artist names.
+        */
         std::set<std::string> getArtistSet();
-        std::set<std::string> getAlbumSet();
+
+        /* This one returns a pair: first == album name, second == artist+album
+        */
+        std::set<std::pair<std::string, std::string>> getAlbumSet();
+
+
+        /* This is for the Now Playing screen.
+        */
+        Song getCurrentSong();
+
+        /* This is for getting a song that's not currently playing (like for Song List screen).
+        */
+        Song getSongByKey(const std::string& key);
+
+        /* This function returns the keys of the currently browsed
+        *  subset of songs. It's meant to be used by the Song List screen.
+        */
+        std::vector<std::string> getCurrentSongSubset();
+
+
+        /* This function takes an artist name or an artist+album name as input.
+        *  From that, it updates what will be returned by getCurrentSongSubset.
+        */
+        void setCurrentSongSubset(const std::string& ArtOrArtAndAlbName);
+
+
     private:
-        std::string keyForCurrentlyBrowsedSongSubset;
+        // these are for the current song subset implementation
+        std::string currentSongSubsetKey;
+
+        // this is the path passed into the ctor
         const std::string musicDirectory;
-        void addSong(const std::string& songFileName); // inserts new song into songMap, with correct key
+
+        // inserts new song into songMap, with correct key
+        void addSong(const std::string& songFileName);
+
+        // reads in all ".mp3"-ending file names
         std::vector<std::string> getRawMp3FileNames();
+
+        // this is how all the Songs are stored
         std::map<std::string, Song> songMap; // key: artistName+albumName+trackNumber+trackName
+
+        // these are updated by each addSong call
         std::set<std::string> artistSet;
-        std::set<std::string> albumSet;
+        std::set<std::pair<std::string, std::string>> albumSet;
 
-        std::mutex songLock; // needed for EVERY access to currentSongIterator
-        std::map<std::string, Song>::iterator currentSongIterator;
-        const std::map<std::string, Song>::iterator getCurrentSongIterator();
-        void setCurrentSongIterator(const std::map<std::string, Song>::iterator it);
+        std::mutex songLock; // needed for EVERY access to songMap
+        std::string keyForCurrentSong;
 
-        void play(); // separate thread
+        // play thread uses this to autoplay next song
+        void incrementCurrentSong();
+
+        // separate worker thread to actually play music
+        void play();
+
         /*
         * communication with the worker thread is coordinated through the taskQueue
         * 1 - change song
@@ -69,11 +124,14 @@ class MusicManager : public Observable
         * if there's nothing in the queue when it's checked, continue as before
         **/
         std::priority_queue<int> taskQueue;
-        std::mutex queueLock;
+        std::mutex queueLock; // needed for EVERY access to taskQueue
 
         // these are for killing the thread gracefully
         static std::mutex runLock;
         static volatile bool run;
+
+        // helper function for getting key vectors
+        std::vector<std::string> getSongKeysByPartialKey(const std::string& input);
 };
 
 #endif // MUSICMANAGER_H

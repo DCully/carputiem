@@ -7,7 +7,7 @@
 #include <iostream>
 
 
-class IOHandler;
+class IOHandlerInterface;
 
 class LineSetupBehavior
 {
@@ -21,8 +21,8 @@ class LineSetupBehavior
         virtual LineSetupBehavior* clone() const { return new LineSetupBehavior(*this); }
 
         // called by controller
-        virtual void renderPage(IOHandler& iohandler);
-        virtual void updateLine(IOHandler* iohandler, ObserverPacket& obsp);
+        virtual void renderPage(IOHandlerInterface& iohandler);
+        virtual void updateLine(IOHandlerInterface* iohandler, ObserverPacket& obsp);
     protected:
         std::string titleLine;
 
@@ -33,7 +33,7 @@ class LineSetupBehavior
         std::vector<std::string> textForScrollingLines;
 };
 
-class LabeledLineSetupBehavior: public virtual LineSetupBehavior
+class LabeledLineSetupBehavior: public LineSetupBehavior
 {
     public:
         LabeledLineSetupBehavior();
@@ -46,8 +46,8 @@ class LabeledLineSetupBehavior: public virtual LineSetupBehavior
 
         LabeledLineSetupBehavior* clone() const { return new LabeledLineSetupBehavior(*this); }
 
-        void renderPage(IOHandler* iohandler);
-        void updateLine(IOHandler* iohandler, ObserverPacket& obsp);
+        void renderPage(IOHandlerInterface* iohandler);
+        void updateLine(IOHandlerInterface* iohandler, ObserverPacket& obsp);
     protected:
         std::vector<size_t> endSpotsForScrollingLines;
         std::vector<size_t> spaceForDataOnLines;
@@ -60,7 +60,7 @@ class DrawerLineSetupBehavior : public LineSetupBehavior
     public:
         DrawerLineSetupBehavior(std::vector<std::string> textForLines,
                                 const std::string& pageTitle);
-        void updateLine(IOHandler* iohandler, ObserverPacket& obsp);
+        void updateLine(IOHandlerInterface* iohandler, ObserverPacket& obsp);
         DrawerLineSetupBehavior* clone() const { return new DrawerLineSetupBehavior(*this); }
 };
 
@@ -69,27 +69,25 @@ class DrawerLineSetupBehavior : public LineSetupBehavior
 class SongListLineSetupBehavior : public LineSetupBehavior
 {
     public:
-        std::string artistAlbum;
-        std::string songName;
-        void renderPage(IOHandler& iohandler); // prints a blank for the song name
-        void updateSong(const std::string& song); // fills in the song name (called by ScreenData)
-        void updateLine(IOHandler* ioh, ObserverPacket& obsp) {/* don't do anything */}
+        void renderPage(IOHandlerInterface& iohandler); // prints a blank for the song name
+        void updateSong(const Song& song, IOHandlerInterface& ioh); // fills in the song name (called by ScreenData)
+        void updateLine(IOHandlerInterface* ioh, ObserverPacket& obsp) {/* don't do anything */}
         virtual SongListLineSetupBehavior* clone() const { return new SongListLineSetupBehavior(*this); }
     private:
-        IOHandler* iohandler;
-        void printSong();
+        Song currentSong;
+        void printSong(IOHandlerInterface& ioh);
 };
 
 class NowPlayingLineSetupBehavior: public LineSetupBehavior
 {
     public:
         Song currentSong;
-        void renderPage(IOHandler& iohandler);
-        void updateLine(IOHandler* ioh, MusicObserverPacket& obsp); // print a new song
+        void renderPage(IOHandlerInterface& iohandler);
+        void updateLine(IOHandlerInterface* ioh, ObserverPacket& obsp); // print a new song
         virtual NowPlayingLineSetupBehavior* clone() const { return new NowPlayingLineSetupBehavior(*this); }
     private:
-        void printTitleAndControls(IOHandler& ioh);
-        void printArtistAndSong(IOHandler& ioh);
+        void printTitleAndControls(IOHandlerInterface& ioh);
+        void printArtistAndSong(IOHandlerInterface& ioh);
 };
 
 #endif
