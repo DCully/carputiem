@@ -55,7 +55,7 @@ void LineSetupBehavior::renderPage(IOHandlerInterface& iohandler) {
     }
 }
 
-void LineSetupBehavior::updateLine(IOHandlerInterface* iohandler, ObserverPacket& obsp) {
+void LineSetupBehavior::updateLine(IOHandlerInterface& iohandler, ObserverPacket& obsp) {
 
     std::string info = ( (ObdObserverPacket*) &obsp)->information;
     int lineNum = ( (ObdObserverPacket*) &obsp)->linenum;
@@ -84,7 +84,7 @@ void LineSetupBehavior::updateLine(IOHandlerInterface* iohandler, ObserverPacket
         }
     }
 
-    renderPage(*iohandler);
+    renderPage(iohandler);
 
 }
 
@@ -156,10 +156,10 @@ LabeledLineSetupBehavior::LabeledLineSetupBehavior(
     }
 }
 
-void LabeledLineSetupBehavior::renderPage(IOHandlerInterface* iohandler) {
+void LabeledLineSetupBehavior::renderPage(IOHandlerInterface& iohandler) {
 
-    iohandler->stopAllScrollingText();
-    iohandler->printToLCD(titleLine, 0);
+    iohandler.stopAllScrollingText();
+    iohandler.printToLCD(titleLine, 0);
 
     std::vector<size_t> ss;
     for (size_t i = 0; i < scrollingLineNums.size(); i++) {
@@ -167,23 +167,23 @@ void LabeledLineSetupBehavior::renderPage(IOHandlerInterface* iohandler) {
     }
 
     // this should start all the scrolling pieces at once
-    iohandler->startScrollText(ss, endSpotsForScrollingLines, scrollingLineNums, textForScrollingLines);
+    iohandler.startScrollText(ss, endSpotsForScrollingLines, scrollingLineNums, textForScrollingLines);
 
     /// these two loops should only ever execute a total of three times - distribution changes per instance
     // prints the remaining text on the scrolling lines
     for (size_t x = 0; x < scrollingLineNums.size(); x++) {
-        iohandler->printToLCD(textForStaticLines.at(scrollingLineNums.at(x)-1), 20*scrollingLineNums.at(x) + endSpotsForScrollingLines.at(x));
+        iohandler.printToLCD(textForStaticLines.at(scrollingLineNums.at(x)-1), 20*scrollingLineNums.at(x) + endSpotsForScrollingLines.at(x));
     }
 
     // prints the entire line for the non-scrolling lines
     for (size_t y = 0; y < staticLineNums.size(); y++) {
-        iohandler->printToLCD(textForStaticLines.at(staticLineNums.at(y)-1), 20*staticLineNums.at(y));
+        iohandler.printToLCD(textForStaticLines.at(staticLineNums.at(y)-1), 20*staticLineNums.at(y));
     }
 
 }
 
 
-void LabeledLineSetupBehavior::updateLine(IOHandlerInterface* iohandler, ObserverPacket& obsp) {
+void LabeledLineSetupBehavior::updateLine(IOHandlerInterface& iohandler, ObserverPacket& obsp) {
 
     std::string info = ( (ObdObserverPacket*) &obsp)->information;
     int lineNum = ( (ObdObserverPacket*) &obsp)->linenum;
@@ -205,7 +205,7 @@ void LabeledLineSetupBehavior::updateLine(IOHandlerInterface* iohandler, Observe
     output.append(info);
 
     // prints info to updateSpotForLine(lineNum), and deals with update spots being right justified
-    iohandler->printToLCD(output, 20*lineNum + updateSpotsForLines.at(lineNum-1));
+    iohandler.printToLCD(output, 20*lineNum + updateSpotsForLines.at(lineNum-1));
 
 }
 
@@ -240,7 +240,7 @@ DrawerLineSetupBehavior::DrawerLineSetupBehavior(std::vector<std::string> drawer
     staticLineNums.push_back(3);
 }
 
-void DrawerLineSetupBehavior::updateLine(IOHandlerInterface* ioh, ObserverPacket& obsp) {
+void DrawerLineSetupBehavior::updateLine(IOHandlerInterface& ioh, ObserverPacket& obsp) {
     // dont do anything
 }
 
@@ -249,10 +249,15 @@ void DrawerLineSetupBehavior::updateLine(IOHandlerInterface* ioh, ObserverPacket
 
 void SongListLineSetupBehavior::renderPage(IOHandlerInterface& ioh)
 {
+    ioh.stopAllScrollingText();
+
     // title line
     ioh.printToLCD("Song List        <^>", 0);
     // print the artist from the current song
-    ioh.printToLCD(currentSong.artistName.substr(0, 20), 20);
+    while (currentSong.artistName.size() < 20) {
+        currentSong.artistName.append(" ");
+    }
+    ioh.printToLCD(currentSong.artistName, 20);
     // print blank for line 2 (for individual song
     ioh.printToLCD(" <                > ", 40);
     // controls line
@@ -294,15 +299,16 @@ void SongListLineSetupBehavior::printSong(IOHandlerInterface& ioh)
 
 void NowPlayingLineSetupBehavior::renderPage(IOHandlerInterface& ioh)
 {
+    ioh.stopAllScrollingText();
     printTitleAndControls(ioh);
     printArtistAndSong(ioh);
 }
 
-void NowPlayingLineSetupBehavior::updateLine(IOHandlerInterface* ioh, ObserverPacket& obsp)
+void NowPlayingLineSetupBehavior::updateLine(IOHandlerInterface& ioh, ObserverPacket& obsp)
 {
     // observer packet should have a new song in it
     currentSong = ( (MusicObserverPacket*) &obsp)->currentSong;
-    printArtistAndSong(*ioh);
+    printArtistAndSong(ioh);
 }
 
 void NowPlayingLineSetupBehavior::printTitleAndControls(IOHandlerInterface& ioh)

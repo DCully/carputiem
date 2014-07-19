@@ -25,8 +25,8 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
     if (LCDHandle<0) {
         throw IOHandlerSetupException();
     }
-    wiringPiISR(bleft, INT_EDGE_FALLING, &Controller::staticLeftButPressed);
-    wiringPiISR(bright, INT_EDGE_FALLING, &Controller::staticRightButPressed);
+    wiringPiISR(bleft, INT_EDGE_FALLING, &Controller::staticRightButPressed);
+    wiringPiISR(bright, INT_EDGE_FALLING, &Controller::staticLeftButPressed);
     wiringPiISR(bsel, INT_EDGE_FALLING, &Controller::staticSelectPressed);
 
     lcdCursor(LCDHandle, 1); // experiment with cursor turned off
@@ -144,30 +144,27 @@ void IOHandler::textScroller()
         // the rest of the loop runs independently of the object
 
         if (packet.sleep==true) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            continue;
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
+        else {
+            if (newPacket) {
+                newPacket = false;
 
-        if (newPacket) {
-            newPacket = false;
-
-            // process the new packet
-            for (size_t x = 0; x < packet.msgsForLines.size(); x++) {
-                packet.msgsForLines.at(x).append(" ");
-                packet.msgsForLines.at(x).append(packet.msgsForLines.at(x));
-                toScreen.push_back(packet.msgsForLines.at(x).substr(0, packet.stopSpots.at(x) - packet.startSpots.at(x) + 1));
-                spotInMsgs.push_back(0);
+                // process the new packet
+                for (size_t x = 0; x < packet.msgsForLines.size(); x++) {
+                    packet.msgsForLines.at(x).append(" ");
+                    packet.msgsForLines.at(x).append(packet.msgsForLines.at(x));
+                    toScreen.push_back(packet.msgsForLines.at(x).substr(0, packet.stopSpots.at(x) - packet.startSpots.at(x) + 1));
+                    spotInMsgs.push_back(0);
+                }
             }
-        }
-
-        // this part scrolls the current packet
-        if (millis() - lastPrint > 250) {
+            // this part scrolls the current packet
             for (size_t i = 0; i < packet.msgsForLines.size(); i++) {
                 printToLCD(toScreen.at(i), packet.lineNums.at(i)*20 + packet.startSpots.at(i));
                 spotInMsgs.at(i) = (spotInMsgs.at(i) + 1) % (packet.msgsForLines.at(i).size()/2);
                 toScreen.at(i) = packet.msgsForLines.at(i).substr(spotInMsgs.at(i), toScreen.at(i).size());
             }
-            lastPrint = millis();
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
     }
 }

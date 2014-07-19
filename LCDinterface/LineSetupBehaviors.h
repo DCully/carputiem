@@ -22,7 +22,7 @@ class LineSetupBehavior
 
         // called by controller
         virtual void renderPage(IOHandlerInterface& iohandler);
-        virtual void updateLine(IOHandlerInterface* iohandler, ObserverPacket& obsp);
+        virtual void updateLine(IOHandlerInterface& iohandler, ObserverPacket& obsp);
     protected:
         std::string titleLine;
 
@@ -46,8 +46,8 @@ class LabeledLineSetupBehavior: public LineSetupBehavior
 
         LabeledLineSetupBehavior* clone() const { return new LabeledLineSetupBehavior(*this); }
 
-        void renderPage(IOHandlerInterface* iohandler);
-        void updateLine(IOHandlerInterface* iohandler, ObserverPacket& obsp);
+        void renderPage(IOHandlerInterface& iohandler);
+        void updateLine(IOHandlerInterface& iohandler, ObserverPacket& obsp);
     protected:
         std::vector<size_t> endSpotsForScrollingLines;
         std::vector<size_t> spaceForDataOnLines;
@@ -60,7 +60,7 @@ class DrawerLineSetupBehavior : public LineSetupBehavior
     public:
         DrawerLineSetupBehavior(std::vector<std::string> textForLines,
                                 const std::string& pageTitle);
-        void updateLine(IOHandlerInterface* iohandler, ObserverPacket& obsp);
+        void updateLine(IOHandlerInterface& iohandler, ObserverPacket& obsp);
         DrawerLineSetupBehavior* clone() const { return new DrawerLineSetupBehavior(*this); }
 };
 
@@ -71,7 +71,7 @@ class SongListLineSetupBehavior : public LineSetupBehavior
     public:
         void renderPage(IOHandlerInterface& iohandler); // prints a blank for the song name
         void updateSong(const Song& song, IOHandlerInterface& ioh); // fills in the song name (called by ScreenData)
-        void updateLine(IOHandlerInterface* ioh, ObserverPacket& obsp) {/* don't do anything */}
+        void updateLine(IOHandlerInterface& ioh, ObserverPacket& obsp) {/* don't do anything */}
         virtual SongListLineSetupBehavior* clone() const { return new SongListLineSetupBehavior(*this); }
     private:
         Song currentSong;
@@ -83,7 +83,7 @@ class NowPlayingLineSetupBehavior: public LineSetupBehavior
     public:
         Song currentSong;
         void renderPage(IOHandlerInterface& iohandler);
-        void updateLine(IOHandlerInterface* ioh, ObserverPacket& obsp); // print a new song
+        void updateLine(IOHandlerInterface& ioh, ObserverPacket& obsp); // print a new song
         virtual NowPlayingLineSetupBehavior* clone() const { return new NowPlayingLineSetupBehavior(*this); }
     private:
         void printTitleAndControls(IOHandlerInterface& ioh);

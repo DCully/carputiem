@@ -228,6 +228,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandlerInterface& iohandle
 
             // print the new page
             currentNode->getCurrentScreenData().printPage(iohandler);
+            iohandler.moveCursor(currentNode->getCurrentScreenData().getCurrentCursorSpot());
             break;
         }
         case 18:
@@ -251,6 +252,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandlerInterface& iohandle
 
             // print the new page
             currentNode->getCurrentScreenData().printPage(iohandler);
+            iohandler.moveCursor(currentNode->getCurrentScreenData().getCurrentCursorSpot());
             break;
         }
         case 19:
@@ -271,6 +273,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandlerInterface& iohandle
 
             // print the new page
             currentNode->getCurrentScreenData().printPage(iohandler);
+            iohandler.moveCursor(currentNode->getCurrentScreenData().getCurrentCursorSpot());
             break;
         }
         case 39:
@@ -294,6 +297,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandlerInterface& iohandle
 
             // print the new page
             currentNode->getCurrentScreenData().printPage(iohandler);
+            iohandler.moveCursor(currentNode->getCurrentScreenData().getCurrentCursorSpot());
             break;
         }
         case 59:
@@ -317,6 +321,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandlerInterface& iohandle
 
             // print the new page
             currentNode->getCurrentScreenData().printPage(iohandler);
+            iohandler.moveCursor(currentNode->getCurrentScreenData().getCurrentCursorSpot());
             break;
         }
         case 79:
@@ -340,6 +345,7 @@ void ScreenDataManager::doCurrentSpotSelectBehavior(IOHandlerInterface& iohandle
 
             // print the new page
             currentNode->getCurrentScreenData().printPage(iohandler);
+            iohandler.moveCursor(currentNode->getCurrentScreenData().getCurrentCursorSpot());
             break;
         }
         default:
