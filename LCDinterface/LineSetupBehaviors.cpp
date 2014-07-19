@@ -337,6 +337,7 @@ void NowPlayingLineSetupBehavior::printArtistAndSong(IOHandlerInterface& ioh)
         ioh.printToLCD(artistAndAlbum, 20);
     }
     else {
+
         // scrolling case
         startspots.push_back(0);
         stopspots.push_back(19);
@@ -362,6 +363,12 @@ void NowPlayingLineSetupBehavior::printArtistAndSong(IOHandlerInterface& ioh)
     }
 
     if (scrollingtext.size() > 0) {
+        std::cerr << "STARTING NEW SCROLL FOR LPLSB: " << std::endl;
+        for (size_t x = 0; x < scrollingtext.size(); ++x) {
+            std::cerr << "    start: " << startspots.at(x);
+            std::cerr << "    stop: " << stopspots.at(x);
+            std::cerr << "    text: " << scrollingtext.at(x) << "    on line " << linenums.at(x) << std::endl;
+        }
         ioh.startScrollText(startspots, stopspots, linenums, scrollingtext);
     }
 }

@@ -15,8 +15,8 @@ Controller::Controller() {
     * wiringPi library, which terminates the program internally,
     * so for testing without the Pi, I comment that line out.
     */
-    //iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7);
-    iohandler = new IOHandlerInterface();
+    iohandler = new IOHandler(8,9,12,11,10,0,1,2,3,4,5,6,7);
+    //iohandler = new IOHandlerInterface();
     try{
         // set up OBD stuff
         obd = new ObdSerial("/dev/ttyUSB0");
@@ -31,7 +31,7 @@ Controller::Controller() {
     }
     try {
         // set up music playing stuff
-        musicManager = new MusicManager("/home/david/Music/from linnett/");
+        musicManager = new MusicManager("/home/pi/music/");
         MusicScreenFactory msf;
         msf.buildScreens(*musicManager, screenDataManager);
 

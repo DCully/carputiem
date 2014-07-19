@@ -2,28 +2,48 @@ Carputer software for my Raspberry Pi
 =======================================
 
 This is a multithreaded program which turns my Raspberry Pi into a customized
-car computer. It uses a character LCD and three buttons to create a drawer-like
-user interface which provides mp3-playing and real-time OBD-data-reading 
-functionality. I wrote it using C++, with some features (threading) from C++11.
+car computer. It uses a character LCD and three buttons to create a user 
+interface, and it plays mp3 files and reads data from my ECU in real time. 
 
-Carputiem talks to the car through a USB cable attached to the car's OBD-II port 
-and outputs sound to the audio out jack on the Pi.  
+The code is organized in an MVC design pattern.
 
-Setup notes
+View
 ----------------------
-Carputiem is written to work on my specific Pi setup - thus, it needs to be run
+The "view" functionalities are encapsulated in the IOHandler class, which I 
+mocked out in order to test without the Pi. This relies on the wiringPi library 
+to communicate with the character LCD and GPIO pins.
+
+Controller
+---------------------
+The "controller" layer (class Controller) recieves inputs from the View layer but
+delegates much of its functionalities to class ScreenDataManager, which handles
+which "ScreenData" object (which screen) the user is currently viewing. 
+
+These ScreenData objects, in turn, group together the details of where the cursor 
+is and what a given screen is supposed to do. It contains the individual implementations
+for selecting any given cursor-able position on its screen.
+
+Model
+--------------------
+The model basically consists of two sections. 
+
+The first is the ObdSerial class, which manages communication to the car 
+via a serial port. 
+
+The second is the MusicManager class, which reads in the songs and their info
+from a given directory and provides the interface for playing songs, pausing 
+songs, and finding your way through the library. 
+
+Notes
+----------------------
+Carputiem is written to work on my specific Pi setup, so it needs to be run
 in Linux on a Raspberry Pi with buttons and a 4x20 character LCD display 
 connected to the appropriate GPIO pins.
 
-To talk to the car, the Pi needs a USB cable such as this one: 
+To talk to the car, the I used a USB cable not unlike this one: 
 http://www.amazon.com/ELM327-OBDII-CAN-BUS-Diagnostic-Scanner/dp/B005FEGP7I/ref=sr_1_1?s=automotive&ie=UTF8&qid=1404856981&sr=1-1
 
-To make the magic happen when your engine turns over, plug your Pi's power 
-cable into your car, and add the filepath of this program's executable to 
-/etc/rc.local. The Pi will turn on when the car does, and this program will 
-run with root privileges automatically at startup.
-
-Some of this code is adapted from OBDGPSLogger, available at:
+Some of this code (a table of OBD functions) is adapted from OBDGPSLogger:
 https://icculus.org/obdgpslogger/
 
 Dependencies
@@ -33,12 +53,6 @@ mpg123.org
 https://www.xiph.org/ao/
 www.wiringPi.com
 
-Potential improvements
-------------------------
-
-1. improve the exception situation
-
-2. add diagnostic trouble code (DTC) reading functionality
 
 
 

@@ -331,9 +331,16 @@ void MusicManager::play() {
                 continue;
             }
             else {
-                ao_play(aodevice, (char*) buffer, bytesDone);
+                if (ao_play(aodevice, (char*) buffer, bytesDone) == 0) {
+                    std::cerr << "Something went wrong with ao_play call" << std::endl;
+                    theLastSongFinished = true;
+                }
                 continue;
             }
+        }
+        else {
+            std::cerr << "Somethin went wrong with the mpg123_read call" << std::endl;
+
         }
         theLastSongFinished = true;
     } // end of main work loop

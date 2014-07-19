@@ -150,6 +150,13 @@ void IOHandler::textScroller()
             if (newPacket) {
                 newPacket = false;
 
+                std::cerr << "NEW PACKET IN SCROLLTHREAD: " << std::endl;
+                for (size_t x = 0; x < packet.msgsForLines.size(); ++x) {
+                    std::cerr << "    text: " << packet.msgsForLines.at(x) << std::endl;
+                    std::cerr << "    from: " << packet.startSpots.at(x) << "    to: " << packet.stopSpots.at(x) << std::endl;
+                    std::cerr << "    on line: " << packet.lineNums.at(x) << std::endl;
+                }
+
                 // process the new packet
                 for (size_t x = 0; x < packet.msgsForLines.size(); x++) {
                     packet.msgsForLines.at(x).append(" ");
@@ -158,6 +165,11 @@ void IOHandler::textScroller()
                     spotInMsgs.push_back(0);
                 }
             }
+            /*  toScreen contains the doubled-length message to be printed in the given range.
+            *   So, this needs to print a substring of the required length (size of the scrolling area)
+            *   at the beginning of the scrolling area. The substring to take is incremented by one, every
+            *   time we print, so as to simulate scrolling.
+            */
             // this part scrolls the current packet
             for (size_t i = 0; i < packet.msgsForLines.size(); i++) {
                 printToLCD(toScreen.at(i), packet.lineNums.at(i)*20 + packet.startSpots.at(i));
