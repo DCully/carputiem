@@ -4,6 +4,9 @@
 #include "LineSetupBehaviors.h"
 #include "ScreenData.h"
 
+/*
+* This class makes a "drawer"-like interface for a given screen.
+*/
 class ScreenDataDrawer : public ScreenData
 {
     public:

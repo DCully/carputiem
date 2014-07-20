@@ -13,6 +13,12 @@ typedef void (*SelectBehaviorFunc)(void);
 
 class LineSetupBehavior;
 
+/*
+* This class provides the functionality for one "page" in the user interface.
+* It delegates printing to the screen to its LineSetupBehavior objects.
+* ScreenData objects keep track of where the user's cursor is, and how to interact
+* with the model for a given Observable object.
+*/
 class ScreenData {
 
     public:

@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 
+/*
+* Plain old data bundle for pushing into IOHandler's thread queue.
+*/
 class ScrollPacket
 {
     public:

@@ -143,7 +143,7 @@ void IOHandler::textScroller()
         // the rest of the loop runs independently of the object
 
         if (packet.sleep==true) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            std::this_thread::sleep_for(std::chrono::milliseconds(220));
         }
         else {
             if (newPacket) {
@@ -159,13 +159,6 @@ void IOHandler::textScroller()
                     toScreen.push_back(packet.msgsForLines.at(x).substr(0, packet.stopSpots.at(x) - packet.startSpots.at(x) + 1));
                     spotInMsgs.push_back(0);
                 }
-
-                std::cerr << "NEW PACKET IN SCROLLTHREAD (POST-FORMAT): " << std::endl;
-                for (size_t x = 0; x < packet.msgsForLines.size(); ++x) {
-                    std::cerr << "    text: " << packet.msgsForLines.at(x) << std::endl;
-                    std::cerr << "    from: " << packet.startSpots.at(x) << "    to: " << packet.stopSpots.at(x) << std::endl;
-                    std::cerr << "    on line: " << packet.lineNums.at(x) << std::endl;
-                }
             }
             /*  toScreen contains the doubled-length message to be printed in the given range.
             *   So, this needs to print a substring of the required length (size of the scrolling area)
@@ -178,7 +171,7 @@ void IOHandler::textScroller()
                 spotInMsgs.at(i) = (spotInMsgs.at(i) + 1) % (packet.msgsForLines.at(i).size()/2);
                 toScreen.at(i) = packet.msgsForLines.at(i).substr(spotInMsgs.at(i), toScreen.at(i).size());
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            std::this_thread::sleep_for(std::chrono::milliseconds(220));
         }
     }
 }

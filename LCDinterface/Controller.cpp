@@ -90,13 +90,8 @@ void Controller::selectPressed() {
     }
 }
 
-ScreenData& Controller::getCurPage() {
-    return screenDataManager.getCurrentScreenData();
-}
-
-
 void Controller::update(ObserverPacket& obsp) {
     // forward the generic packet to the current page (the pages know what to cast it to)
-    getCurPage().getLineSetupBehavior()->updateLine(*iohandler, obsp);
+    screenDataManager.getCurrentScreenData().getLineSetupBehavior()->updateLine(*iohandler, obsp);
 }
 

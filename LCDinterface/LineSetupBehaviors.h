@@ -9,6 +9,11 @@
 
 class IOHandlerInterface;
 
+/*
+* These classes encapsulate printing to the LCD for ScreenData objects.
+* Every ScreenData owns one.
+*/
+
 class LineSetupBehavior
 {
 

@@ -1,8 +1,11 @@
 #ifndef OBDCOMMS_H
 #define OBDCOMMS_H
 #include "obdconvs.h"
-// flagrantly stolen from obdgpslogger (I added some more data and removed a column)
 
+/*
+* I stole this code from OBDGPSlogger (linked in readme).
+* I did add several lines to this struct, though.
+*/
 struct obdservicecmd {
 	unsigned int cmdid; ///< Command ID [eg 0C == engine rpm]
 	int bytes_returned; ///< Number of bytes we expect back for this item. Elm327 optimisation [0 == no optimisation]

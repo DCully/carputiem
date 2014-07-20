@@ -6,8 +6,10 @@
 #include "../MusicPlayer/MusicManager.h"
 #include <iostream>
 
-// this family of classes encapsulates page changing behavior for all screendata objects
-// gets passed to ScreenData objects on their construction
+/*
+* this family of classes encapsulates page changing behavior for all screendata objects
+* gets passed to ScreenData objects on their construction
+*/
 class PageChangeBehavior {
     public:
         virtual ~PageChangeBehavior() {}

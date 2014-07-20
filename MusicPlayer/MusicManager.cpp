@@ -242,6 +242,7 @@ void MusicManager::play() {
             incrementCurrentSong();
 
             // and then in this thread
+            ao_close(aodevice);
             songPathChanged = true;
             paused = false;
             songPath = musicDirPath;
@@ -337,7 +338,6 @@ void MusicManager::play() {
 
             if (ao_play(aodevice, (char*) buffer, bytesDone) == 0) {
                 std::cerr << "Something went wrong with ao_play call" << std::endl;
-                ao_close(aodevice);
                 theLastSongFinished = true;
             }
             continue;

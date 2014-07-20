@@ -13,8 +13,11 @@
 class IOHandler;
 
 /*
-*   At this point, this object basically delegates all actual "controller"
-*   duties to the screenDataManager object it owns.
+* This is the Controller object for the program - although at this point,
+* it delegates a lot of functionality to the ScreenDataManager.
+* This class owns all model objects - the MusicManager and ObdSerial.
+* It also owns the ScreenDataManager, and recieves updates from model objects,
+* which it routes to the current ScreenData manager for processing.
 */
 class Controller : public Observer
 {
@@ -24,17 +27,35 @@ class Controller : public Observer
         ~Controller();
 
         /*
-         * ISO-C++ forbids non-static member function pointers... so I did this, in order
+         * ISO-C++ forbids non-static member function pointers... so I made static functions,
          * to route calls from interrupts to member functions through the global pointer.
          * this definitely does not feel not very well designed. It does work, though.
         */
+
+        /*
+        * Function to catch the left button's interrupt.
+        */
         static void staticLeftButPressed();
+
+        /*
+        * Function to catch the right button's interrupt.
+        */
         static void staticRightButPressed();
+
+        /*
+        * Function to catch the select button's interrupt.
+        */
         static void staticSelectPressed();
 
-        ScreenData& getCurPage();
+        /*
+        * for smoothing inputs
+        */
         unsigned int lastPush;
 
+        /*
+        * This is the function that model objects (Observables) call.
+        * The Controller object routes it to the current ScreenData's LineSetupBehavior.
+        */
         void update(ObserverPacket& obsp);
 
     private:

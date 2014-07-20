@@ -5,12 +5,15 @@
 #include "../MusicPlayer/MusicManager.h"
 #include "ScreenDataDrawer.h"
 
+/*
+* These classes provide specific implementations for the Music screens.
+* In addition to requiring specific LineSetupBehaviors, they also provide some
+* additional implementations when loading a page and/or selecting a spot, to
+* let the user interact with the music model layer.
+*/
 class ArtistOrAlbumScreenData: public ScreenData
 {
     public:
-        /// the drawerkeys are the artists or artist+albums that each drawer leads to
-        /// when leaving the page via drawer, this object will tell the MusicManager
-        /// which artist or artist+album you've gone down to
         ArtistOrAlbumScreenData(MusicManager* obs,
                                 PageChangeBehavior* pcb,
                                 DrawerLineSetupBehavior* lsb,
@@ -23,7 +26,7 @@ class ArtistOrAlbumScreenData: public ScreenData
         virtual void swap(ArtistOrAlbumScreenData& other);
         void doLeavePageBehavior();
     private:
-        /// these need to be artist names or artist+album names
+        // these need to be artist names or artist+album names
         std::string keyForDrawer1;
         std::string keyForDrawer2;
         std::string keyForDrawer3;

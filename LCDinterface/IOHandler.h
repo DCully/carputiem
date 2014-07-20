@@ -19,6 +19,10 @@ class IOHandlerSetupException : public std::exception
     }
 };
 
+/*
+*  This is the class that encapsulates printing to the LCD and reading inputs
+*  from the left, right, and select buttons. Its parent class mocks its interface, for testing.
+*/
 class IOHandler: public IOHandlerInterface
 {
 
@@ -26,24 +30,40 @@ class IOHandler: public IOHandlerInterface
         IOHandler() {}
         ~IOHandler();
 
+        /*
+        * The first three inputs are the wiringPi GPIO pin numbers for the
+        * left, right, and select button interrupts, respectively.
+        * The remaining inputs (d0 - d7) are the pin numbers for the LCD.
+        */
         IOHandler(const int& bleft, const int& bright, const int& bsel,                       //these are the three button GPIO pin numbers,
                   const int& rs, const int& strb, const int& d0, const int& d1,               //and these are the GPIO pins for the LCD (8-bit)
                   const int& d2, const int& d3, const int& d4, const int& d5,
                   const int& d6, const int& d7);
 
-        // changes user's cursor position
+        /*
+        * Changes user's cursor position.
+        * PrintToLCD calls this independently of the user - as such,
+        * the cursor is locked by a mutex.
+        */
         void moveCursor(const int& spot);
 
-        // prints static text to LCD
+        /*
+        *  Prints static text to LCD at spot%80.
+        */
         void printToLCD(const std::string& text, const int& spot);
 
-        // starts up to 3 scrolling lines
+        /*
+        *  This starts up to 3 scrolling lines.
+        *  Stop other scrolling things first!
+        */
         void startScrollText(const std::vector<size_t>& startSpots,
             const std::vector<size_t>& stopSpots,
             const std::vector<size_t>& lineNums,
             const std::vector<std::string>& msg);
 
-        // flips scrolling thread to paused
+        /*
+        * This flips scrolling thread to paused (not scrolling anything).
+        */
         void stopAllScrollingText();
 
     private:

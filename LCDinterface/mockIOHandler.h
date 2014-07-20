@@ -5,10 +5,9 @@
 #include <vector>
 
 /* This is the generalized IOHandler interface
-*  All these virtual functions are overriden by the IOHandler class
-*  This parent class prints everything to console instead of a character LCD
-*  This way, we can test everything but new IOHandler implementations without a Pi
-*  Attach keyboard inputs to simulate GPIO button presses?
+*  All these virtual functions are overriden by the IOHandler class.
+*  This parent class prints everything to console instead of a character LCD.
+*  This way, we can test everything but new IOHandler implementations without a Pi.
 */
 class IOHandlerInterface
 {

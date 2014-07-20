@@ -26,10 +26,12 @@ class badScreenAddException : public std::exception
     }
 };
 
-/// Nodes own their ScreenData objects (on the heap)
-/// since I subclass ScreenData a lot, and the details are determined
-/// at runtime, this is necessary, in order to avoid object slicing
-/// of the ScreenData objects in the STL containers
+/*
+* Nodes own their ScreenData objects (on the heap)
+* since I subclass ScreenData a lot, and the details are determined
+* at runtime, this is necessary, in order to avoid object slicing
+* of the ScreenData objects in the STL containers
+*/
 class Node
 {
     public:
@@ -54,8 +56,13 @@ class Node
         std::vector<ScreenData*> screens;
 };
 
-/// This implementation would be a lot better if screens could communicate
-/// their "intents" to one another when one screen launched another... like in Android
+/*
+* This class is owned by the Controller and maintains a graph of ScreenData objects
+* which represent the interconnected screens of the user interface.
+* The various addScreen functions are for adding screens during setup - after that,
+* This class basically exists to manage Select button presses and return the current
+* ScreenData object when asked to.
+*/
 class ScreenDataManager : public Observable
 {
     public:

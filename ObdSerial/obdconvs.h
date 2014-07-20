@@ -32,6 +32,10 @@ extern "C" {
 
 // http://en.wikipedia.org/wiki/Table_of_OBD-II_Codes
 
+/*
+* I stole this stuff from OBDGPSlogger (linked in readme).
+*/
+
 /// All obd conversion functions adhere to this
 typedef float (*OBDConvFunc)(unsigned int A, unsigned int B, unsigned int C, unsigned int D);
 

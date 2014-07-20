@@ -17,6 +17,12 @@ class badSerialConnectException : public std::exception
     }
 };
 
+/*
+* This class sets up a serial connection with the car and polls for
+* whatever data you tell it to, looping through a list of PIDs that you
+* set with setFocusedPIDs. The numbers in the inputted vector must correspond
+* to supported PIDs as indexed by the obdcmds_mode1 struct.
+*/
 class ObdSerial: public Observable
 {
     public:

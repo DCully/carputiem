@@ -3,8 +3,9 @@
 
 #include "Observer.h"
 #include <vector>
-//"subject" interface, implemented by all model objects
-
+/*
+* "subject" interface, implemented by all model objects
+*/
 class Observable
 {
     public:

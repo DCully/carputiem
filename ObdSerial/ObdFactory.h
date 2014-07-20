@@ -4,6 +4,10 @@
 #include "../LCDinterface/ScreenData.h"
 #include "../ObdSerial/ObdSerial.h"
 
+/*
+* This builds screens from a given list of supported OBD commands (PIDs) into the inputted
+* "pages" vector.
+*/
 class ObdFactory
 {
     public:

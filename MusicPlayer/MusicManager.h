@@ -28,7 +28,9 @@ class MusicManagerDirReadException : public std::exception
     }
 };
 
-// this is the model object for music-playing model objects
+/*
+* This is the model object for music-playing model objects.
+*/
 class MusicManager : public Observable
 {
     public:
@@ -37,14 +39,16 @@ class MusicManager : public Observable
         ~MusicManager();
 
 
-        /*  These functions have fairly obvious jobs, right?
+        /*
+        * These functions have fairly obvious jobs, right?
         */
         void togglePause();
         void increaseVolume();
         void decreaseVolume();
 
 
-        /* This is how you play songs. Be sure to use the other member
+        /*
+        *  This is how you play songs. Be sure to use the other member
         *  functions to get valid keys!
         */
         void playSong(const std::string& songKey);
@@ -57,52 +61,71 @@ class MusicManager : public Observable
         std::vector<std::string> getSongKeysByAlbum(const std::string& artistPlusAlbumName);
 
 
-        /* This returns all the artist names.
+        /*
+        * This returns all the artist names.
         */
         std::set<std::string> getArtistSet();
 
-        /* This one returns a pair: first == album name, second == artist+album
+        /*
+        * This one returns a pair: first == album name, second == artist+album
         */
         std::set<std::pair<std::string, std::string>> getAlbumSet();
 
 
-        /* This is for the Now Playing screen.
+        /*
+        * This is for the Now Playing screen.
         */
         Song getCurrentSong();
 
-        /* This is for getting a song that's not currently playing (like for Song List screen).
+        /*
+        * This is for getting a song that's not currently playing (like for Song List screen).
         */
         Song getSongByKey(const std::string& key);
 
-        /* This function returns the keys of the currently browsed
+        /*
+        * This function returns the keys of the currently browsed
         *  subset of songs. It's meant to be used by the Song List screen.
         */
         std::vector<std::string> getCurrentSongSubset();
 
 
-        /* This function takes an artist name or an artist+album name as input.
+        /*
+        * This function takes an artist name or an artist+album name as input.
         *  From that, it updates what will be returned by getCurrentSongSubset.
         */
         void setCurrentSongSubset(const std::string& ArtOrArtAndAlbName);
 
 
     private:
-        // these are for the current song subset implementation
+        /*
+        * these are for the current song subset implementation
+        */
         std::string currentSongSubsetKey;
 
-        // this is the path passed into the ctor
+        /* this is the path passed into the ctor
+        *
+        */
         const std::string musicDirectory;
 
-        // inserts new song into songMap, with correct key
+        /*
+        * inserts new song into songMap, with correct key
+        */
         void addSong(const std::string& songFileName);
 
-        // reads in all ".mp3"-ending file names
+        /*
+        * reads in all ".mp3"-ending file names
+        */
         std::vector<std::string> getRawMp3FileNames();
 
-        // this is how all the Songs are stored
-        std::map<std::string, Song> songMap; // key: artistName+albumName+trackNumber+trackName
+        /*
+        * this is how all the Songs are stored
+        * key: artistName+albumName+trackNumber+trackName
+        */
+        std::map<std::string, Song> songMap;
 
-        // these are updated by each addSong call
+        /*
+        * these are updated by each addSong call
+        */
         std::set<std::string> artistSet;
         std::set<std::pair<std::string, std::string>> albumSet;
 

@@ -3,6 +3,9 @@
 
 #include <string>
 
+/*
+* Simple POD containing info for a given song file read from disk.
+*/
 class Song
 {
     public:

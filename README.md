@@ -57,7 +57,9 @@ Potential improvements
 ---------------------
 1) More extensive exception handling/error code detection with libao and libmpg123
 
-2) Supplementary features - add DTC reading to ObdSerial, new file formats to MusicManager
+2) add DTC reading to ObdSerial
+
+3) add support for new file formats to MusicManager
 
 
 
