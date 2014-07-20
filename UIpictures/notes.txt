@@ -1,0 +1,8 @@
+These are a couple of pictures of my user interface. 
+
+You can see an example of the drawers in the main Music screen - you can go 
+down in a drawer by using the left and right buttons to move the cursor to 
+the ">" for the drawer and pressing the select button.
+
+The song list screen and now playing screens have some blurry-looking text on
+them - that's because that text is scrolling.
