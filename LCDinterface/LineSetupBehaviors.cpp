@@ -169,7 +169,7 @@ void LabeledLineSetupBehavior::renderPage(IOHandlerInterface& iohandler) {
     // this should start all the scrolling pieces at once
     iohandler.startScrollText(ss, endSpotsForScrollingLines, scrollingLineNums, textForScrollingLines);
 
-    /// these two loops should only ever execute a total of three times - distribution changes per instance
+    // these two loops should only ever execute a total of three times - distribution changes per instance
     // prints the remaining text on the scrolling lines
     for (size_t x = 0; x < scrollingLineNums.size(); x++) {
         iohandler.printToLCD(textForStaticLines.at(scrollingLineNums.at(x)-1), 20*scrollingLineNums.at(x) + endSpotsForScrollingLines.at(x));
@@ -268,6 +268,7 @@ void SongListLineSetupBehavior::renderPage(IOHandlerInterface& ioh)
 
 void SongListLineSetupBehavior::updateSong(const Song& song, IOHandlerInterface& ioh)
 {
+    ioh.stopAllScrollingText();
     currentSong = song;
     printSong(ioh);
 }
@@ -307,6 +308,7 @@ void NowPlayingLineSetupBehavior::renderPage(IOHandlerInterface& ioh)
 void NowPlayingLineSetupBehavior::updateLine(IOHandlerInterface& ioh, ObserverPacket& obsp)
 {
     // observer packet should have a new song in it
+    ioh.stopAllScrollingText();
     currentSong = ( (MusicObserverPacket*) &obsp)->currentSong;
     printArtistAndSong(ioh);
 }
@@ -363,12 +365,6 @@ void NowPlayingLineSetupBehavior::printArtistAndSong(IOHandlerInterface& ioh)
     }
 
     if (scrollingtext.size() > 0) {
-        std::cerr << "STARTING NEW SCROLL FOR LPLSB: " << std::endl;
-        for (size_t x = 0; x < scrollingtext.size(); ++x) {
-            std::cerr << "    start: " << startspots.at(x);
-            std::cerr << "    stop: " << stopspots.at(x);
-            std::cerr << "    text: " << scrollingtext.at(x) << "    on line " << linenums.at(x) << std::endl;
-        }
         ioh.startScrollText(startspots, stopspots, linenums, scrollingtext);
     }
 }

@@ -183,6 +183,9 @@ void MusicManager::play() {
 
     std::string musicDirPath(musicDirectory);
 
+    // error records
+    int mpg123readReturnVal;
+
     // for use with libraries
     long rate;
     int channels;
@@ -323,24 +326,26 @@ void MusicManager::play() {
         if (paused) {
             continue;
         }
+        mpg123readReturnVal = mpg123_read(mpg123handle, buffer, bufferSize, &bytesDone);
+        if (mpg123readReturnVal == MPG123_OK) {
 
-        if (mpg123_read(mpg123handle, buffer, bufferSize, &bytesDone) == MPG123_OK) {
             if (paused) {
                  // 200ms is less time than the minimum interval at which the user is allowed to input
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
                 continue;
             }
-            else {
-                if (ao_play(aodevice, (char*) buffer, bytesDone) == 0) {
-                    std::cerr << "Something went wrong with ao_play call" << std::endl;
-                    theLastSongFinished = true;
-                }
-                continue;
+
+            if (ao_play(aodevice, (char*) buffer, bytesDone) == 0) {
+                std::cerr << "Something went wrong with ao_play call" << std::endl;
+                ao_close(aodevice);
+                theLastSongFinished = true;
             }
+            continue;
+
         }
         else {
             std::cerr << "Somethin went wrong with the mpg123_read call" << std::endl;
-
+            std::cerr << "mpg123read return value was: " << mpg123readReturnVal << std::endl;
         }
         theLastSongFinished = true;
     } // end of main work loop

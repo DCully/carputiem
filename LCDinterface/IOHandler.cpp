@@ -63,7 +63,7 @@ void IOHandler::printToLCD(const std::string& text, const int& spot) {
     // ensures that nothing else can moveCursor in middle of this print
     std::lock_guard<std::mutex> locker(cursor_lock);
 
-    lcdPosition(LCDHandle, spot%20,spot/20);
+    lcdPosition(LCDHandle, spot%20, spot/20);
     lcdPuts(LCDHandle, text.c_str());
     lcdPosition(LCDHandle, cursorSpotOnScreen%20, cursorSpotOnScreen/20);
 }
@@ -115,7 +115,6 @@ void IOHandler::textScroller()
     std::vector<std::string> toScreen;
     std::vector<size_t> spotInMsgs;
     ScrollPacket packet(true);
-    unsigned int lastPrint = 0;
     std::unique_lock<std::mutex> runlock(runLock, std::defer_lock);
     std::unique_lock<std::mutex> queuelock(queueLock, std::defer_lock);
     bool newPacket = false;
@@ -150,19 +149,19 @@ void IOHandler::textScroller()
             if (newPacket) {
                 newPacket = false;
 
-                std::cerr << "NEW PACKET IN SCROLLTHREAD: " << std::endl;
-                for (size_t x = 0; x < packet.msgsForLines.size(); ++x) {
-                    std::cerr << "    text: " << packet.msgsForLines.at(x) << std::endl;
-                    std::cerr << "    from: " << packet.startSpots.at(x) << "    to: " << packet.stopSpots.at(x) << std::endl;
-                    std::cerr << "    on line: " << packet.lineNums.at(x) << std::endl;
-                }
-
                 // process the new packet
                 for (size_t x = 0; x < packet.msgsForLines.size(); x++) {
                     packet.msgsForLines.at(x).append(" ");
                     packet.msgsForLines.at(x).append(packet.msgsForLines.at(x));
                     toScreen.push_back(packet.msgsForLines.at(x).substr(0, packet.stopSpots.at(x) - packet.startSpots.at(x) + 1));
                     spotInMsgs.push_back(0);
+                }
+
+                std::cerr << "NEW PACKET IN SCROLLTHREAD (POST-FORMAT): " << std::endl;
+                for (size_t x = 0; x < packet.msgsForLines.size(); ++x) {
+                    std::cerr << "    text: " << packet.msgsForLines.at(x) << std::endl;
+                    std::cerr << "    from: " << packet.startSpots.at(x) << "    to: " << packet.stopSpots.at(x) << std::endl;
+                    std::cerr << "    on line: " << packet.lineNums.at(x) << std::endl;
                 }
             }
             /*  toScreen contains the doubled-length message to be printed in the given range.
@@ -172,6 +171,7 @@ void IOHandler::textScroller()
             */
             // this part scrolls the current packet
             for (size_t i = 0; i < packet.msgsForLines.size(); i++) {
+                std::cerr << "PRINTING: " << packet.msgsForLines.at(i) << "   AT: " << packet.startSpots.at(i) << std::endl;
                 printToLCD(toScreen.at(i), packet.lineNums.at(i)*20 + packet.startSpots.at(i));
                 spotInMsgs.at(i) = (spotInMsgs.at(i) + 1) % (packet.msgsForLines.at(i).size()/2);
                 toScreen.at(i) = packet.msgsForLines.at(i).substr(spotInMsgs.at(i), toScreen.at(i).size());
