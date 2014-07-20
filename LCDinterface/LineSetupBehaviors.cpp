@@ -288,8 +288,8 @@ void SongListLineSetupBehavior::printSong(IOHandlerInterface& ioh)
         std::vector<size_t> linenums;
         std::vector<std::string> scrollingtext;
 
-        startspots.push_back(42);
-        stopspots.push_back(57);
+        startspots.push_back(2);
+        stopspots.push_back(17);
         linenums.push_back(2);
         scrollingtext.push_back(trackname);
         ioh.startScrollText(startspots, stopspots, linenums, scrollingtext);
@@ -341,6 +341,7 @@ void NowPlayingLineSetupBehavior::printArtistAndSong(IOHandlerInterface& ioh)
     else {
 
         // scrolling case
+        ioh.printToLCD("                    ", 20);
         startspots.push_back(0);
         stopspots.push_back(19);
         linenums.push_back(1);
@@ -358,6 +359,7 @@ void NowPlayingLineSetupBehavior::printArtistAndSong(IOHandlerInterface& ioh)
     }
     else {
         // scrolling case
+        ioh.printToLCD("                    ", 20);
         startspots.push_back(0);
         stopspots.push_back(19);
         linenums.push_back(2);

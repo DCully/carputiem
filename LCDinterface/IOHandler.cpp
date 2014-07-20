@@ -149,6 +149,9 @@ void IOHandler::textScroller()
             if (newPacket) {
                 newPacket = false;
 
+                toScreen.clear();
+                spotInMsgs.clear();
+
                 // process the new packet
                 for (size_t x = 0; x < packet.msgsForLines.size(); x++) {
                     packet.msgsForLines.at(x).append(" ");
@@ -171,7 +174,6 @@ void IOHandler::textScroller()
             */
             // this part scrolls the current packet
             for (size_t i = 0; i < packet.msgsForLines.size(); i++) {
-                std::cerr << "PRINTING: " << packet.msgsForLines.at(i) << "   AT: " << packet.startSpots.at(i) << std::endl;
                 printToLCD(toScreen.at(i), packet.lineNums.at(i)*20 + packet.startSpots.at(i));
                 spotInMsgs.at(i) = (spotInMsgs.at(i) + 1) % (packet.msgsForLines.at(i).size()/2);
                 toScreen.at(i) = packet.msgsForLines.at(i).substr(spotInMsgs.at(i), toScreen.at(i).size());

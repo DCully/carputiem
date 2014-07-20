@@ -53,7 +53,11 @@ mpg123.org
 https://www.xiph.org/ao/
 www.wiringPi.com
 
+Potential improvements
+---------------------
+1) More extensive exception handling/error code detection with libao and libmpg123
 
+2) Supplementary features - add DTC reading to ObdSerial, new file formats to MusicManager
 
 
 
