@@ -243,6 +243,7 @@ void MusicManager::play() {
 
             // and then in this thread
             ao_close(aodevice);
+            mpg123_close(mpg123handle);
             songPathChanged = true;
             paused = false;
             songPath = musicDirPath;

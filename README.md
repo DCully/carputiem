@@ -53,13 +53,16 @@ mpg123.org
 https://www.xiph.org/ao/
 www.wiringPi.com
 
-Potential improvements
+Bugs, possible improvements
 ---------------------
+0) Potentially, IOHandler could get "behind" and print an old scroll packet.
+   Use a priority queue to rush processing of stopAllScrollingText() calls.
+
 1) More extensive exception handling/error code detection with libao and libmpg123
 
-2) add DTC reading to ObdSerial
+2) add DTC reading to ObdSerial (new function, read during setup)
 
-3) add support for new file formats to MusicManager
+3) improve the "volume curve" in MusicManager (volumes vector, in play())
 
 
 
