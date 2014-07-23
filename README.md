@@ -59,7 +59,7 @@ https://www.xiph.org/ao/
 www.wiringPi.com
 
 
-Bugs, possible improvements
+Possible improvements
 ---------------------
 1) More extensive exception handling/error code detection with libao and libmpg123
 
