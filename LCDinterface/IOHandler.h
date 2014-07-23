@@ -73,8 +73,9 @@ class IOHandler: public IOHandlerInterface
         std::mutex cursor_lock; // to prevent multithreaded issues with cursor
 
         // these are to cleanly terminate the scrolling thread when this object is destroyed
-        static volatile bool run;
-        static std::mutex runLock;
+        volatile bool run;
+        std::mutex runLock;
+        std::thread myThread;
 
         // these are to send requests to the thread
         std::mutex queueLock;

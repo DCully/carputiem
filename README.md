@@ -41,23 +41,26 @@ in Linux on a Raspberry Pi with buttons and a 4x20 character LCD display
 connected to the appropriate GPIO pins.
 
 To talk to the car, the I used a USB cable not unlike this one: 
+
 http://www.amazon.com/ELM327-OBDII-CAN-BUS-Diagnostic-Scanner/dp/B005FEGP7I/ref=sr_1_1?s=automotive&ie=UTF8&qid=1404856981&sr=1-1
 
 Some of this code (a table of OBD functions) is adapted from OBDGPSLogger:
+
 https://icculus.org/obdgpslogger/
 
 Dependencies
 ----------------------
 taglib.github.io
+
 mpg123.org
+
 https://www.xiph.org/ao/
+
 www.wiringPi.com
+
 
 Bugs, possible improvements
 ---------------------
-0) Potentially, IOHandler could get "behind" and print an old scroll packet.
-   Use a priority queue to rush processing of stopAllScrollingText() calls.
-
 1) More extensive exception handling/error code detection with libao and libmpg123
 
 2) add DTC reading to ObdSerial (new function, read during setup)

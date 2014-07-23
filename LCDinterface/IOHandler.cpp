@@ -10,9 +10,6 @@
 #include <chrono>
 #include "Controller.h"
 
-volatile bool IOHandler::run = false;
-std::mutex IOHandler::runLock;
-
 IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
                      const int& rs, const int& strb, const int& d0, const int& d1,
                      const int& d2, const int& d3, const int& d4, const int& d5,
@@ -38,13 +35,14 @@ IOHandler::IOHandler(const int& bleft, const int& bright, const int& bsel,
     // push a ScrollPacket(true) into the queue and launch thread
     scrollQueue.push(ScrollPacket(true));
     run = true;
-    std::cerr<<"launching text scrolling thread"<<std::endl;
-    std::thread(&IOHandler::textScroller, this).detach();
+    myThread = std::thread(&IOHandler::textScroller, this);
 }
 
 IOHandler::~IOHandler() {
-    std::lock_guard<std::mutex> lock(runLock);
+    std::unique_lock<std::mutex> lock(runLock);
     run = false;
+    lock.unlock();
+    myThread.join();
 }
 
 // this is how to move the cursor from the outside

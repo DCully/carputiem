@@ -14,9 +14,6 @@
 #include <algorithm> // sorting
 #include <chrono> // for sleeping
 
-volatile bool ObdSerial::boolrun = false;
-std::mutex ObdSerial::obdLock;
-
 ObdSerial::ObdSerial(const std::string& portpath) : AT_SLEEPTIME(20), NORMAL_OBD_SLEEPTIME(100), EXTRA_LONG_SLEEPTIME(300) {
     //open serial port connection
     char buf[4096];
@@ -55,7 +52,6 @@ ObdSerial::ObdSerial(const std::string& portpath) : AT_SLEEPTIME(20), NORMAL_OBD
             std::cerr << "Error getting supported PIDs" << std::endl;
             throw "Error getting supported PIDs";
         }
-
         VIN = getVINFromCar();
     }
 }
@@ -70,6 +66,7 @@ ObdSerial::~ObdSerial() {
     locker.lock();
     boolrun = false;
     locker.unlock();
+    myThread.join();
     std::this_thread::sleep_for(std::chrono::milliseconds(EXTRA_LONG_SLEEPTIME)); // make sure run has time to terminate
     char buf[4096];
     write(fd, "AT Z\r\0", sizeof("AT Z\r\0"));
@@ -83,7 +80,7 @@ void ObdSerial::start() {
     if (boolrun == false) {
         // start the data harvesting thread ( start() ) and wait for it to finish
         boolrun = true;
-        std::thread(&ObdSerial::run, this).detach();
+        myThread = std::thread(&ObdSerial::run, this);
     }
 }
 

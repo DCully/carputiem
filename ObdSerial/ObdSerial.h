@@ -59,8 +59,9 @@ class ObdSerial: public Observable
         int readFromOBD(std::string& stringtoreadto); // handles read call and gets the correct line
 
         // multithreading
-        static std::mutex obdLock;
-        static volatile bool boolrun;
+        std::thread myThread;
+        std::mutex obdLock;
+        volatile bool boolrun;
         void run();
 };
 #endif //OBDSERIAL_H

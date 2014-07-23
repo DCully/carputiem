@@ -150,8 +150,9 @@ class MusicManager : public Observable
         std::mutex queueLock; // needed for EVERY access to taskQueue
 
         // these are for killing the thread gracefully
-        static std::mutex runLock;
-        static volatile bool run;
+        std::mutex runLock;
+        volatile bool run;
+        std::thread myThread;
 
         // helper function for getting key vectors
         std::vector<std::string> getSongKeysByPartialKey(const std::string& input);

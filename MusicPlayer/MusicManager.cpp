@@ -13,9 +13,6 @@
 #include <tag.h>
 #include <tpropertymap.h>
 
-volatile bool MusicManager::run = true;
-std::mutex MusicManager::runLock;
-
 MusicManager::MusicManager(const std::string& musicDirPath)
 : musicDirectory(musicDirPath)
 {
@@ -44,14 +41,16 @@ MusicManager::MusicManager(const std::string& musicDirPath)
     slock.lock();
     keyForCurrentSong = songMap.begin()->first;
     slock.unlock();
-
-    std::thread(&MusicManager::play, this).detach();
+    run = true;
+    myThread = std::thread(&MusicManager::play, this);
 }
 
 MusicManager::~MusicManager()
 {
-    std::lock_guard<std::mutex> lock(runLock);
+    std::unique_lock<std::mutex> lock(runLock);
     run = false;
+    lock.unlock();
+    myThread.join();
     /*
        this will eventually kill the thread, which will close down the library
        we don't need to do anything else here, because the other thread will
